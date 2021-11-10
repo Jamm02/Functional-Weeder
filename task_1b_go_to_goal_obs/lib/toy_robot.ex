@@ -41,12 +41,13 @@ defmodule ToyRobot do
 
 
 
-   def objInY_north(%ToyRobot.Position{x: x, y: y, facing: facing} = robot, cli_proc_name) do
+   def objInY_north(%ToyRobot.Position{x: x, y: y, facing: facing} = robot, goal_x, goal_y, cli_proc_name) do
     %ToyRobot.Position{x: x, y: y, facing: facing} = robot
 
     # make sure bot is facing north
-
+    IO.puts("in north")
     if x == 1 do  #turn and right and face north
+      IO.puts("in 1")
       robot = right(robot);
       %ToyRobot.Position{x: x, y: y, facing: facing} = robot
       is_obs = check_for_obs(robot, cli_proc_name)
@@ -56,8 +57,10 @@ defmodule ToyRobot do
       robot = left(robot);
       %ToyRobot.Position{x: x, y: y, facing: facing} = robot
       is_obs = check_for_obs(robot, cli_proc_name)
+      stop(robot, goal_x, goal_y, cli_proc_name)
 
     else #turn and move left and face north
+      IO.puts("in 2")
       robot = left(robot);
       %ToyRobot.Position{x: x, y: y, facing: facing} = robot
       is_obs = check_for_obs(robot, cli_proc_name)
@@ -67,15 +70,19 @@ defmodule ToyRobot do
       robot = right(robot);
       %ToyRobot.Position{x: x, y: y, facing: facing} = robot
       is_obs = check_for_obs(robot, cli_proc_name)
-
+      stop(robot, goal_x, goal_y, cli_proc_name)
     end
 
+    %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+    # IO.puts("#{x}, #{y}, #{facing}")
     #call the base stop func at this point
+
   end
 
-  def objInY_south(%ToyRobot.Position{x: x, y: y, facing: facing} = robot, cli_proc_name) do
+  def objInY_south(%ToyRobot.Position{x: x, y: y, facing: facing} = robot, goal_x, goal_y, cli_proc_name) do
 
     # make sure bot is facing south
+    IO.puts("in south")
 
     %ToyRobot.Position{x: x, y: y, facing: facing} = robot
     if x == 1 do  #turn, move left and face south
@@ -87,7 +94,10 @@ defmodule ToyRobot do
       is_obs = check_for_obs(robot, cli_proc_name)
       robot = right(robot);
       %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      robot = move(robot)
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
       is_obs = check_for_obs(robot, cli_proc_name)
+      stop(robot, goal_x, goal_y, cli_proc_name)
 
     else #turn, move right and go south
       robot = right(robot);
@@ -98,16 +108,21 @@ defmodule ToyRobot do
       is_obs = check_for_obs(robot, cli_proc_name)
       robot = left(robot);
       %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      robot = move(robot)
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
       is_obs = check_for_obs(robot, cli_proc_name)
+      stop(robot, goal_x, goal_y, cli_proc_name)
 
     end
-
+    %ToyRobot.Position{x: x, y: y, facing: facing} = robot
     #call the base stop func at this point
+    # stop(robot, goal_x, goal_y, cli_proc_name)
   end
 
-  def objInX_west(%ToyRobot.Position{x: x, y: y, facing: facing} = robot, cli_proc_name) do
+  def objInX_west(%ToyRobot.Position{x: x, y: y, facing: facing} = robot, goal_x, goal_y, cli_proc_name) do
 
     # make sure bot is facing west before running this func
+    IO.puts("in west")
 
     %ToyRobot.Position{x: x, y: y, facing: facing} = robot
 
@@ -120,7 +135,10 @@ defmodule ToyRobot do
       is_obs = check_for_obs(robot, cli_proc_name)
       robot = right(robot);
       %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      robot = move(robot)
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
       is_obs = check_for_obs(robot, cli_proc_name)
+      stop(robot, goal_x, goal_y, cli_proc_name)
 
     else #turn, move right and go south
       robot = right(robot);
@@ -131,16 +149,21 @@ defmodule ToyRobot do
       is_obs = check_for_obs(robot, cli_proc_name)
       robot = left(robot);
       %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      robot = move(robot)
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
       is_obs = check_for_obs(robot, cli_proc_name)
+      stop(robot, goal_x, goal_y, cli_proc_name)
 
     end
-
+    %ToyRobot.Position{x: x, y: y, facing: facing} = robot
     #call the base stop func at this point
+    stop(robot, goal_x, goal_y, cli_proc_name)
   end
 
-  def objInX_east(%ToyRobot.Position{x: x, y: y, facing: facing} = robot, cli_proc_name) do
+  def objInX_east(%ToyRobot.Position{x: x, y: y, facing: facing} = robot, goal_x, goal_y, cli_proc_name) do
 
     # make sure bot is facing east before running this func
+    IO.puts("in east")
 
     %ToyRobot.Position{x: x, y: y, facing: facing} = robot
     if y == :a do  #turn, move left and face west
@@ -152,7 +175,11 @@ defmodule ToyRobot do
       is_obs = check_for_obs(robot, cli_proc_name)
       robot = left(robot);
       %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      robot = move(robot)
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
       is_obs = check_for_obs(robot, cli_proc_name)
+      IO.puts("exited if")
+      stop(robot, goal_x, goal_y, cli_proc_name)
 
     else #turn, move right and face east
       robot = left(robot);
@@ -163,25 +190,18 @@ defmodule ToyRobot do
       is_obs = check_for_obs(robot, cli_proc_name)
       robot = right(robot);
       %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      robot = move(robot)
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
       is_obs = check_for_obs(robot, cli_proc_name)
+      IO.puts("exited else")
+      stop(robot, goal_x, goal_y, cli_proc_name)
+
     end
 
+    %ToyRobot.Position{x: x, y: y, facing: facing} = robot
     #call the base stop func at this point
+    # stop(robot, goal_x, goal_y, cli_proc_name)
   end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -216,6 +236,7 @@ defmodule ToyRobot do
   #   # IO.puts("Hello")
 
   def stop(%ToyRobot.Position{x: x, y: y, facing: facing} = robot, goal_x, goal_y, cli_proc_name) do
+
     if (y == goal_y) and (x == goal_x) do
       is_obs = check_for_obs(robot, cli_proc_name)
       {:ok,robot}
@@ -235,10 +256,14 @@ defmodule ToyRobot do
         else
           # is_obs = check_for_obs(robot, cli_proc_name)
           %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-          is_obs = check_for_obs(robot,cli_proc_name)
+          is_obs = check_for_obs(robot, cli_proc_name)
 
           if(is_obs) do
-           objInY_north(robot, cli_proc_name)
+          #  IO.put("Obstacle at #{x}, #{y + 1}")
+          IO.puts("Obstacle at #{x}, #{y}, #{facing}")
+
+           objInY_north(robot, goal_x, goal_y, cli_proc_name)
+           %ToyRobot.Position{x: x, y: y, facing: facing} = robot
 
           else
             # %ToyRobot.Position{x: x, y: y, facing: facing} = robot
@@ -265,7 +290,12 @@ defmodule ToyRobot do
           is_obs = check_for_obs(robot,cli_proc_name)
 
           if(is_obs) do
-            objInY_south(robot, cli_proc_name)
+            # IO.put("Obstacle at #{x}, #{y - 1}")
+            IO.puts("Obstacle at #{x}, #{y}, #{facing}")
+
+            objInY_south(robot, goal_x, goal_y, cli_proc_name)
+
+            %ToyRobot.Position{x: x, y: y, facing: facing} = robot
 
           else
             %ToyRobot.Position{x: x, y: y, facing: facing} = robot
@@ -289,7 +319,9 @@ defmodule ToyRobot do
             is_obs = check_for_obs(robot,cli_proc_name)
 
             if(is_obs) do
-              objInX_west(robot, cli_proc_name)
+              IO.puts("Obstacle at #{x}, #{y}, #{facing}")
+              objInX_west(robot, goal_x, goal_y, cli_proc_name)
+              %ToyRobot.Position{x: x, y: y, facing: facing} = robot
 
             else
               robot = move(robot)
@@ -313,12 +345,18 @@ defmodule ToyRobot do
           else
             %ToyRobot.Position{x: x, y: y, facing: facing} = robot
             is_obs = check_for_obs(robot,cli_proc_name)
+
             if(is_obs) do
-              objInX_east(robot, cli_proc_name)
-              else
-                robot = move(robot)
-                %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-                stop(robot, goal_x, goal_y, cli_proc_name)
+              # IO.put("Obstacle at #{x + 1}, #{y}")
+              IO.puts("Obstacle at #{x}, #{y}, #{facing}")
+              objInX_east(robot, goal_x, goal_y, cli_proc_name)
+              %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+
+
+            else
+              robot = move(robot)
+              %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+              stop(robot, goal_x, goal_y, cli_proc_name)
             end
           end
 
