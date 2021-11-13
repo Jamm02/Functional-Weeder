@@ -10,8 +10,6 @@
 1, b, east
 2, b, east
 3, b, east
-4, b, east
-5, b, east
-5, b, east
-5, b, south
-5, a, south
+3, b, east
+3, b, south
+3, a, south
