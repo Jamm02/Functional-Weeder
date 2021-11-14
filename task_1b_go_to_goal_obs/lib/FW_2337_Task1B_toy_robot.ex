@@ -26,17 +26,6 @@ defmodule ToyRobot do
     {:failure, "Invalid facing direction"}
   end
 
-  @doc """
-  Places the robot to the provided position of (x, y, facing),
-  but prevents it to be placed outside of the table and facing invalid direction.
-  Examples:
-      iex> ToyRobot.place(1, :b, :south)
-      {:ok, %ToyRobot.Position{facing: :south, x: 1, y: :b}}
-      iex> ToyRobot.place(-1, :f, :north)
-      {:failure, "Invalid position"}
-      iex> ToyRobot.place(3, :c, :north_east)
-      {:failure, "Invalid facing direction"}
-  """
 
 
 
@@ -137,7 +126,7 @@ end
         else
           robot = move(robot)
           %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-          is_obs = check_for_obs(robot, cli_proc_name)
+          # is_obs = check_for_obs(robot, cli_proc_name)
 
             stop(robot, goal_x, goal_y, cli_proc_name)
 
@@ -185,7 +174,7 @@ end
         else
           robot = move(robot)
           %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-          is_obs = check_for_obs(robot, cli_proc_name)
+          # is_obs = check_for_obs(robot, cli_proc_name)
 
             stop(robot, goal_x, goal_y, cli_proc_name)
 
@@ -292,7 +281,7 @@ end
         else
           robot = move(robot)
           %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-          is_obs = check_for_obs(robot, cli_proc_name)
+          # is_obs = check_for_obs(robot, cli_proc_name)
 
             stop(robot, goal_x, goal_y, cli_proc_name)
 
@@ -353,7 +342,7 @@ end
         else
           robot = move(robot)
           %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-          is_obs = check_for_obs(robot, cli_proc_name)
+          # is_obs = check_for_obs(robot, cli_proc_name)
           correct_X(robot, goal_x, goal_y, cli_proc_name)
         end
         %ToyRobot.Position{x: x, y: y, facing: facing} = robot
@@ -396,7 +385,7 @@ end
         else
           robot = move(robot)
           %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-          is_obs = check_for_obs(robot, cli_proc_name)
+          # is_obs = check_for_obs(robot, cli_proc_name)
           correct_X(robot, goal_x, goal_y, cli_proc_name)
         end
         %ToyRobot.Position{x: x, y: y, facing: facing} = robot
@@ -518,6 +507,21 @@ end
     # stop(robot, goal_x, goal_y, cli_proc_name)
   end
 
+@doc """
+  Places the robot to the provided position of (x, y, facing),
+  but prevents it to be placed outside of the table and facing invalid direction.
+
+  Examples:
+
+      iex> ToyRobot.place(1, :b, :south)
+      {:ok, %ToyRobot.Position{facing: :south, x: 1, y: :b}}
+
+      iex> ToyRobot.place(-1, :f, :north)
+      {:failure, "Invalid position"}
+
+      iex> ToyRobot.place(3, :c, :north_east)
+      {:failure, "Invalid facing direction"}
+  """
 
   def place(x, y, facing) do
     {:ok, %ToyRobot.Position{x: x, y: y, facing: facing}}
@@ -740,11 +744,11 @@ end
 
 
 
-  #@spec report(%ToyRobot.Position{:facing => any, :x => any, :y => any, optional(any) => any}) ::
-          #{any, any, any}
   @doc """
   Provides the report of the robot's current position
+
   Examples:
+
       iex> {:ok, robot} = ToyRobot.place(2, :b, :west)
       iex> ToyRobot.report(robot)
       {2, :b, :west}
