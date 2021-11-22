@@ -85,6 +85,19 @@ defmodule Task2PhoenixServerWeb.ArenaLive do
     ###########################
     ## complete this funcion ##
     ###########################
+    if (Map.fetch(data, :face) == :north) do
+      socket = assign(socket, :img, "robot_facing_north.png")
+    else if (Map.fetch(data, :face) == :south) do
+      socket = assign(socket, :img, "robot_facing_south.png")
+    else if (Map.fetch(data, :face) == :east) do
+      socket = assign(socket, :img, "robot_facing_east.png")
+    else
+      socket = assign(socket, :img, "robot_facing_west.png")
+    end
+    end
+    end
+    socket = assign(socket, :bottom, Map.fetch(data, :bottom))
+    socket = assign(socket, :left, Map.fetch(data, :left))
 
     {:noreply, socket}
   end
