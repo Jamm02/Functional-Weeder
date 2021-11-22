@@ -8,7 +8,9 @@ defmodule ToyRobot do
 
   @doc """
   Places the robot to the default position of (1, A, North)
+
   Examples:
+
       iex> ToyRobot.place
       {:ok, %ToyRobot.Position{facing: :north, x: 1, y: :a}}
   """
@@ -25,82 +27,67 @@ defmodule ToyRobot do
   do
     {:failure, "Invalid facing direction"}
   end
-
-   @doc """
-  Places the robot to the provided position of (x, y, facing),
-  but prevents it to be placed outside of the table and facing invalid direction.
-  Examples:
-      iex> ToyRobot.place(1, :b, :south)
-      {:ok, %ToyRobot.Position{facing: :south, x: 1, y: :b}}
-      iex> ToyRobot.place(-1, :f, :north)
-      {:failure, "Invalid position"}
-      iex> ToyRobot.place(3, :c, :north_east)
-      {:failure, "Invalid facing direction"}
-  """
-
-
-
-  def correct_X(%ToyRobot.Position{x: x, y: y, facing: facing} = robot, goal_x, goal_y, cli_proc_name) do
+  def correct_X(%ToyRobot.Position{x: x, y: y, facing: facing} = robot, goal_x, goal_y, channel) do
     %ToyRobot.Position{x: x, y: y, facing: facing} = robot
 
     if(goal_x == x) do
-      # is_obs = check_for_obs(robot, cli_proc_name)
-      stop(robot, goal_x, goal_y, cli_proc_name)
+      # is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+      stop(robot, goal_x, goal_y, channel)
       {:ok, robot}
 
     else
-    is_obs = check_for_obs(robot, cli_proc_name)
+    is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
     if x > goal_x do
 
       if (facing != :west) do
         robot = right(robot)
         %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-        # send_robot_status(robot, cli_proc_name)
-        #is_obs = check_for_obs(robot,cli_proc_name)
-        correct_X(robot, goal_x, goal_y, cli_proc_name)
+        # send_robot_status(robot, channel)
+        #is_obs = check_for_obs(robot,channel)
+        correct_X(robot, goal_x, goal_y, channel)
       else
         %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-        # is_obs = check_for_obs(robot,cli_proc_name)
+        # is_obs = check_for_obs(robot,channel)
 
         if(is_obs) do
           # IO.puts("Obstacle at #{x}, #{y}, #{facing}")
-          objInX_west(robot, goal_x, goal_y, cli_proc_name)
+          objInX_west(robot, goal_x, goal_y, channel, repeat = 0)
           %ToyRobot.Position{x: x, y: y, facing: facing} = robot
 
         else
           robot = move(robot)
           %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-          correct_X(robot, goal_x, goal_y, cli_proc_name)
+          correct_X(robot, goal_x, goal_y, channel)
         end
       end
-        # send_robot_status(robot, cli_proc_name)
+        # send_robot_status(robot, channel)
 
     else if x < goal_x do
-      # is_obs = check_for_obs(robot, cli_proc_name)
+      # is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
       %ToyRobot.Position{x: x, y: y, facing: facing} = robot
 
       if (facing != :east) do
         robot = right(robot)
         %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-        # send_robot_status(robot, cli_proc_name)
-        #is_obs = check_for_obs(robot,cli_proc_name)
-        correct_X(robot, goal_x, goal_y, cli_proc_name)
+        # send_robot_status(robot, channel)
+        #is_obs = check_for_obs(robot,channel)
+        correct_X(robot, goal_x, goal_y, channel)
 
       else
         %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-        # is_obs = check_for_obs(robot,cli_proc_name)
+        # is_obs = check_for_obs(robot,channel)
 
         if(is_obs) do
           # IO.put("Obstacle at #{x + 1}, #{y}")
           # IO.puts("Obstacle at #{x}, #{y}, #{facing}")
-          objInX_east(robot, goal_x, goal_y, cli_proc_name)
+          objInX_east(robot, goal_x, goal_y, channel, repeat = 0)
           %ToyRobot.Position{x: x, y: y, facing: facing} = robot
 
 
         else
           robot = move(robot)
           %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-          correct_X(robot, goal_x, goal_y, cli_proc_name)
+          correct_X(robot, goal_x, goal_y, channel)
         end
       end
     end
@@ -108,417 +95,478 @@ defmodule ToyRobot do
 end
 end
 
+def objInY_north(%ToyRobot.Position{x: x, y: y, facing: facing} = robot, goal_x, goal_y, channel, repeat) do
+  %ToyRobot.Position{x: x, y: y, facing: facing} = robot
 
-
-  def objInY_north(%ToyRobot.Position{x: x, y: y, facing: facing} = robot, goal_x, goal_y, cli_proc_name) do
+  # make sure bot is facing north
+  # IO.puts("in north")
+  if (x == 1) or (repeat == 1)  do  #turn and right and face north
+    # IO.puts("in 1")
+    robot = right(robot);
     %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+    is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
 
-    # make sure bot is facing north
-    # IO.puts("in north")
-    if x == 1 do  #turn and right and face north
-      # IO.puts("in 1")
-      robot = right(robot);
+    if(is_obs) do
+      robot = right(robot)
       %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-      is_obs = check_for_obs(robot, cli_proc_name)
-
-      if(is_obs) do
-        robot = right(robot)
-        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-        is_obs = check_for_obs(robot, cli_proc_name)
-        robot = move(robot)
-        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-        is_obs = check_for_obs(robot, cli_proc_name)
-        robot = left(robot)
-        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-        is_obs = check_for_obs(robot, cli_proc_name)
-
-        if(is_obs) do
-          objInX_east(%ToyRobot.Position{x: x, y: y, facing: facing} = robot, goal_x, goal_y, cli_proc_name)
-        else
-          robot = move(robot)
-          %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-          is_obs = check_for_obs(robot, cli_proc_name)
-
-            stop(robot, goal_x, goal_y, cli_proc_name)
-
-        end
-        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-
-      else
-        robot = move(robot);
-        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-        is_obs = check_for_obs(robot, cli_proc_name)
-        robot = left(robot);
-        is_obs = check_for_obs(robot, cli_proc_name)
-        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-        robot = move(robot)
-        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-        #is_obs = check_for_obs(robot, cli_proc_name)
-        # IO.puts("exited if")
-        if (x != goal_x) do
-          correct_X(robot, goal_x, goal_y, cli_proc_name)
-        else
-          stop(robot, goal_x, goal_y, cli_proc_name)
-        end
-      end
-
-    else #turn and move left and face north
-      # IO.puts("in 2")
-      robot = left(robot);
+      is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+      robot = move(robot)
       %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-      is_obs = check_for_obs(robot, cli_proc_name)
-
-
-      if(is_obs) do
-        robot = left(robot)
-        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-        is_obs = check_for_obs(robot, cli_proc_name)
-        robot = move(robot)
-        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-        is_obs = check_for_obs(robot, cli_proc_name)
-        robot = right(robot)
-        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-        is_obs = check_for_obs(robot, cli_proc_name)
-
-        if(is_obs) do
-          objInX_west(%ToyRobot.Position{x: x, y: y, facing: facing} = robot, goal_x, goal_y, cli_proc_name)
-        else
-          robot = move(robot)
-          %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-          is_obs = check_for_obs(robot, cli_proc_name)
-
-            stop(robot, goal_x, goal_y, cli_proc_name)
-
-        end
-        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-
-      else
-        robot = move(robot);
-        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-        is_obs = check_for_obs(robot, cli_proc_name)
-        robot = right(robot);
-        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-        is_obs = check_for_obs(robot, cli_proc_name)
-        robot = move(robot)
-        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-        #is_obs = check_for_obs(robot, cli_proc_name)
-        # IO.puts("exited else")
-        if (x != goal_x) do
-          correct_X(robot, goal_x, goal_y, cli_proc_name)
-        else
-          stop(robot, goal_x, goal_y, cli_proc_name)
-        end
-      end
-
-    end
-
-    %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-    # IO.puts("#{x}, #{y}, #{facing}")
-    #call the base stop func at this point
-
-  end
-
-
-  def objInY_south(%ToyRobot.Position{x: x, y: y, facing: facing} = robot, goal_x, goal_y, cli_proc_name) do
-
-    # make sure bot is facing south
-    # IO.puts("in south")
-
-    %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-    if x == 1 do  #turn, move left and face south
-      robot = left(robot);
-      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-      is_obs = check_for_obs(robot, cli_proc_name)
-
-      if(is_obs) do
-        robot = left(robot)
-        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-        is_obs = check_for_obs(robot, cli_proc_name)
-        robot = move(robot)
-        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-        is_obs = check_for_obs(robot, cli_proc_name)
-        robot = right(robot)
-        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-        is_obs = check_for_obs(robot, cli_proc_name)
-
-        if(is_obs) do
-          objInX_east(%ToyRobot.Position{x: x, y: y, facing: facing} = robot, goal_x, goal_y, cli_proc_name)
-        else
-          robot = move(robot)
-          %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-          is_obs = check_for_obs(robot, cli_proc_name)
-
-          stop(robot, goal_x, goal_y, cli_proc_name)
-
-        end
-        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-
-      else
-        robot = move(robot);
-        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-        is_obs = check_for_obs(robot, cli_proc_name)
-        robot = right(robot);
-        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-        is_obs = check_for_obs(robot, cli_proc_name)
-        robot = move(robot)
-        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-        #is_obs = check_for_obs(robot, cli_proc_name)
-        # IO.puts("exited else")
-        if (x != goal_x) do
-          correct_X(robot, goal_x, goal_y, cli_proc_name)
-        else
-          stop(robot, goal_x, goal_y, cli_proc_name)
-        end
-      end
-
-    else #turn, move right and go south
-      robot = right(robot);
-      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-      is_obs = check_for_obs(robot, cli_proc_name)
-
-      if(is_obs) do
-        robot = right(robot)
-        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-        is_obs = check_for_obs(robot, cli_proc_name)
-        robot = move(robot)
-        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-        is_obs = check_for_obs(robot, cli_proc_name)
-        robot = left(robot)
-        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-        is_obs = check_for_obs(robot, cli_proc_name)
-
-        if(is_obs) do
-          objInX_west(%ToyRobot.Position{x: x, y: y, facing: facing} = robot, goal_x, goal_y, cli_proc_name)
-        else
-          robot = move(robot)
-          %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-          is_obs = check_for_obs(robot, cli_proc_name)
-
-            stop(robot, goal_x, goal_y, cli_proc_name)
-
-        end
-        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-
-      else
-        robot = move(robot);
-        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-        is_obs = check_for_obs(robot, cli_proc_name)
-        robot = left(robot);
-        is_obs = check_for_obs(robot, cli_proc_name)
-        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-        robot = move(robot)
-        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-        #is_obs = check_for_obs(robot, cli_proc_name)
-        # IO.puts("exited if")
-        if (x != goal_x) do
-          correct_X(robot, goal_x, goal_y, cli_proc_name)
-        else
-          stop(robot, goal_x, goal_y, cli_proc_name)
-        end
-      end
-
-
-    end
-    %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-    #call the base stop func at this point
-    # stop(robot, goal_x, goal_y, cli_proc_name)
-  end
-
-  def objInX_west(%ToyRobot.Position{x: x, y: y, facing: facing} = robot, goal_x, goal_y, cli_proc_name) do
-
-    # make sure bot is facing west before running this func
-    # IO.puts("in west")
-
-    %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-
-    if y == :a do  #turn, move left and face east
-      robot = right(robot);
-      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-      is_obs = check_for_obs(robot, cli_proc_name)
-
-
-      if(is_obs) do
-        robot = right(robot)
-        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-        is_obs = check_for_obs(robot, cli_proc_name)
-        robot = move(robot)
-        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-        is_obs = check_for_obs(robot, cli_proc_name)
-        robot = left(robot)
-        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-        is_obs = check_for_obs(robot, cli_proc_name)
-
-        if(is_obs) do
-          objInY_north(%ToyRobot.Position{x: x, y: y, facing: facing} = robot, goal_x, goal_y, cli_proc_name)
-        else
-          robot = move(robot)
-          %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-          is_obs = check_for_obs(robot, cli_proc_name)
-          correct_X(robot, goal_x, goal_y, cli_proc_name)
-        end
-        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-
-      else
-        robot = move(robot);
-        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-        is_obs = check_for_obs(robot, cli_proc_name)
-        robot = left(robot);
-        is_obs = check_for_obs(robot, cli_proc_name)
-        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-        robot = move(robot)
-        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-        #is_obs = check_for_obs(robot, cli_proc_name)
-        # IO.puts("exited if")
-        stop(robot, goal_x, goal_y, cli_proc_name)
-      end
-
-
-    else #turn, move right and go south
-
-      robot = left(robot);
-      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-      is_obs = check_for_obs(robot, cli_proc_name)
-
-
-      if(is_obs) do
-        robot = left(robot)
-        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-        is_obs = check_for_obs(robot, cli_proc_name)
-        robot = move(robot)
-        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-        is_obs = check_for_obs(robot, cli_proc_name)
-        robot = right(robot)
-        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-        is_obs = check_for_obs(robot, cli_proc_name)
-
-        if(is_obs) do
-          objInY_south(%ToyRobot.Position{x: x, y: y, facing: facing} = robot, goal_x, goal_y, cli_proc_name)
-        else
-          robot = move(robot)
-          %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-          is_obs = check_for_obs(robot, cli_proc_name)
-          correct_X(robot, goal_x, goal_y, cli_proc_name)
-        end
-        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-
-      else
-        robot = move(robot);
-        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-        is_obs = check_for_obs(robot, cli_proc_name)
-        robot = right(robot);
-        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-        is_obs = check_for_obs(robot, cli_proc_name)
-        robot = move(robot)
-        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-        #is_obs = check_for_obs(robot, cli_proc_name)
-        # IO.puts("exited else")
-        stop(robot, goal_x, goal_y, cli_proc_name)
-      end
-
-    end
-    %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-    #call the base stop func at this point
-    # stop(robot, goal_x, goal_y, cli_proc_name)
-  end
-
-  def objInX_east(%ToyRobot.Position{x: x, y: y, facing: facing} = robot, goal_x, goal_y, cli_proc_name) do
-
-    # make sure bot is facing east before running this func
-    # IO.puts("in east")
-
-    %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-
-    if y == :a do  #turn, move left and face west
-                  #boundry case
+      is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
       robot = left(robot)
       %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-      is_obs = check_for_obs(robot, cli_proc_name)
+      is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
 
       if(is_obs) do
-        robot = left(robot)
-        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-        is_obs = check_for_obs(robot, cli_proc_name)
-        robot = move(robot)
-        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-        is_obs = check_for_obs(robot, cli_proc_name)
-        robot = right(robot)
-        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-        is_obs = check_for_obs(robot, cli_proc_name)
-
-        if(is_obs) do
-          objInY_north(%ToyRobot.Position{x: x, y: y, facing: facing} = robot, goal_x, goal_y, cli_proc_name)
-        else
-          robot = move(robot)
-          %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-          # is_obs = check_for_obs(robot, cli_proc_name)
-          correct_X(robot, goal_x, goal_y, cli_proc_name)
-        end
-        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-
+        objInX_east(%ToyRobot.Position{x: x, y: y, facing: facing} = robot, goal_x, goal_y, channel, repeat = 0)
       else
-        robot = move(robot);
-        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-        is_obs = check_for_obs(robot, cli_proc_name)
-        robot = right(robot);
-        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-        is_obs = check_for_obs(robot, cli_proc_name)
         robot = move(robot)
         %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-        #is_obs = check_for_obs(robot, cli_proc_name)
-        # IO.puts("exited else")
-        stop(robot, goal_x, goal_y, cli_proc_name)
+        # is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+        stop(robot, goal_x, goal_y, channel)
       end
-
-    else #turn, move right and face east//
-      robot = right(robot);
       %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-      is_obs = check_for_obs(robot, cli_proc_name)
 
-      if(is_obs) do
-        robot = right(robot)
-        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-        is_obs = check_for_obs(robot, cli_proc_name)
-
-        robot = move(robot)
-        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-        is_obs = check_for_obs(robot, cli_proc_name)
-
-        robot = left(robot)
-        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-        is_obs = check_for_obs(robot, cli_proc_name)
-
-        if(is_obs) do
-          objInY_south(%ToyRobot.Position{x: x, y: y, facing: facing} = robot, goal_x, goal_y, cli_proc_name)
-        else
-          robot = move(robot)
-          %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-          # is_obs = check_for_obs(robot, cli_proc_name)
-          correct_X(robot, goal_x, goal_y, cli_proc_name)
-        end
-        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-
+    else
+      robot = move(robot);
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+      robot = left(robot);
+      is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      if (is_obs) do
+        repeat = 1
+        objInY_north(robot, goal_x, goal_y, channel, repeat)
       else
-        robot = move(robot);
-        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-        is_obs = check_for_obs(robot, cli_proc_name)
-        robot = left(robot);
-        is_obs = check_for_obs(robot, cli_proc_name)
-        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
         robot = move(robot)
         %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-        #is_obs = check_for_obs(robot, cli_proc_name)
-        # IO.puts("exited if")
-        stop(robot, goal_x, goal_y, cli_proc_name)
+        #is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+        if (x != goal_x) do
+          correct_X(robot, goal_x, goal_y, channel)
+        else
+          stop(robot, goal_x, goal_y, channel)
+        end
       end
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
 
+      # IO.puts("exited if")
     end
 
+  else #turn and move left and face north
+    # IO.puts("in 2")
+    robot = left(robot);
     %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-    #call the base stop func at this point
-    # stop(robot, goal_x, goal_y, cli_proc_name)
+    is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+
+    if(is_obs) do
+      robot = left(robot)
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+      robot = move(robot)
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+      robot = right(robot)
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+
+      if(is_obs) do
+        objInX_west(%ToyRobot.Position{x: x, y: y, facing: facing} = robot, goal_x, goal_y, channel, repeat = 0)
+      else
+        robot = move(robot)
+        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+        # is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+        stop(robot, goal_x, goal_y, channel)
+      end
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+
+    else
+      robot = move(robot);
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+      robot = right(robot);
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+      if (is_obs) do
+        repeat = 0
+        objInY_north(robot, goal_x, goal_y, channel, repeat)
+      else
+        robot = move(robot)
+        # is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+        if (x != goal_x) do
+          correct_X(robot, goal_x, goal_y, channel)
+        else
+          stop(robot, goal_x, goal_y, channel)
+        end
+      end
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      # IO.puts("exited else")
+    end
+
   end
 
+  %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+  # IO.puts("#{x}, #{y}, #{facing}")
+  #call the base stop func at this point
 
+end
+
+
+def objInY_south(%ToyRobot.Position{x: x, y: y, facing: facing} = robot, goal_x, goal_y, channel, repeat) do
+
+  # make sure bot is facing south
+  # IO.puts("in south")
+
+  %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+  if (x == 1) or (repeat == 1) do  #turn, move left and face south
+    robot = left(robot);
+    %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+    is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+
+    if(is_obs) do
+      robot = left(robot)
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+      robot = move(robot)
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+      robot = right(robot)
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+
+      if(is_obs) do
+        objInX_east(%ToyRobot.Position{x: x, y: y, facing: facing} = robot, goal_x, goal_y, channel, repeat = 0)
+      else
+        robot = move(robot)
+        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+        # is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+        stop(robot, goal_x, goal_y, channel)
+
+      end
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+
+    else
+      robot = move(robot);
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+      robot = right(robot);
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+      if (is_obs) do
+        repeat = 1
+        objInY_south(robot, goal_x, goal_y, channel, repeat)
+      else
+        robot = move(robot)
+        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+        # is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+        if (x != goal_x) do
+          correct_X(robot, goal_x, goal_y, channel)
+        else
+          stop(robot, goal_x, goal_y, channel)
+        end
+      end
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      # IO.puts("exited else")
+    end
+
+  else #turn, move right and go south
+    robot = right(robot);
+    %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+    is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+
+    if(is_obs) do
+      robot = right(robot)
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+      robot = move(robot)
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+      robot = left(robot)
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+
+      if(is_obs) do
+        objInX_west(%ToyRobot.Position{x: x, y: y, facing: facing} = robot, goal_x, goal_y, channel, repeat = 0)
+      else
+        robot = move(robot)
+        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+        # is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+        stop(robot, goal_x, goal_y, channel)
+      end
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+
+    else
+      robot = move(robot);
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+      robot = left(robot);
+      is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      if (is_obs) do
+        repeat = 0
+        objInY_south(robot, goal_x, goal_y, channel, repeat)
+      else
+        robot = move(robot)
+        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+        # is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+        if (x != goal_x) do
+          correct_X(robot, goal_x, goal_y, channel)
+        else
+          stop(robot, goal_x, goal_y, channel)
+        end
+      end
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      # IO.puts("exited if")
+    end
+
+
+  end
+  %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+  #call the base stop func at this point
+  # stop(robot, goal_x, goal_y, channel)
+end
+
+def objInX_west(%ToyRobot.Position{x: x, y: y, facing: facing} = robot, goal_x, goal_y, channel, repeat) do
+
+  # make sure bot is facing west before running this func
+  # IO.puts("in west")
+
+  %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+
+  if (y == :a) or (repeat == 1) do  #turn, move left and face east
+    robot = right(robot);
+    %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+    is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+
+
+    if(is_obs) do
+      robot = right(robot)
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+      robot = move(robot)
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+      robot = left(robot)
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+
+      if(is_obs) do
+        objInY_north(%ToyRobot.Position{x: x, y: y, facing: facing} = robot, goal_x, goal_y, channel, repeat = 0)
+      else
+        robot = move(robot)
+        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+        # is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+        correct_X(robot, goal_x, goal_y, channel)
+      end
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+
+    else
+      robot = move(robot);
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+      robot = left(robot);
+      is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      if (is_obs) do
+        repeat = 1
+        objInX_west(robot, goal_x, goal_y, channel, repeat)
+      else
+        robot = move(robot)
+        # is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+        stop(robot, goal_x, goal_y, channel)
+      end
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      # IO.puts("exited if")
+    end
+
+
+  else #turn, move right and go south
+
+    robot = left(robot);
+    %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+    is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+
+
+    if(is_obs) do
+      robot = left(robot)
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+      robot = move(robot)
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+      robot = right(robot)
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+
+      if(is_obs) do
+        objInY_south(%ToyRobot.Position{x: x, y: y, facing: facing} = robot, goal_x, goal_y, channel, repeat = 0)
+      else
+        robot = move(robot)
+        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+        # is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+        correct_X(robot, goal_x, goal_y, channel)
+      end
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+
+    else
+      robot = move(robot);
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+      robot = right(robot);
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+      if (is_obs) do
+        repeat = 0
+        objInX_west(robot, goal_x, goal_y, channel, repeat)
+      else
+        robot = move(robot)
+        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+        # is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+        stop(robot, goal_x, goal_y, channel)
+      end
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      # IO.puts("exited else")
+    end
+
+  end
+  %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+  #call the base stop func at this point
+  # stop(robot, goal_x, goal_y, channel)
+end
+
+def objInX_east(%ToyRobot.Position{x: x, y: y, facing: facing} = robot, goal_x, goal_y, channel, repeat) do
+
+  # make sure bot is facing east before running this func
+  # IO.puts("in east")
+
+  %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+
+  if (y == :a) or (repeat == 1) do  #turn, move left and face west
+                #boundry case
+    # IO.puts("in y=a")
+    robot = left(robot)
+    %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+    is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+
+    if(is_obs) do
+      robot = left(robot)
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      is_obs = is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+      robot = move(robot)
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+      robot = right(robot)
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+
+      if(is_obs) do
+        objInY_north(%ToyRobot.Position{x: x, y: y, facing: facing} = robot, goal_x, goal_y, channel, repeat = 0)
+      else
+        robot = move(robot)
+        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+        # is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+        correct_X(robot, goal_x, goal_y, channel)
+      end
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+
+    else
+      robot = move(robot);
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+      robot = right(robot);
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+      if (is_obs) do
+        repeat = 1
+        objInX_east(robot, goal_x, goal_y, channel, repeat)
+      else
+        robot = move(robot)
+        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+        stop(robot, goal_x, goal_y, channel)
+      end
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+
+      #is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+      # IO.puts("exited else")
+    end
+
+  else #turn, move right and face east//
+    # IO.puts("in else")
+    robot = right(robot);
+    %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+    is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+
+    if(is_obs) do
+      # IO.puts("in isobs")
+      robot = right(robot)
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+
+      robot = move(robot)
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+
+      robot = left(robot)
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+
+      if(is_obs) do
+        objInY_south(%ToyRobot.Position{x: x, y: y, facing: facing} = robot, goal_x, goal_y, channel, repeat = 0)
+      else
+        robot = move(robot)
+        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+        # is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+        correct_X(robot, goal_x, goal_y, channel)
+      end
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+
+    else
+      # IO.puts("in else isobs")
+      robot = move(robot);
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+      robot = left(robot);
+      is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+
+      if (is_obs) do
+        # IO.puts("in unwanted")
+        repeat = 0
+        objInX_east(robot, goal_x, goal_y, channel, repeat)
+      else
+        # IO.puts("in wanted")
+        robot = move(robot)
+        %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+        # is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+        stop(robot, goal_x, goal_y, channel)
+      end
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      # IO.puts("exited if")
+    end
+
+  end
+
+  %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+  #call the base stop func at this point
+  # stop(robot, goal_x, goal_y, channel)
+end
+
+  @doc """
+  Places the robot to the provided position of (x, y, facing),
+  but prevents it to be placed outside of the table and facing invalid direction.
+
+  Examples:
+
+      iex> ToyRobot.place(1, :b, :south)
+      {:ok, %ToyRobot.Position{facing: :south, x: 1, y: :b}}
+
+      iex> ToyRobot.place(-1, :f, :north)
+      {:failure, "Invalid position"}
+
+      iex> ToyRobot.place(3, :c, :north_east)
+      {:failure, "Invalid facing direction"}
+  """
   def place(x, y, facing) do
     {:ok, %ToyRobot.Position{x: x, y: y, facing: facing}}
   end
@@ -531,34 +579,31 @@ end
     ## complete this funcion ##
     ###########################
     {:ok, %ToyRobot.Position{x: x, y: y, facing: facing}}
-
+    place(x, y, facing)
   end
 
-
-
-
-  def stop(_robot, goal_x, goal_y, _cli_proc_name) when goal_x < 1 or goal_y < :a or goal_x > @table_top_x or goal_y > @table_top_y do
+  def stop(robot, goal_x, goal_y, _channel) when goal_x < 1 or goal_y < :a or goal_x > @table_top_x or goal_y > @table_top_y do
     {:failure, "Invalid STOP position"}
   end
 
   @doc """
   Provide STOP position to the robot as given location of (x, y) and plan the path from START to STOP.
-  Passing the CLI Server process name that will be used to send robot's current status after each action is taken.
-  Spawn a process and register it with name ':client_toyrobot' which is used by CLI Server to send an
-  indication for the presence of obstacle ahead of robot's current position and facing.
+  Passing the channel PID on the Phoenix Server that will be used to send robot's current status after each action is taken.
+  Make a call to ToyRobot.PhoenixSocketClient.send_robot_status/2
+  to get the indication of obstacle presence ahead of the robot.
   """
+  def stop(%ToyRobot.Position{x: x, y: y, facing: facing} = robot, goal_x, goal_y, channel) do
 
-  def stop(%ToyRobot.Position{x: x, y: y, facing: facing} =robot, goal_x, goal_y, cli_proc_name) do
     ###########################
     ## complete this funcion ##
     ###########################
     if (y == goal_y) and (x == goal_x) do
       %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-      is_obs = check_for_obs(robot, cli_proc_name)
+      is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
       {:ok,robot}
 
     else
-      is_obs = check_for_obs(robot, cli_proc_name)
+      is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
       # IO.inspect(robot)
       # IO.puts("----")
 
@@ -567,30 +612,30 @@ end
         if (facing != :north) do
           robot = right(robot)
           %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-          #is_obs = check_for_obs(robot,cli_proc_name)
-          # send_robot_status(robot, cli_proc_name)
-          stop(robot, goal_x, goal_y, cli_proc_name)
+          #is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+          # send_robot_status(robot, channel)
+          stop(robot, goal_x, goal_y, channel)
 
         else
-          # is_obs = check_for_obs(robot, cli_proc_name)
+          # is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
           %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-          # is_obs = check_for_obs(robot, cli_proc_name)
+          # is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
 
-          if(is_obs) do
+          if(is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)) do
           #  IO.put("Obstacle at #{x}, #{y + 1}")
           # IO.puts("Obstacle at #{x}, #{y}, #{facing}")
 
-           objInY_north(robot, goal_x, goal_y, cli_proc_name)
+           objInY_north(robot, goal_x, goal_y, channel, repeat = 0)
            %ToyRobot.Position{x: x, y: y, facing: facing} = robot
 
           else
             # %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-            # is_obs = check_for_obs(robot, cli_proc_name)
+            # is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
             robot = move(robot)
             %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-            # is_obs = check_for_obs(robot, cli_proc_name)
-            # send_robot_status(robot, cli_proc_name)
-            stop(robot, goal_x, goal_y, cli_proc_name)
+            # is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+            # send_robot_status(robot, channel)
+            stop(robot, goal_x, goal_y, channel)
           end
         end
 
@@ -599,19 +644,19 @@ end
         if (facing != :south) do
           robot = right(robot)
           %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-          #is_obs = check_for_obs(robot,cli_proc_name)
-          # send_robot_status(robot, cli_proc_name)
-          stop(robot, goal_x, goal_y, cli_proc_name)
+          #is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+          # send_robot_status(robot, channel)
+          stop(robot, goal_x, goal_y, channel)
 
         else
           %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-          # is_obs = check_for_obs(robot,cli_proc_name)
+          # is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
 
-          if(is_obs) do
+          if(is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)) do
             # IO.put("Obstacle at #{x}, #{y - 1}")
             # IO.puts("Obstacle at #{x}, #{y}, #{facing}")
 
-            objInY_south(robot, goal_x, goal_y, cli_proc_name)
+            objInY_south(robot, goal_x, goal_y, channel, repeat = 0)
 
             %ToyRobot.Position{x: x, y: y, facing: facing} = robot
 
@@ -619,9 +664,9 @@ end
             %ToyRobot.Position{x: x, y: y, facing: facing} = robot
             robot = move(robot)
             %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-            stop(robot, goal_x, goal_y, cli_proc_name)
+            stop(robot, goal_x, goal_y, channel)
           end
-          # send_robot_status(robot, cli_proc_name)
+          # send_robot_status(robot, channel)
         end
 
       else
@@ -629,45 +674,45 @@ end
           if (facing != :west) do
             robot = right(robot)
             %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-            # send_robot_status(robot, cli_proc_name)
-            #is_obs = check_for_obs(robot,cli_proc_name)
-            stop(robot, goal_x, goal_y, cli_proc_name)
+            # send_robot_status(robot, channel)
+            #is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+            stop(robot, goal_x, goal_y, channel)
           else
             %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-            # is_obs = check_for_obs(robot,cli_proc_name)
+            # is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
 
             if(is_obs) do
               # IO.puts("Obstacle at #{x}, #{y}, #{facing}")
-              objInX_west(robot, goal_x, goal_y, cli_proc_name)
+              objInX_west(robot, goal_x, goal_y, channel, repeat = 0)
               %ToyRobot.Position{x: x, y: y, facing: facing} = robot
 
             else
               robot = move(robot)
               %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-              stop(robot, goal_x, goal_y, cli_proc_name)
+              stop(robot, goal_x, goal_y, channel)
             end
           end
-            # send_robot_status(robot, cli_proc_name)
+            # send_robot_status(robot, channel)
 
         else if x < goal_x do
-          # is_obs = check_for_obs(robot, cli_proc_name)
+          # is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
           %ToyRobot.Position{x: x, y: y, facing: facing} = robot
 
           if (facing != :east) do
             robot = right(robot)
             %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-            # send_robot_status(robot, cli_proc_name)
-            #is_obs = check_for_obs(robot,cli_proc_name)
-            stop(robot, goal_x, goal_y, cli_proc_name)
+            # send_robot_status(robot, channel)
+            #is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
+            stop(robot, goal_x, goal_y, channel)
 
           else
             %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-            # is_obs = check_for_obs(robot,cli_proc_name)
+            # is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
 
             if(is_obs) do
               # IO.put("Obstacle at #{x + 1}, #{y}")
               # IO.puts("Obstacle at #{x}, #{y}, #{facing}")
-              objInX_east(robot, goal_x, goal_y, cli_proc_name)#-----
+              objInX_east(robot, goal_x, goal_y, channel, repeat = 0)#-----
               %ToyRobot.Position{x: x, y: y, facing: facing} = robot
 
 
@@ -675,14 +720,14 @@ end
 
               robot = move(robot)
               %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-              stop(robot, goal_x, goal_y, cli_proc_name)
+              stop(robot, goal_x, goal_y, channel)
             end
           end
 
-            # send_robot_status(robot, cli_proc_name)
+            # send_robot_status(robot, channel)
 
         else
-          is_obs = check_for_obs(robot, cli_proc_name)
+          is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
           {:ok,robot}
 
         end
@@ -691,61 +736,28 @@ end
     end       # --> end for the main if - else
   end         # --> end for the main stop function
 
-
- end
-
- def check_for_obs(robot,cli_proc_name)do
-  current = self()
-  pid = spawn_link(fn -> x = send_robot_status(robot, cli_proc_name)
-                         send(current,x) end)
-  Process.register(pid, :client_toyrobot)
-  receive do
-    value -> value
-  end
-end
-
-
-
-
-  @doc """
-  Send Toy Robot's current status i.e. location (x, y) and facing
-  to the CLI Server process after each action is taken.
-  Listen to the CLI Server and wait for the message indicating the presence of obstacle.
-  The message with the format: '{:obstacle_presence, < true or false >}'.
-  """
-  def send_robot_status(%ToyRobot.Position{x: x, y: y, facing: facing} = _robot, cli_proc_name) do
-    send(cli_proc_name, {:toyrobot_status, x, y, facing})
-    #IO.puts("Sent by Toy Robot Client: #{x}, #{y}, #{facing}")
-    listen_from_server()
-    #IO.puts "called listen_from_server "
   end
 
-  @doc """
-  Listen to the CLI Server and wait for the message indicating the presence of obstacle.
-  The message with the format: '{:obstacle_presence, < true or false >}'.
-  """
-  def listen_from_server() do
-    receive do
-      {:obstacle_presence, is_obs_ahead} -> is_obs_ahead
-    end
-  end
-
-  def robot_move(%ToyRobot.Position{x: x, y: y, facing: facing} = robot, goal_x, goal_y, cli_proc_name)do
-    robot = move(robot)
-    %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-    is_obs = check_for_obs(robot, cli_proc_name)
-
-  end
+  # def ToyRobot.PhoenixSocketClient.send_robot_status(robot,channel)do
+  #   current = self()
+  #   pid = spawn_link(fn -> x = send_robot_status(robot, channel)
+  #                          send(current,x) end)
+  #   Process.register(pid, :client_toyrobot)
+  #   receive do
+  #     value -> value
+  #   end
+  # end
 
   @doc """
   Provides the report of the robot's current position
+
   Examples:
+
       iex> {:ok, robot} = ToyRobot.place(2, :b, :west)
       iex> ToyRobot.report(robot)
       {2, :b, :west}
   """
-
-  def report(%ToyRobot.Position{x: x, y: y, facing: facing} = _robot) do
+  def report(%ToyRobot.Position{x: x, y: y, facing: facing} = robot) do
     {x, y, facing}
   end
 

@@ -28,7 +28,7 @@ defmodule Task2PhoenixServerWeb.RobotChannel do
  def handle_in("new_msg", message, socket) do
 
   #Write your logic before the comment: "complete this function".
-
+  %{x: x, y: y, facing: facing} = message
   cond do
     x == 1 -> left_value = 0
     x == 2 -> left_value = 150
