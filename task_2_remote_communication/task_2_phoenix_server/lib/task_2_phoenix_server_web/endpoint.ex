@@ -15,6 +15,10 @@ defmodule Task2PhoenixServerWeb.Endpoint do
   ## make sure the websocket flag is set to true             ##
   #############################################################
 
+  socket "/socket", Task2PhoenixServerWeb.UserSocket,
+  websocket: true,
+  longpoll: false
+
   socket "/live", Phoenix.LiveView.Socket, websocket: [connect_info: [session: @session_options]]
 
   # Serve at "/" the static files from "priv/static" directory.
