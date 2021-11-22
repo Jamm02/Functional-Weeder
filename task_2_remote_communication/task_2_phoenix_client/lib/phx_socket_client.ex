@@ -20,6 +20,9 @@ defmodule ToyRobot.PhoenixSocketClient do
     ###########################
     ## complete this funcion ##
     ###########################
+    socket_opts = Application.get_env(:phoenix_server, :url)
+    {:ok, socket} = PhoenixClient.Socket.start_link(socket_opts)
+    {:ok, _response, channel} = PhoenixClient.Channel.join(socket, "robot:status")
   end
 
   @doc """
@@ -33,6 +36,8 @@ defmodule ToyRobot.PhoenixSocketClient do
     ###########################
     ## complete this funcion ##
     ###########################
+    message = %ToyRobot.Position{x: x, y: y, facing: facing}
+    is_obs = PhoenixClient.Channel.push(channel, "new_msg", message)
   end
 
 end
