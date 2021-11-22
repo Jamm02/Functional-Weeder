@@ -20,6 +20,11 @@ defmodule ToyRobot.PhoenixSocketClient do
     ###########################
     ## complete this funcion ##
     ###########################
+    socket_opts = [
+      url: "ws://localhost:4000/socket/websocket"
+    ]
+    {:ok, socket} = PhoenixClient.Socket.start_link(socket_opts)
+    {:ok, _response, channel} = PhoenixClient.Channel.join(socket, "robot:status")
   end
 
   @doc """
@@ -30,6 +35,8 @@ defmodule ToyRobot.PhoenixSocketClient do
   Create a tuple of this format: '{:obstacle_presence, < true or false >}' as a return of this function.
   """
   def send_robot_status(channel, %ToyRobot.Position{x: x, y: y, facing: facing} = _robot) do
+    message = robot
+    is_obs = PhoenixClient.Channel.push(channel, "new_msg", message)
     ###########################
     ## complete this funcion ##
     ###########################

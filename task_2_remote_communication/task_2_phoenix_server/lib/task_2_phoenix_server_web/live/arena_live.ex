@@ -81,11 +81,11 @@ defmodule Task2PhoenixServerWeb.ArenaLive do
   based on the data recevied.
   """
   def handle_info(data ,socket) do
-    if (Map.fetch(data, :facing) == :north) do
+    if (Map.fetch(data, :face) == :north) do
       socket = assign(socket, :img, "robot_facing_north.png")
-    else if (Map.fetch(data, :facing) == :south) do
+    else if (Map.fetch(data, :face) == :south) do
       socket = assign(socket, :img, "robot_facing_south.png")
-    else if (Map.fetch(data, :facing) == :east) do
+    else if (Map.fetch(data, :face) == :east) do
       socket = assign(socket, :img, "robot_facing_east.png")
     else
       socket = assign(socket, :img, "robot_facing_west.png")
