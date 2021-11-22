@@ -25,35 +25,192 @@ defmodule Task2PhoenixServerWeb.RobotChannel do
   and return the boolean value in this format {:ok, < true OR false >}.
   """
   def handle_in("new_msg", message, socket) do
-
-    #Write your logic before the comment: "complete this function".
-
     cond do
-      x == 1 -> left_value = 0
-      x == 2 -> left_value = 150
-      x == 3 -> left_value = 300
-      x == 4 -> left_value = 450
-      x == 5 -> left_value = 600
+      message.x == 1 -> left_value = 0
+      cond do
+        message.y == "a" -> bottom_value = 0
+        face_value = message.facing
+        data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
+        #:ok = Phoenix.PubSub.subscribe(Task2PhoenixServer.PubSub, "robot:update")
+        Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
+
+        message.y == "b" -> bottom_value = 150
+        face_value = message.facing
+        data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
+        #:ok = Phoenix.PubSub.subscribe(Task2PhoenixServer.PubSub, "robot:update")
+        Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
+
+        message.y == "c" -> bottom_value = 300
+        face_value = message.facing
+        data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
+        #:ok = Phoenix.PubSub.subscribe(Task2PhoenixServer.PubSub, "robot:update")
+        Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
+
+        message.y == "d" -> bottom_value = 450
+        face_value = message.facing
+        data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
+        #:ok = Phoenix.PubSub.subscribe(Task2PhoenixServer.PubSub, "robot:update")
+        Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
+
+        message.y == "e" -> bottom_value = 600
+        face_value = message.facing
+        data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
+        #:ok = Phoenix.PubSub.subscribe(Task2PhoenixServer.PubSub, "robot:update")
+        Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
+
+      end
+
+
+
+      message.x == 2 -> left_value = 150
+      cond do
+        message.y == "a" -> bottom_value = 0
+        face_value = message.facing
+        data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
+        #:ok = Phoenix.PubSub.subscribe(Task2PhoenixServer.PubSub, "robot:update")
+        Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
+
+        message.y == "b" -> bottom_value = 150
+        face_value = message.facing
+        data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
+        #:ok = Phoenix.PubSub.subscribe(Task2PhoenixServer.PubSub, "robot:update")
+        Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
+
+        message.y == "c" -> bottom_value = 300
+        face_value = message.facing
+        data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
+        #:ok = Phoenix.PubSub.subscribe(Task2PhoenixServer.PubSub, "robot:update")
+        Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
+
+        message.y == "d" -> bottom_value = 450
+        face_value = message.facing
+        data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
+        #:ok = Phoenix.PubSub.subscribe(Task2PhoenixServer.PubSub, "robot:update")
+        Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
+
+        message.y == "e" -> bottom_value = 600
+        face_value = message.facing
+        data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
+        #:ok = Phoenix.PubSub.subscribe(Task2PhoenixServer.PubSub, "robot:update")
+        Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
+
+      end
+
+
+
+
+      message.x == 3 -> left_value = 300
+
+      cond do
+        message.y == "a" -> bottom_value = 0
+        face_value = message.facing
+        data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
+        #:ok = Phoenix.PubSub.subscribe(Task2PhoenixServer.PubSub, "robot:update")
+        Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
+
+        message.y == "b" -> bottom_value = 150
+        face_value = message.facing
+        data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
+        #:ok = Phoenix.PubSub.subscribe(Task2PhoenixServer.PubSub, "robot:update")
+        Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
+
+        message.y == "c" -> bottom_value = 300
+        face_value = message.facing
+        data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
+        #:ok = Phoenix.PubSub.subscribe(Task2PhoenixServer.PubSub, "robot:update")
+        Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
+
+        message.y == "d" -> bottom_value = 450
+        face_value = message.facing
+        data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
+        #:ok = Phoenix.PubSub.subscribe(Task2PhoenixServer.PubSub, "robot:update")
+        Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
+
+        message.y == "e" -> bottom_value = 600
+        face_value = message.facing
+        data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
+        #:ok = Phoenix.PubSub.subscribe(Task2PhoenixServer.PubSub, "robot:update")
+        Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
+
+      end
+
+
+      message.x == 4 -> left_value = 450
+
+      cond do
+        message.y == "a" -> bottom_value = 0
+        face_value = message.facing
+        data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
+        #:ok = Phoenix.PubSub.subscribe(Task2PhoenixServer.PubSub, "robot:update")
+        Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
+
+        message.y == "b" -> bottom_value = 150
+        face_value = message.facing
+        data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
+        #:ok = Phoenix.PubSub.subscribe(Task2PhoenixServer.PubSub, "robot:update")
+        Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
+
+        message.y == "c" -> bottom_value = 300
+        face_value = message.facing
+        data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
+        #:ok = Phoenix.PubSub.subscribe(Task2PhoenixServer.PubSub, "robot:update")
+        Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
+
+        message.y == "d" -> bottom_value = 450
+        face_value = message.facing
+        data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
+        #:ok = Phoenix.PubSub.subscribe(Task2PhoenixServer.PubSub, "robot:update")
+        Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
+
+        message.y == "e" -> bottom_value = 600
+        face_value = message.facing
+        data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
+        #:ok = Phoenix.PubSub.subscribe(Task2PhoenixServer.PubSub, "robot:update")
+        Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
+
+      end
+
+
+
+      message.x == 5 -> left_value = 600
+      cond do
+        message.y == "a" -> bottom_value = 0
+        face_value = message.facing
+        data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
+        #:ok = Phoenix.PubSub.subscribe(Task2PhoenixServer.PubSub, "robot:update")
+        Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
+
+        message.y == "b" -> bottom_value = 150
+        face_value = message.facing
+        data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
+        #:ok = Phoenix.PubSub.subscribe(Task2PhoenixServer.PubSub, "robot:update")
+        Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
+
+        message.y == "c" -> bottom_value = 300
+        face_value = message.facing
+        data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
+        #:ok = Phoenix.PubSub.subscribe(Task2PhoenixServer.PubSub, "robot:update")
+        Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
+
+        message.y == "d" -> bottom_value = 450
+        face_value = message.facing
+        data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
+        #:ok = Phoenix.PubSub.subscribe(Task2PhoenixServer.PubSub, "robot:update")
+        Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
+
+        message.y == "e" -> bottom_value = 600
+        face_value = message.facing
+        data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
+        #:ok = Phoenix.PubSub.subscribe(Task2PhoenixServer.PubSub, "robot:update")
+        Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
+
+      end
+
 
     end
 
 
-    cond do
-      y == "a" -> bottom_value = 0
-      y == "b" -> bottom_value = 150
-      y == "c" -> bottom_value = 300
-      y == "d" -> bottom_value = 450
-      y == "e" -> bottom_value = 600
 
-    end
-
-    map = %{ "left" => left_value, "bottom" => bottom_value >, "face" =>  face_value }
-
-    :ok = Phoenix.PubSub.subscribe(Task2PhoenixServer.PubSub, "robot:update")
-    Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, @topic, {map})
-
-    #map = robot
-    #is_obs = PhoenixServer.Channel.push(channel, "new_msg", map)
     ###########################
     ## complete this funcion ##
     ###########################
