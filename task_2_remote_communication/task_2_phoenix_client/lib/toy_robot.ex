@@ -27,6 +27,7 @@ defmodule ToyRobot do
   do
     {:failure, "Invalid facing direction"}
   end
+
   def correct_X(%ToyRobot.Position{x: x, y: y, facing: facing} = robot, goal_x, goal_y, channel) do
     %ToyRobot.Position{x: x, y: y, facing: facing} = robot
 
@@ -94,6 +95,8 @@ defmodule ToyRobot do
   end
 end
 end
+
+
 
 def objInY_north(%ToyRobot.Position{x: x, y: y, facing: facing} = robot, goal_x, goal_y, channel, repeat) do
   %ToyRobot.Position{x: x, y: y, facing: facing} = robot
@@ -552,7 +555,7 @@ def objInX_east(%ToyRobot.Position{x: x, y: y, facing: facing} = robot, goal_x, 
   # stop(robot, goal_x, goal_y, channel)
 end
 
-  @doc """
+ @doc """
   Places the robot to the provided position of (x, y, facing),
   but prevents it to be placed outside of the table and facing invalid direction.
 
@@ -567,6 +570,7 @@ end
       iex> ToyRobot.place(3, :c, :north_east)
       {:failure, "Invalid facing direction"}
   """
+
   def place(x, y, facing) do
     {:ok, %ToyRobot.Position{x: x, y: y, facing: facing}}
   end
@@ -750,9 +754,7 @@ end
 
   @doc """
   Provides the report of the robot's current position
-
   Examples:
-
       iex> {:ok, robot} = ToyRobot.place(2, :b, :west)
       iex> ToyRobot.report(robot)
       {2, :b, :west}
