@@ -23,33 +23,33 @@ defmodule Task2PhoenixServerWeb.RobotChannel do
   """
   def handle_in("new_msg", message, socket) do
     cond do
-      message.x == 1 -> left_value = 0
+      Map.fetch(message , :x) == 1 -> left_value = 0
       cond do
-        message.y == "a" -> bottom_value = 0
+        Map.fetch(message , :y) == "a" -> bottom_value = 0
         face_value = message.facing
         data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
         #:ok = Phoenix.PubSub.subscribe(Task2PhoenixServer.PubSub, "robot:update")
         Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
 
-        message.y == "b" -> bottom_value = 150
+        Map.fetch(message , :y) == "b" -> bottom_value = 150
         face_value = message.facing
         data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
         #:ok = Phoenix.PubSub.subscribe(Task2PhoenixServer.PubSub, "robot:update")
         Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
 
-        message.y == "c" -> bottom_value = 300
+        Map.fetch(message , :y) == "c" -> bottom_value = 300
         face_value = message.facing
         data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
         #:ok = Phoenix.PubSub.subscribe(Task2PhoenixServer.PubSub, "robot:update")
         Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
 
-        message.y == "d" -> bottom_value = 450
+        Map.fetch(message , :y) == "d" -> bottom_value = 450
         face_value = message.facing
         data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
         #:ok = Phoenix.PubSub.subscribe(Task2PhoenixServer.PubSub, "robot:update")
         Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
 
-        message.y == "e" -> bottom_value = 600
+        Map.fetch(message , :y) == "e" -> bottom_value = 600
         face_value = message.facing
         data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
         #:ok = Phoenix.PubSub.subscribe(Task2PhoenixServer.PubSub, "robot:update")
@@ -59,33 +59,33 @@ defmodule Task2PhoenixServerWeb.RobotChannel do
 
 
 
-      message.x == 2 -> left_value = 150
+      Map.fetch(message , :x) == 2 -> left_value = 150
       cond do
-        message.y == "a" -> bottom_value = 0
+        Map.fetch(message , :y) == "a" -> bottom_value = 0
         face_value = message.facing
         data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
         #:ok = Phoenix.PubSub.subscribe(Task2PhoenixServer.PubSub, "robot:update")
         Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
 
-        message.y == "b" -> bottom_value = 150
+        Map.fetch(message , :y) == "b" -> bottom_value = 150
         face_value = message.facing
         data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
         #:ok = Phoenix.PubSub.subscribe(Task2PhoenixServer.PubSub, "robot:update")
         Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
 
-        message.y == "c" -> bottom_value = 300
+        Map.fetch(message , :y) == "c" -> bottom_value = 300
         face_value = message.facing
         data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
         #:ok = Phoenix.PubSub.subscribe(Task2PhoenixServer.PubSub, "robot:update")
         Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
 
-        message.y == "d" -> bottom_value = 450
+        Map.fetch(message , :y) == "d" -> bottom_value = 450
         face_value = message.facing
         data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
         #:ok = Phoenix.PubSub.subscribe(Task2PhoenixServer.PubSub, "robot:update")
         Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
 
-        message.y == "e" -> bottom_value = 600
+        Map.fetch(message , :y) == "e" -> bottom_value = 600
         face_value = message.facing
         data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
         #:ok = Phoenix.PubSub.subscribe(Task2PhoenixServer.PubSub, "robot:update")
@@ -96,34 +96,34 @@ defmodule Task2PhoenixServerWeb.RobotChannel do
 
 
 
-      message.x == 3 -> left_value = 300
+      Map.fetch(message , :x) == 3 -> left_value = 300
 
       cond do
-        message.y == "a" -> bottom_value = 0
+        Map.fetch(message , :y) == "a" -> bottom_value = 0
         face_value = message.facing
         data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
         #:ok = Phoenix.PubSub.subscribe(Task2PhoenixServer.PubSub, "robot:update")
         Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
 
-        message.y == "b" -> bottom_value = 150
+        Map.fetch(message , :y) == "b" -> bottom_value = 150
         face_value = message.facing
         data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
         #:ok = Phoenix.PubSub.subscribe(Task2PhoenixServer.PubSub, "robot:update")
         Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
 
-        message.y == "c" -> bottom_value = 300
+        Map.fetch(message , :y) == "c" -> bottom_value = 300
         face_value = message.facing
         data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
         #:ok = Phoenix.PubSub.subscribe(Task2PhoenixServer.PubSub, "robot:update")
         Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
 
-        message.y == "d" -> bottom_value = 450
+        Map.fetch(message , :y) == "d" -> bottom_value = 450
         face_value = message.facing
         data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
         #:ok = Phoenix.PubSub.subscribe(Task2PhoenixServer.PubSub, "robot:update")
         Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
 
-        message.y == "e" -> bottom_value = 600
+        Map.fetch(message , :y) == "e" -> bottom_value = 600
         face_value = message.facing
         data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
         #:ok = Phoenix.PubSub.subscribe(Task2PhoenixServer.PubSub, "robot:update")
@@ -132,34 +132,34 @@ defmodule Task2PhoenixServerWeb.RobotChannel do
       end
 
 
-      message.x == 4 -> left_value = 450
+      Map.fetch(message , :x) == 4 -> left_value = 450
 
       cond do
-        message.y == "a" -> bottom_value = 0
+        Map.fetch(message , :y) == "a" -> bottom_value = 0
         face_value = message.facing
         data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
         #:ok = Phoenix.PubSub.subscribe(Task2PhoenixServer.PubSub, "robot:update")
         Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
 
-        message.y == "b" -> bottom_value = 150
+        Map.fetch(message , :y) == "b" -> bottom_value = 150
         face_value = message.facing
         data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
         #:ok = Phoenix.PubSub.subscribe(Task2PhoenixServer.PubSub, "robot:update")
         Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
 
-        message.y == "c" -> bottom_value = 300
+        Map.fetch(message , :y) == "c" -> bottom_value = 300
         face_value = message.facing
         data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
         #:ok = Phoenix.PubSub.subscribe(Task2PhoenixServer.PubSub, "robot:update")
         Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
 
-        message.y == "d" -> bottom_value = 450
+        Map.fetch(message , :y) == "d" -> bottom_value = 450
         face_value = message.facing
         data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
         #:ok = Phoenix.PubSub.subscribe(Task2PhoenixServer.PubSub, "robot:update")
         Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
 
-        message.y == "e" -> bottom_value = 600
+        Map.fetch(message , :y) == "e" -> bottom_value = 600
         face_value = message.facing
         data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
         #:ok = Phoenix.PubSub.subscribe(Task2PhoenixServer.PubSub, "robot:update")
@@ -169,33 +169,33 @@ defmodule Task2PhoenixServerWeb.RobotChannel do
 
 
 
-      message.x == 5 -> left_value = 600
+      Map.fetch(message , :x) == 5 -> left_value = 600
       cond do
-        message.y == "a" -> bottom_value = 0
+        Map.fetch(message , :y) == "a" -> bottom_value = 0
         face_value = message.facing
         data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
         #:ok = Phoenix.PubSub.subscribe(Task2PhoenixServer.PubSub, "robot:update")
         Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
 
-        message.y == "b" -> bottom_value = 150
+        Map.fetch(message , :y) == "b" -> bottom_value = 150
         face_value = message.facing
         data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
         #:ok = Phoenix.PubSub.subscribe(Task2PhoenixServer.PubSub, "robot:update")
         Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
 
-        message.y == "c" -> bottom_value = 300
+        Map.fetch(message , :y) == "c" -> bottom_value = 300
         face_value = message.facing
         data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
         #:ok = Phoenix.PubSub.subscribe(Task2PhoenixServer.PubSub, "robot:update")
         Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
 
-        message.y == "d" -> bottom_value = 450
+        Map.fetch(message , :y) == "d" -> bottom_value = 450
         face_value = message.facing
         data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
         #:ok = Phoenix.PubSub.subscribe(Task2PhoenixServer.PubSub, "robot:update")
         Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
 
-        message.y == "e" -> bottom_value = 600
+        Map.fetch(message , :y) == "e" -> bottom_value = 600
         face_value = message.facing
         data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
         #:ok = Phoenix.PubSub.subscribe(Task2PhoenixServer.PubSub, "robot:update")

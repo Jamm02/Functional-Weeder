@@ -1,7 +1,6 @@
 # This file is responsible for configuring your application
 # and its dependencies with the aid of the Mix.Config module.
 
-# def connect_server() do
 
 use Mix.Config
 # This configuration is loaded before any dependency and is restricted
@@ -16,7 +15,7 @@ use Mix.Config
 #
 # and access this configuration in your application as:
 #
-    Application.get_env(:toy_robot, :key)
+    # Application.get_env(:toy_robot, :key)
 #
 # You can also configure a 3rd-party app:
 #
