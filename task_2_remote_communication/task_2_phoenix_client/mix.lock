@@ -1,4 +1,5 @@
 %{
+  "dep_from_hexpm": {:hex, :dep_from_hexpm, "0.3.0", "e820a753364b715e84457836317107c340d3bdcaa21b469272da79f29ef5f5cb", [:mix], [], "hexpm", "55b0c9db6c5666a4358e1d8e799f43f3fa091ef036dc0d09bf5ee9f091f07b6d"},
   "earmark": {:hex, :earmark, "1.2.3", "206eb2e2ac1a794aa5256f3982de7a76bf4579ff91cb28d0e17ea2c9491e46a4", [:mix], [], "hexpm", "3b1dcad3067985dd8618c38399a8ee9c4e652d52a17a4aae7a6d6fc4fcc24856"},
   "ex_doc": {:hex, :ex_doc, "0.18.1", "37c69d2ef62f24928c1f4fdc7c724ea04aecfdf500c4329185f8e3649c915baf", [:mix], [{:earmark, "~> 1.1", [hex: :earmark, repo: "hexpm", optional: false]}], "hexpm", "f050061c87ad39478c942995b5a20c40f2c0bc06525404613b8b0474cb8bd796"},
   "jason": {:hex, :jason, "1.2.2", "ba43e3f2709fd1aa1dce90aaabfd039d000469c05c56f0b8e31978e03fa39052", [:mix], [{:decimal, "~> 1.0 or ~> 2.0", [hex: :decimal, repo: "hexpm", optional: true]}], "hexpm", "18a228f5f0058ee183f29f9eae0805c6e59d61c3b006760668d8d18ff0d12179"},

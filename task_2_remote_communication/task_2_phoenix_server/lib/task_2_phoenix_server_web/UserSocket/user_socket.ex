@@ -33,8 +33,10 @@ defmodule Task2PhoenixServerWeb.UserSocket do
   # performing token verification on connect.
   @impl true
   def connect(_params, socket, _connect_info) do
+
     {:ok, socket}
   end
+
 
   # Socket id's are topics that allow you to identify all sockets for a given user:
   #
@@ -46,6 +48,7 @@ defmodule Task2PhoenixServerWeb.UserSocket do
   #     Elixir.Task2PhoenixServerWeb.Endpoint.broadcast("user_socket:#{user.id}", "disconnect", %{})
   #
   # Returning `nil` makes this socket anonymous.
+
   @impl true
   def id(_socket), do: nil
 end
