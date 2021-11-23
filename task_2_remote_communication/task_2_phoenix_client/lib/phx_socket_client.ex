@@ -35,12 +35,14 @@ defmodule ToyRobot.PhoenixSocketClient do
   in this format: {:ok, < true OR false >}.
   Create a tuple of this format: '{:obstacle_presence, < true or false >}' as a return of this function.
   """
-  def send_robot_status(channel, %ToyRobot.Position{x: x, y: y, facing: facing} = _robot) do
-    message = %{x: x, y: y, facing: facing}
-    is_obs = PhoenixClient.Channel.push(channel, "new_msg", message)
-    ###########################
-    ## complete this funcion ##
-    ###########################
+  def send_robot_status(channel, %ToyRobot.Position{x: x, y: y, facing: facing} = robot) do
+    x_s = Integer.to_string(x)
+    y_s = Atom.to_string(y)
+    facing_s = Atom.to_string(facing)
+    message = %{"x"=>x_s, "y"=> y_s, "face"=> facing_s}
+    {:ok, is_obs_ahead} = PhoenixClient.Channel.push(channel, "new_msg", message)
+    IO.inspect(is_obs_ahead)
+    is_obs_ahead
   end
 
 end
