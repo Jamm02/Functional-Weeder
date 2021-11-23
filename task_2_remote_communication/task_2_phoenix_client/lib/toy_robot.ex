@@ -625,7 +625,7 @@ end
           %ToyRobot.Position{x: x, y: y, facing: facing} = robot
           # is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
 
-          if(is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)) do
+          if(is_obs) do
           #  IO.put("Obstacle at #{x}, #{y + 1}")
           # IO.puts("Obstacle at #{x}, #{y}, #{facing}")
 
@@ -656,7 +656,7 @@ end
           %ToyRobot.Position{x: x, y: y, facing: facing} = robot
           # is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
 
-          if(is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)) do
+          if(is_obs) do
             # IO.put("Obstacle at #{x}, #{y - 1}")
             # IO.puts("Obstacle at #{x}, #{y}, #{facing}")
 
