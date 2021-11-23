@@ -210,7 +210,7 @@ defmodule Task2PhoenixServerWeb.RobotChannel do
 
 
 
-  if (message["x"] == "1") do
+  if (message["x"] == 1) do
     left_value = 0
     if (message["y"] == "a") do
       bottom_value = 0
@@ -247,7 +247,7 @@ defmodule Task2PhoenixServerWeb.RobotChannel do
     end
     end
 
-  else if (message["x"] == "2") do
+  else if (message["x"] == 2) do
     left_value = 150
     if (message["y"] == "a") do
       bottom_value = 0
@@ -284,7 +284,7 @@ defmodule Task2PhoenixServerWeb.RobotChannel do
     end
     end
 
-  else if (message["x"] == "3") do
+  else if (message["x"] == 3) do
     left_value = 300
     if (message["y"] == "a") do
       bottom_value = 0
@@ -321,7 +321,7 @@ defmodule Task2PhoenixServerWeb.RobotChannel do
     end
     end
 
-    else if (message["x"] == "4") do
+    else if (message["x"] == 4) do
       left_value = 450
       if (message["y"] == "a") do
         bottom_value = 0
@@ -358,7 +358,7 @@ defmodule Task2PhoenixServerWeb.RobotChannel do
       end
       end
 
-    else if (message["x"] == "5") do
+    else if (message["x"] == 5) do
       left_value = 600
       if (message["y"] == "a") do
         bottom_value = 0
@@ -401,14 +401,11 @@ defmodule Task2PhoenixServerWeb.RobotChannel do
     end
 
 
-    ###########################
-    ## complete this funcion ##
-    ###########################
     # IO.puts(is_String(Atom.to_string(Map.fetch(message, :y))))
 
     # determine the obstacle's presence in front of the robot and return the boolean value
     is_obs_ahead = Task2PhoenixServerWeb.FindObstaclePresence.is_obstacle_ahead?(message["x"], message["y"], message["face"])
-
+    # IO.inspect(is_obs_ahead)
     # file object to write each action taken by Toy Robot
     {:ok, out_file} = File.open("task_2_output.txt", [:append])
     # write the robot actions to a text file
