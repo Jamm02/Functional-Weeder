@@ -601,6 +601,7 @@ end
     ###########################
     ## complete this funcion ##
     ###########################
+    IO.inspect(robot)
     if (y == goal_y) and (x == goal_x) do
       %ToyRobot.Position{x: x, y: y, facing: facing} = robot
       is_obs = ToyRobot.PhoenixSocketClient.send_robot_status(channel, robot)
