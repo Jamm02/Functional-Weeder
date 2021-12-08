@@ -6,6 +6,8 @@ defmodule ToyRobot do
   # mapping of y-coordinates
   @robot_map_y_atom_to_num %{:a => 1, :b => 2, :c => 3, :d => 4, :e => 5}
 
+
+
   @doc """
   Places the robot to the default position of (1, A, North)
 
@@ -14,6 +16,7 @@ defmodule ToyRobot do
       iex> ToyRobot.place
       {:ok, %ToyRobot.Position{facing: :north, x: 1, y: :a}}
   """
+
   def place do
     {:ok, %ToyRobot.Position{}}
   end
@@ -46,7 +49,16 @@ defmodule ToyRobot do
   def place(x, y, facing) do
     {:ok, %ToyRobot.Position{x: x, y: y, facing: facing}}
   end
-
+  # OpenListStruct is the elemetn of Oen list which will stort the successors that are to be evalluated.
+  # it has fields of x: x-coordinate y: y-coordinate facing: robots's facint f:the cost of that particular node
+  # Structs in elixir has same name as the module in which it is defined usnig defstruct construct.
+  defmodule OpenListStruct do
+    defstruct x: 1, y: :a, facing: :north, f: 0.0
+  end
+  # NodeDetailStruct is a struct that represents each node on a grid.
+  defmodule NodeDetailStruct do
+    defstruct parent_x: 1, parent_y: :a, f: 10000.0, g: 10000.0, h: 10000.0
+  end
   @doc """
   Provide START position to the robot as given location of (x, y, facing) and place it.
   """
