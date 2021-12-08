@@ -6,6 +6,9 @@ defmodule ToyRobot do
   # mapping of y-coordinates
   @robot_map_y_atom_to_num %{:a => 1, :b => 2, :c => 3, :d => 4, :e => 5}
 
+  defmodule ToyRobot.AstarRobot do
+    defstruct parent_x: 1, paretn_y: :a ,f: 100000.0, g: 100000.0, h: 100000.0
+  end
   @doc """
   Places the robot to the default position of (1, A, North)
 
@@ -54,6 +57,7 @@ defmodule ToyRobot do
     ###########################
     ## complete this funcion ##
     ###########################
+    {:ok, %ToyRobot.Position{x: x, y: y, facing: facing}}
   end
 
   def stop(_robot, goal_x, goal_y, _cli_proc_name) when goal_x < 1 or goal_y < :a or goal_x > @table_top_x or goal_y > @table_top_y do
@@ -64,10 +68,22 @@ defmodule ToyRobot do
   Provide STOP position to the robot as given location of (x, y) and plan the path from START to STOP.
   Passing the CLI Server process name that will be used to send robot's current status after each action is taken.
   """
-  def stop(robot, goal_x, goal_y, cli_proc_name) do
+  def stop(%ToyRobot.Position{x: x, y: y, facing: facing} =robot, goal_x, goal_y, cli_proc_name) do
     ###########################
     ## complete this funcion ##
     ###########################
+  end
+
+  def aStarRobotNav(%ToyRobot.Position{x: x, y: y, facing: facing} =robot, goal_x, goal_y, cli_proc_name) do
+    closedList = []
+
+  end
+  def is_dest_reached(%ToyRobot.Position{x: x, y: y, facing: facing} =robot, goal_x, goal_y, cli_proc_name)do
+    if(goal_x == x and goal_y == y)do
+      true
+    else
+      false
+    end
   end
 
   @doc """

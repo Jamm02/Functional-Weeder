@@ -2,11 +2,7 @@
 1, b, north
 1, c, north
 1, d, north
-1, e, north
-1, e, east
-2, e, east
-2, e, south
-2, d, south
+1, d, east
 2, d, east
 2, d, south
 2, c, south
@@ -24,7 +20,3 @@
 3, b, north
 3, c, north
 3, d, north
-3, e, north
-3, e, east
-4, e, east
-5, e, east
