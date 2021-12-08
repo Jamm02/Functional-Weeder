@@ -3,6 +3,8 @@
               {description,"toy_robot"},
               {modules,['Elixir.ToyRobot','Elixir.ToyRobot.AgentRobot',
                         'Elixir.ToyRobot.CLI','Elixir.ToyRobot.ControlPanel',
+                        'Elixir.ToyRobot.NodeDetailStruct',
+                        'Elixir.ToyRobot.OpenListStruct',
                         'Elixir.ToyRobot.OtpRobot','Elixir.ToyRobot.Position',
                         'Elixir.ToyRobot.StatefulRobot']},
               {registered,[]},

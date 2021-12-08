@@ -49,6 +49,7 @@ defmodule ToyRobot do
   def place(x, y, facing) do
     {:ok, %ToyRobot.Position{x: x, y: y, facing: facing}}
   end
+  ############################################################################3
   # OpenListStruct is the elemetn of Oen list which will stort the successors that are to be evalluated.
   # it has fields of x: x-coordinate y: y-coordinate facing: robots's facint f:the cost of that particular node
   # Structs in elixir has same name as the module in which it is defined usnig defstruct construct.
@@ -59,13 +60,12 @@ defmodule ToyRobot do
   defmodule NodeDetailStruct do
     defstruct parent_x: 1, parent_y: :a, f: 10000.0, g: 10000.0, h: 10000.0
   end
+  #################################################################################
   @doc """
   Provide START position to the robot as given location of (x, y, facing) and place it.
   """
   def start(x, y, facing) do
-    ###########################
-    ## complete this funcion ##
-    ###########################
+    {:ok, %ToyRobot.Position{x: x, y: y, facing: facing}}
   end
 
   def stop(_robot, goal_x, goal_y, _cli_proc_name) when goal_x < 1 or goal_y < :a or goal_x > @table_top_x or goal_y > @table_top_y do
@@ -78,10 +78,39 @@ defmodule ToyRobot do
   Spawn a process and register it with name ':client_toyrobot' which is used by CLI Server to send an
   indication for the presence of obstacle ahead of robot's current position and facing.
   """
-  def stop(robot, goal_x, goal_y, cli_proc_name) do
-    ###########################
-    ## complete this funcion ##
-    ###########################
+  def checkSuccessor(openList, closedList, goal_x, goal_y)do
+    #if the open list is empty return
+    if(Enum.empty?(openList))do
+      {openList, closedList}
+    else
+      #remove the first node form openList and add it to closed list
+      #note that the data types of openList and closedList are differnt so the canges are done accordingly.
+      node = Enum.at(openList,0)
+        # IO.inspect(node)
+      openList = List.delete_at(openList,0)
+      closedList = [node | closedList]
+        IO.inspect(closedList)
+
+    end
+  end
+  def find_shortest_path(%ToyRobot.Position{x: x, y: y, facing: facing} = robot, goal_x, goal_y, cli_proc_name) do
+
+    #check if the destination has been reached
+    if(x == goal_x and y == goal_y) do
+      {:ok,robot}
+    end
+    # make and initialize the ClosedList which is a list of the struct robot
+    closedList = []
+    # make and initialize the node details list
+    # make and initialize the opentlist
+    opentList = []
+    # put the starting cell on the openList
+    opentList =  [%OpenListStruct{x: x, y: y, facing: facing, f: 0.0} | opentList]
+          # IO.inspect(opentList)
+    checkSuccessor(opentList,closedList,goal_x,goal_y)
+  end
+  def stop(%ToyRobot.Position{x: x, y: y, facing: facing} =robot, goal_x, goal_y, cli_proc_name) do
+    find_shortest_path(robot,goal_x,goal_y,cli_proc_name)
   end
 
   @doc """
