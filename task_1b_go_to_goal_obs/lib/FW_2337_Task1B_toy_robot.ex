@@ -51,8 +51,13 @@ defmodule ToyRobot do
   # OpenListStruct is the elemetn of Oen list which will stort the successors that are to be evalluated.
   # it has fields of x: x-coordinate y: y-coordinate facing: robots's facint f:the cost of that particular node
   # Structs in elixir has same name as the module in which it is defined usnig defstruct construct.
-  defmodule ListStruct do
+  defmodule OpenListStruct do
     defstruct x: 1, y: :a, facing: :north, f: 0.0
+  end
+  #ClosedListStruct is a element of closed list that keep track of the nodes included in the path
+  # it has fields of x: x-coordinate y: y-coordinate
+  defmodule ClosedListStruct do
+    defstruct x: 1, y: :a
   end
 
   # NodeDetailStruct is a struct that represents each node on a grid.
@@ -79,6 +84,7 @@ defmodule ToyRobot do
   Spawn a process and register it with name ':client_toyrobot' which is used by CLI Server to send an
   indication for the presence of obstacle ahead of robot's current position and facing.
   """
+  # finds the x coordinate of the successor according to its facing
   def find_successor_coordinates_x(x, facing) do
     x_result =
       cond do
@@ -88,25 +94,31 @@ defmodule ToyRobot do
         facing == :south -> x
       end
   end
+
+  # finds the y coordinate of the successor according to its facing
   def find_successor_coordinates_y(y, facing) do
     y_map_atom_to_int = %{:a => 1, :b => 2, :c => 3, :d => 4, :e => 5}
     y_int = y_map_atom_to_int[y]
-      y_result =
+
+    y_result =
       cond do
         facing == :east -> y_int
         facing == :west -> y_int
-        facing == :north ->y_int + 1
+        facing == :north -> y_int + 1
         facing == :south -> y_int - 1
       end
-      IO.inspect(y_result)
-      y_map_int_to_atom = %{0 => :z, 1=> :a, 2=> :b, 3=> :c, 4 => :d, 5=> :e, 6 => :f}
-      y_final = y_map_int_to_atom[y_result]
+
+    IO.inspect(y_result)
+    y_map_int_to_atom = %{0 => :z, 1 => :a, 2 => :b, 3 => :c, 4 => :d, 5 => :e, 6 => :f}
+    y_final = y_map_int_to_atom[y_result]
   end
 
+  # function to sort the list according to the f value (accending)
   def sort_list(list) do
     list_new = Enum.sort(list, fn x, y -> x.f < y.f end)
   end
 
+  # function to calculate the hueristic value of h(euclidian path)
   def calculate_h(x, y, goal_x, goal_y) do
     dx = goal_x - x
     dy = goal_y - y
@@ -114,12 +126,14 @@ defmodule ToyRobot do
     :math.sqrt(sq_dist)
   end
 
-  def list_check(list, node) do
+  # checks if the node is present in the list
+  def list_check(list, cell) do
     if(Enum.empty?(list) == false) do
-      is_member = Enum.member?(list, node)
+      is_member = Enum.member?(list, cell)
     end
   end
 
+  # to access the membets of the nodeDetails list(2d list)
   def acces(x, y, grid) do
     y_cord =
       cond do
@@ -134,6 +148,7 @@ defmodule ToyRobot do
     node = Enum.at(coll, y_cord)
   end
 
+  # to modify the membets of the nodeDetails list(2d list)
   def modify(x, y, grid, node) do
     y_cord =
       cond do
@@ -149,62 +164,83 @@ defmodule ToyRobot do
     grid_ret = List.replace_at(grid, x, coll)
   end
 
+  # function to check if the x and y coordinates are valid according to the constarains of the grid size and value
   def is_valid(x, y) do
     is_valid_bool = x < 1 or y < :a or x > @table_top_x or y > @table_top_y
   end
 
+  # function to check the 4 successors(surrounding nodes to the parent node)
   def checkSuccessor(openList, closedList, nodeDetails, goal_x, goal_y, cli_proc_name) do
     # if the open list is empty return
     if(Enum.empty?(openList)) do
       {openList, closedList}
     else
-      # remove the first node form openList
+      # remove the first cell form openList
+      # this shoul be the node with least f so whenever a node is added to a open list in the upcoming code the list is sorted.
       node = Enum.at(openList, 0)
       # IO.inspect(node)
       openList = List.delete_at(openList, 0)
       # add it to closed list
-      closedList = [node | closedList]
-      # IO.inspect(closedList)
+      node_closed = %ClosedListStruct{x: node.x,y: node.y}
+      closedList = [node_closed | closedList]
+      ####################################################################################### 333
+      # TODO robot movement code here
+      #################################################################################### 3333333333###3333333
       # now check all the 4 surrounding nodes
-      ################   north   ############################
-      %ListStruct{x: x, y: y, facing: facing, f: f} = node
-      # x and y are the coordinates of the successor
-      # x = find_successor_coordinates_x()
 
-      if(is_valid(x, y)) do
+      # x_p ==> x - coordinate of the parent node
+      # y_p ==> y - coordinate of the parent node
+      %OpenListStruct{x: x_p, y: y_p, facing: facing, f: f} = node
+
+      # x and y are the coordinates of the successor
+      x = find_successor_coordinates_x(x_p, facing)
+      y = find_successor_coordinates_y(y_p, facing)
+      successor_node = acces(x,y,nodeDetails)
+      robot = %ToyRobot.Position{x: x_p, y: y_p, facing: facing}
+      is_obs = check_for_obs(robot, cli_proc_name)
+      ################   north   ############################
+      if(is_valid(x, y) and is_obs == false) do
         if(facing == :north) do
           IO.puts("checking the north successor")
           # check if this successor is the goal
           if(goal_x == x and goal_y == y) do
             IO.puts("this successor is the destination")
-            # Set the Parent of the destination cell
+            # Set the Parent of the destination cell and add it to the nodeDetails
             new_node_dest = %NodeDetailStruct{
-              parent_x: x,
-              parent_y: y,
+              parent_x: x_p,
+              parent_y: y_p,
               f: 10000.0,
               g: 10000.0,
               h: 10000.0
             }
-
             nodeDetails = modify(x, y, nodeDetails, new_node_dest)
             checkSuccessor(openList, closedList, nodeDetails, goal_x, goal_y, cli_proc_name)
           end
         else
-          is_member = list_check(closedList, node)
-          robot = %ToyRobot.Position{x: x, y: y, facing: facing}
-          is_obs = check_for_obs(robot, cli_proc_name)
-
-          if(is_member == false and is_obs == false) do
+          successor_cell_open = %OpenListStruct{x: x, y: y, facing: facing,f: 0.0}
+          successor_cell_closed = %ClosedListStruct{x: x, y: y}
+          is_member_of_closed_list = list_check(closedList, successor_cell_closed)
+          if(is_member_of_closed_list == false and is_obs == false) do
             node_new = acces(x, y, nodeDetails)
-            gNew = node_new.g + 1.0
+            gNew = node.g + 1.0
             hNew = calculate_h(x, y, goal_x, goal_y)
             fNew = gNew + hNew
 
             if(node_new.f == 10000.0 or node_new.f > fNew) do
-              cell_to_insert = %ListStruct{}
-              # opentList =  [ | opentList]
+              #add the cell to open list
+              cell_to_insert = %OpenListStruct{x: x, y: y, facing: facing, f: fNew}
+              opentList =  [cell_to_insert | openList]
               # sort the list so that the cell with lowest f is in the begining
               openList = sort_list(openList)
+              # update the details of this node
+              new_node_successor = %NodeDetailStruct{
+                parent_x: x_p,
+                parent_y: y_p,
+                f: fNew,
+                g: gNew,
+                h: hNew
+              }
+
             end
           end
         end
@@ -217,31 +253,26 @@ defmodule ToyRobot do
     grid = List.duplicate(coll, 5)
   end
 
-  def find_shortest_path(
-        %ToyRobot.Position{x: x, y: y, facing: facing} = robot,
-        goal_x,
-        goal_y,
-        cli_proc_name
-      ) do
+  def find_shortest_path(%ToyRobot.Position{x: x, y: y, facing: facing} = robot,goal_x,goal_y,cli_proc_name) do
     # check if the destination has been reached
     if(x == goal_x and y == goal_y) do
       {:ok, robot}
+    else
+      # make and initialize the ClosedList
+      closedList = []
+      # make and initialize the node details list
+      nodeDetails = create_grid_of_nodes()
+      # Initialising the parameters of the starting node
+      start_node = %NodeDetailStruct{parent_x: x, parent_y: y, f: 0.0, g: 0.0, h: 0.0}
+      nodeDetails = modify(x, y, nodeDetails, start_node)
+      # make and initialize the opentlist
+      opentList = []
+      # put the starting cell on the openList
+      start_cell_on_list = %OpenListStruct{x: x, y: y, facing: facing, f: 0.0}
+      opentList = [start_cell_on_list | opentList]
+      # IO.inspect(opentList)
+      checkSuccessor(opentList, closedList, nodeDetails, goal_x, goal_y, cli_proc_name)
     end
-
-    # make and initialize the ClosedList
-    closedList = []
-    # make and initialize the node details list
-    nodeDetails = create_grid_of_nodes()
-    # Initialising the parameters of the starting node
-    start_node = %NodeDetailStruct{parent_x: x, parent_y: y, f: 0.0, g: 0.0, h: 0.0}
-    nodeDetails = modify(x, y, nodeDetails, start_node)
-    # make and initialize the opentlist
-    opentList = []
-    # put the starting cell on the openList
-    start_cell_on_list = %ListStruct{x: x, y: y, facing: facing, f: 0.0}
-    opentList = [start_cell_on_list | opentList]
-    # IO.inspect(opentList)
-    checkSuccessor(opentList, closedList, nodeDetails, goal_x, goal_y, cli_proc_name)
   end
 
   def stop(%ToyRobot.Position{x: x, y: y, facing: facing} = robot, goal_x, goal_y, cli_proc_name) do
