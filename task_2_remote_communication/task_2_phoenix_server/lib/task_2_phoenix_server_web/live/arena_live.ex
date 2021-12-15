@@ -26,7 +26,6 @@ defmodule Task2PhoenixServerWeb.ArenaLive do
   def render(assigns) do
     ~H"""
     <h1> Grid view</h1>
-
     <div class="grid-container">
       <div id="alphabets">
         <div> A </div>
@@ -35,7 +34,6 @@ defmodule Task2PhoenixServerWeb.ArenaLive do
         <div> D </div>
         <div> E </div>
       </div>
-
       <div class="board-container">
         <div class="game-board">
           <div class="box"></div>
@@ -55,13 +53,10 @@ defmodule Task2PhoenixServerWeb.ArenaLive do
           <div class="box"></div>
           <div class="box"></div>
         </div>
-
         <div class="robot-container" style={"bottom: #{@bottom}px; left: #{@left}px"}>
           <img id="robot" src={"/images/#{@img}"} style="height:70px;">
-
         </div>
       </div>
-
       <div id="numbers">
         <div> 1 </div>
         <div> 2 </div>
@@ -69,7 +64,6 @@ defmodule Task2PhoenixServerWeb.ArenaLive do
         <div> 4 </div>
         <div> 5 </div>
       </div>
-
     </div>
     """
   end
