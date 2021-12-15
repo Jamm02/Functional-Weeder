@@ -145,8 +145,8 @@ defmodule ToyRobot do
         y == :e -> 5
       end
 
-    coll = Enum.at(grid, x)
-    node = Enum.at(coll, y_cord)
+    coll = Enum.at(grid, x - 1)
+    node = Enum.at(coll, y_cord - 1)
   end
 
   # to modify the membets of the nodeDetails list(2d list)
@@ -177,14 +177,14 @@ defmodule ToyRobot do
     else
       # remove the first cell form openList
       # this shoul be the node with least f so whenever a node is added to a open list in the upcoming code the list is sorted.
-      node = Enum.at(openList, 0)
+      current_node = Enum.at(openList, 0)
       # IO.inspect(node)
       openList = List.delete_at(openList, 0)
       # IO.puts("openList:")
       # IO.inspect(openList)
 
       # add it to closed list
-      node_closed = %ClosedListStruct{x: node.x, y: node.y}
+      node_closed = %ClosedListStruct{x: current_node.x, y: current_node.y}
       closedList = [node_closed | closedList]
       # IO.puts("closedList:")
       # IO.inspect(closedList)
@@ -195,28 +195,36 @@ defmodule ToyRobot do
       # now check all the 4 surrounding nodes
       # x_p ==> x - coordinate of the parent node
       # y_p ==> y - coordinate of the parent node
-      %OpenListStruct{x: x_p, y: y_p, facing: facing, f: f} = node
       # ################   north   ############################
-      if(facing == :north)do
-        robot = %ToyRobot.Position{x: x_p, y: y_p, facing: facing}
-        is_obs = check_for_obs(robot, cli_proc_name)
-        {status,error} = process_successor(openList, closedList, nodeDetails, goal_x, goal_y, cli_proc_name,node,is_obs)
-        if(status == :failure) do
-          robot = right(robot)
-        end
-      end
+      x = find_successor_coordinates_x(current_node.x, :north)
+      y = find_successor_coordinates_y(current_node.y, :north)
+      {nodeDetails,openList} = process_successor(openList, closedList, nodeDetails, goal_x, goal_y,current_node,x,y)
+      # ################   east   ############################
+      x = find_successor_coordinates_x(current_node.x, :east)
+      y = find_successor_coordinates_y(current_node.y, :east)
+      {nodeDetails,openList} = process_successor(openList, closedList, nodeDetails, goal_x, goal_y,current_node,x,y)
+      # ################   south   ############################
+      x = find_successor_coordinates_x(current_node.x, :south)
+      y = find_successor_coordinates_y(current_node.y, :south)
+      {nodeDetails,openList} = process_successor(openList, closedList, nodeDetails, goal_x, goal_y,current_node,x,y)
+      # ################   west   ############################
+      x = find_successor_coordinates_x(current_node.x, :west)
+      y = find_successor_coordinates_y(current_node.y, :west)
+      {nodeDetails,openList} = process_successor(openList, closedList, nodeDetails, goal_x, goal_y,current_node,x,y)
+      checkSuccessor(openList, closedList, nodeDetails, goal_x, goal_y, cli_proc_name)
     end
   end
 
-  def process_successor(openList, closedList, nodeDetails, goal_x, goal_y, cli_proc_name,node,is_obs) do
-    %OpenListStruct{x: x_p, y: y_p, facing: facing, f: f} = node
-    x = find_successor_coordinates_x(x_p, facing)
-    y = find_successor_coordinates_y(y_p, facing)
-    # IO.puts("the coordinates of successor are #{x} and #{y}")
-    # successor_node = acces(x, y, nodeDetails)
+  def process_successor(openList, closedList, nodeDetails, goal_x, goal_y,current_node,x,y) do
+    %OpenListStruct{x: x_p, y: y_p, facing: facing, f: f} = current_node
+    {nodeDetails_return,openList_return} =
     if(is_valid(x,y) == false)do
       {:failure,"invalid coordinates"}
+      nodeDetails_return = nodeDetails
+      openList_return = openList
+      {nodeDetails_return,openList_return}
     else
+      {nodeDetails_return,openList_return} =
       if(goal_x == x and goal_y == y) do
         IO.puts("this successor is the destination")
         # Set the Parent of the destination cell and add it to the nodeDetails
@@ -227,23 +235,25 @@ defmodule ToyRobot do
           g: 10000.0,
           h: 10000.0
         }
-        nodeDetails = modify(x, y, nodeDetails, new_node_dest)
-        checkSuccessor(openList, closedList, nodeDetails, goal_x, goal_y, cli_proc_name)
+        nodeDetails_return = modify(x, y, nodeDetails, new_node_dest)
+        openList_return = openList
+        {nodeDetails_return,openList_return}
       else
         successor_cell_open = %OpenListStruct{x: x, y: y, facing: facing, f: 0.0}
         successor_cell_closed = %ClosedListStruct{x: x, y: y}
         is_member_of_closed_list = list_check(closedList, successor_cell_closed)
-
-        if(is_member_of_closed_list == false and is_obs == false) do
+        {nodeDetails_return,openList_return} =
+        if(is_member_of_closed_list == false) do
           node_new = acces(x, y, nodeDetails)
-          gNew = node.g + 1.0
+          parent_node = acces(x_p,y_p,nodeDetails)
+          gNew = parent_node.g + 1.0
           hNew = calculate_h(x, y, goal_x, goal_y)
           fNew = gNew + hNew
-
+          {nodeDetails_return,openList_return} =
           if(node_new.f == 10000.0 or node_new.f > fNew) do
             # add the cell to open list
             cell_to_insert = %OpenListStruct{x: x, y: y, facing: facing, f: fNew}
-            opentList = [cell_to_insert | openList]
+            openList = [cell_to_insert | openList]
             # sort the list so that the cell with lowest f is in the begining
             openList = sort_list(openList)
             # update the details of this node
@@ -254,12 +264,17 @@ defmodule ToyRobot do
               g: gNew,
               h: hNew
             }
-            nodeDetails = modify(x, y, nodeDetails, new_node_successor)
-
+            nodeDetails_return = modify(x, y, nodeDetails, new_node_successor)
+            openList_return = openList
+            {nodeDetails_return,openList_return}
           end
+        {nodeDetails_return,openList_return}
         end
+      {nodeDetails_return,openList_return}
       end
+    {nodeDetails_return,openList_return}
     end
+  {nodeDetails_return,openList_return}
   end
 
   def create_grid_of_nodes do
@@ -321,15 +336,12 @@ defmodule ToyRobot do
   """
   def check_for_obs(robot, cli_proc_name) do
     current = self()
-
     pid =
       spawn_link(fn ->
         x = send_robot_status(robot, cli_proc_name)
         send(current, x)
       end)
-
     Process.register(pid, :client_toyrobot)
-
     receive do
       value -> value
     end
