@@ -108,8 +108,6 @@ defmodule ToyRobot do
         facing == :north -> y_int + 1
         facing == :south -> y_int - 1
       end
-
-    IO.inspect(y_result)
     y_map_int_to_atom = %{0 => :z, 1 => :a, 2 => :b, 3 => :c, 4 => :d, 5 => :e, 6 => :f}
     y_final = y_map_int_to_atom[y_result]
   end
@@ -121,8 +119,9 @@ defmodule ToyRobot do
 
   # function to calculate the hueristic value of h(euclidian path)
   def calculate_h(x, y, goal_x, goal_y) do
+    y_map_atom_to_int = %{:a => 1, :b => 2, :c => 3, :d => 4, :e => 5}
     dx = goal_x - x
-    dy = goal_y - y
+    dy = y_map_atom_to_int[goal_y] - y_map_atom_to_int[y]
     sq_dist = dx * dx + dy * dy
     :math.sqrt(sq_dist)
   end
@@ -166,7 +165,9 @@ defmodule ToyRobot do
 
   # function to check if the x and y coordinates are valid according to the constarains of the grid size and value
   def is_valid(x, y) do
-    is_valid_bool = x < 1 or y < :a or x > @table_top_x or y > @table_top_y
+    valid_x = [1,2,3,4,5]
+    valid_y = [:a,:b,:c,:d,:e]
+    Enum.member?(valid_x,x) and Enum.member?(valid_y,y)
   end
 
   # function to check the 4 successors(surrounding nodes to the parent node)
@@ -186,8 +187,8 @@ defmodule ToyRobot do
       # add it to closed list
       node_closed = %ClosedListStruct{x: current_node.x, y: current_node.y}
       closedList = [node_closed | closedList]
-      # IO.puts("closedList:")
-      # IO.inspect(closedList)
+      IO.puts("closedList:")
+      IO.inspect(closedList)
 
       ####################################################################################
       # TODO robot movement code here
@@ -198,25 +199,34 @@ defmodule ToyRobot do
       # ################   north   ############################
       x = find_successor_coordinates_x(current_node.x, :north)
       y = find_successor_coordinates_y(current_node.y, :north)
+      # IO.puts("x: #{x} , y: #{y}")
       {nodeDetails,openList} = process_successor(openList, closedList, nodeDetails, goal_x, goal_y,current_node,x,y)
+
       # ################   east   ############################
       x = find_successor_coordinates_x(current_node.x, :east)
       y = find_successor_coordinates_y(current_node.y, :east)
+      # IO.puts("x: #{x} , y: #{y}")
       {nodeDetails,openList} = process_successor(openList, closedList, nodeDetails, goal_x, goal_y,current_node,x,y)
+
       # ################   south   ############################
       x = find_successor_coordinates_x(current_node.x, :south)
       y = find_successor_coordinates_y(current_node.y, :south)
+      # IO.puts("x: #{x} , y: #{y}")
       {nodeDetails,openList} = process_successor(openList, closedList, nodeDetails, goal_x, goal_y,current_node,x,y)
+
       # ################   west   ############################
       x = find_successor_coordinates_x(current_node.x, :west)
       y = find_successor_coordinates_y(current_node.y, :west)
+      # IO.puts("x: #{x} , y: #{y}")
       {nodeDetails,openList} = process_successor(openList, closedList, nodeDetails, goal_x, goal_y,current_node,x,y)
+
+      #########################recursive call##################################
       checkSuccessor(openList, closedList, nodeDetails, goal_x, goal_y, cli_proc_name)
     end
   end
 
   def process_successor(openList, closedList, nodeDetails, goal_x, goal_y,current_node,x,y) do
-    %OpenListStruct{x: x_p, y: y_p, facing: facing, f: f} = current_node
+    %OpenListStruct{x: x_p, y: y_p, facing: facing, f: _f} = current_node
     {nodeDetails_return,openList_return} =
     if(is_valid(x,y) == false)do
       {:failure,"invalid coordinates"}
@@ -239,9 +249,9 @@ defmodule ToyRobot do
         openList_return = openList
         {nodeDetails_return,openList_return}
       else
-        successor_cell_open = %OpenListStruct{x: x, y: y, facing: facing, f: 0.0}
         successor_cell_closed = %ClosedListStruct{x: x, y: y}
         is_member_of_closed_list = list_check(closedList, successor_cell_closed)
+        # IO.puts("x: #{x} , y: #{y}")
         {nodeDetails_return,openList_return} =
         if(is_member_of_closed_list == false) do
           node_new = acces(x, y, nodeDetails)
@@ -268,6 +278,10 @@ defmodule ToyRobot do
             openList_return = openList
             {nodeDetails_return,openList_return}
           end
+          {nodeDetails_return,openList_return}
+        else
+          nodeDetails_return = nodeDetails
+          openList_return = openList
         {nodeDetails_return,openList_return}
         end
       {nodeDetails_return,openList_return}
