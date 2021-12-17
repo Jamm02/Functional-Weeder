@@ -171,81 +171,95 @@ defmodule ToyRobot do
   end
 
   # function to check the 4 successors(surrounding nodes to the parent node)
-  def checkSuccessor(openList, closedList, nodeDetails, goal_x, goal_y, cli_proc_name) do
+  def checkSuccessor(openList, closedList, nodeDetails, goal_x, goal_y, cli_proc_name,goal_reached) do
     # if the open list is empty return
-    if(Enum.empty?(openList)) do
-      {openList, closedList}
+    if(Enum.empty?(openList) or goal_reached == true) do
+      destination = Enum.at(openList,0)
+      IO.inspect(destination)
+      robot = %ToyRobot.Position{x: destination.x, y: destination.y, facing: destination.facing}
+      {:ok, robot}
     else
       # remove the first cell form openList
       # this shoul be the node with least f so whenever a node is added to a open list in the upcoming code the list is sorted.
       current_node = Enum.at(openList, 0)
+      IO.inspect(current_node)
       # IO.inspect(node)
-      IO.puts("openList:")
-      IO.inspect(openList)
+      IO.puts(" ")
+      # IO.puts("openList:")
+      # IO.inspect(openList)
       openList = List.delete_at(openList, 0)
 
       # add it to closed list
       node_closed = %ClosedListStruct{x: current_node.x, y: current_node.y}
       closedList = [node_closed | closedList]
-      IO.puts("closedList:")
-      IO.inspect(closedList)
-
+      # IO.puts("closedList:")
+      # IO.inspect(closedList)
+      openList = []
       ####################################################################################
       # TODO robot movement code here
       ####################################################################################
       # now check all the 4 surrounding nodes
       # x_p ==> x - coordinate of the parent node
       # y_p ==> y - coordinate of the parent node
+      is_dest = false
       # ################   north   ############################
       x = find_successor_coordinates_x(current_node.x, :north)
       y = find_successor_coordinates_y(current_node.y, :north)
       # IO.puts("x: #{x} , y: #{y}")
-      {nodeDetails,openList,is_dest} = process_successor(openList, closedList, nodeDetails, goal_x, goal_y,current_node,x,y)
-      IO.puts("checked north")
-      IO.puts("destionation reached : #{is_dest}")
-      if(is_dest == true) do
-        robot = %ToyRobot.Position{x: x, y: y, facing: :north}
-        {:ok, robot}
+      {nodeDetails,openList,is_dest} =
+      if(is_dest == false) do
+        {nodeDetails,openList,is_dest} = process_successor(openList, closedList, nodeDetails, goal_x, goal_y,current_node,x,y)
+        # IO.puts("checked north")
+        # IO.puts("destionation reached : #{is_dest}")
+        {nodeDetails,openList,is_dest}
+      else
+        {nodeDetails,openList,is_dest}
       end
 
       # ################   east   ############################
       x = find_successor_coordinates_x(current_node.x, :east)
       y = find_successor_coordinates_y(current_node.y, :east)
       # IO.puts("x: #{x} , y: #{y}")
-      {nodeDetails,openList,is_dest} = process_successor(openList, closedList, nodeDetails, goal_x, goal_y,current_node,x,y)
-      IO.puts("checked east")
-      IO.puts("destionation reached : #{is_dest}")
-      if(is_dest == true) do
-        robot = %ToyRobot.Position{x: x, y: y, facing: :east}
-        {:ok, robot}
+      {nodeDetails,openList,is_dest} =
+      if(is_dest == false) do
+        {nodeDetails,openList,is_dest} = process_successor(openList, closedList, nodeDetails, goal_x, goal_y,current_node,x,y)
+        # IO.puts("checked east")
+        # IO.puts("destionation reached : #{is_dest}")
+        {nodeDetails,openList,is_dest}
+      else
+        {nodeDetails,openList,is_dest}
       end
 
       # ################   south   ############################
       x = find_successor_coordinates_x(current_node.x, :south)
       y = find_successor_coordinates_y(current_node.y, :south)
       # IO.puts("x: #{x} , y: #{y}")
-      {nodeDetails,openList,is_dest} = process_successor(openList, closedList, nodeDetails, goal_x, goal_y,current_node,x,y)
-      IO.puts("checked south")
-      IO.puts("destionation reached : #{is_dest}")
-      if(is_dest == true) do
-        robot = %ToyRobot.Position{x: x, y: y, facing: :south}
-        {:ok, robot}
+      {nodeDetails,openList,is_dest} =
+      if (is_dest == false) do
+        {nodeDetails,openList,is_dest} = process_successor(openList, closedList, nodeDetails, goal_x, goal_y,current_node,x,y)
+        # IO.puts("checked south")
+        # IO.puts("destionation reached : #{is_dest}")
+        {nodeDetails,openList,is_dest}
+      else
+        {nodeDetails,openList,is_dest}
       end
 
       # ################   west   ############################
       x = find_successor_coordinates_x(current_node.x, :west)
       y = find_successor_coordinates_y(current_node.y, :west)
       # IO.puts("x: #{x} , y: #{y}")
-      {nodeDetails,openList,is_dest} = process_successor(openList, closedList, nodeDetails, goal_x, goal_y,current_node,x,y)
-      IO.puts("checked west")
-      IO.puts("destionation reached : #{is_dest}")
-      if(is_dest == true) do
-        robot = %ToyRobot.Position{x: x, y: y, facing: :west}
-        {:ok, robot}
+      {nodeDetails,openList,is_dest} =
+      if (is_dest == false) do
+        {nodeDetails,openList,is_dest} = process_successor(openList, closedList, nodeDetails, goal_x, goal_y,current_node,x,y)
+        # IO.puts("checked west")
+        # IO.puts("destionation reached : #{is_dest}")
+        {nodeDetails,openList,is_dest}
+      else
+        {nodeDetails,openList,is_dest}
       end
 
       #########################recursive call##################################
-      checkSuccessor(openList, closedList, nodeDetails, goal_x, goal_y, cli_proc_name)
+      checkSuccessor(openList, closedList, nodeDetails, goal_x, goal_y, cli_proc_name,is_dest)
     end
   end
 
@@ -261,7 +275,7 @@ defmodule ToyRobot do
     else  ### else 1 ###
       {nodeDetails_return,openList_return,is_dest_reached} =  ##[2]
       if(goal_x == x and goal_y == y) do ### if 2 ###
-        IO.puts("this successor is the destination")
+        # IO.puts("this successor is the destination")
         # Set the Parent of the destination cell and add it to the nodeDetails
         new_node_dest = %NodeDetailStruct{
           parent_x: x_p,
@@ -271,11 +285,12 @@ defmodule ToyRobot do
           h: 10000.0
         }
         nodeDetails_return = modify(x, y, nodeDetails, new_node_dest)
-        openList_return = openList
+        destination = %OpenListStruct{x: x, y: y, facing: facing, f: 0.0}
+        openList_return = [destination | openList]
         is_dest_reached = true
         {nodeDetails_return,openList_return,is_dest_reached} ### return if 2 ####   [2]
       else #### else 2 ###
-        IO.puts("reached here ........................")
+        # IO.puts("reached here ........................")
         successor_cell_closed = %ClosedListStruct{x: x, y: y}
         is_member_of_closed_list = list_check(closedList, successor_cell_closed)
         # IO.puts("x: #{x} , y: #{y}")
@@ -283,9 +298,11 @@ defmodule ToyRobot do
         if(is_member_of_closed_list == false) do #### if 3 ####
           node_new = acces(x, y, nodeDetails)
           parent_node = acces(x_p,y_p,nodeDetails)
+
           gNew = parent_node.g + 1.0
           hNew = calculate_h(x, y, goal_x, goal_y)
           fNew = gNew + hNew
+
           {nodeDetails_return,openList_return,is_dest_reached} = ##[4]
           if(node_new.f == 10000.0 or node_new.f > fNew) do #### if 4 ####
             # add the cell to open list
@@ -304,6 +321,10 @@ defmodule ToyRobot do
             nodeDetails_return = modify(x, y, nodeDetails, new_node_successor)
             openList_return = openList
             {nodeDetails_return,openList_return,is_dest_reached}### return if 4 ###   [4]
+          else
+            nodeDetails_return = nodeDetails
+            openList_return = openList
+            {nodeDetails_return,openList_return,is_dest_reached}
           end
           {nodeDetails_return,openList_return,is_dest_reached} ### return if 3 ###
         else #### else 3 ######
@@ -351,8 +372,8 @@ defmodule ToyRobot do
       start_cell_on_list = %OpenListStruct{x: x, y: y, facing: facing, f: 0.0}
       opentList = [start_cell_on_list | opentList]
       # IO.inspect(opentList)
-
-      checkSuccessor(opentList, closedList, nodeDetails, goal_x, goal_y, cli_proc_name)
+      goal_reached = false
+      checkSuccessor(opentList, closedList, nodeDetails, goal_x, goal_y, cli_proc_name,goal_reached)
     end
   end
 
