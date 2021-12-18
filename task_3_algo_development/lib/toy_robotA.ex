@@ -7,6 +7,9 @@ defmodule CLI.ToyRobotA do
   # mapping of y-coordinates
   @robot_map_y_atom_to_num %{:a => 1, :b => 2, :c => 3, :d => 4, :e => 5}
 
+
+
+
   @doc """
   Places the robot to the default position of (1, A, North)
 
@@ -70,38 +73,109 @@ defmodule CLI.ToyRobotA do
   Spawn a process and register it with name ':client_toyrobotA' which is used by CLI Server to send an
   indication for the presence of obstacle ahead of robot's current position and facing.
   """
-  def get_posA() do
-
-  end
 
   def get_posB() do
-
+    Process.sleep(10)
+    Agent.get(:your_map_name, fn map -> Map.get(map, :robotB) end )
   end
 
-  def dist(robot, goal_locs, cli_proc_name) do
+  defmodule SortedListStruct do
+    defstruct value: -1, index: -1
+  end
 
+  def dist_from_A(%CLI.Position{x: x, y: y, facing: facing} = robot, goal_locs, i) do
+    y_map_atom_to_int = %{:a => 1, :b => 2, :c => 3, :d => 4, :e => 5}
+    y_int = y_map_atom_to_int[y]
+    y_dest_int = y_map_atom_to_int[String.to_atom(Enum.at(Enum.at(goal_locs, i), 1))]
+    {k, ""} = (Integer.parse(Enum.at(Enum.at(goal_locs, i), 0)))
+    abs(k - x) + abs(y_dest_int - y_int)
+  end
+
+  def add_index(dist_list, goal_locs, i, new_list) do
+    if (i < Enum.count(goal_locs)) do
+      cell_to_insert = %SortedListStruct{value: Enum.at(dist_list, i), index: i}
+      new_list = [cell_to_insert | new_list]
+      i = i + 1
+      add_index(dist_list, goal_locs, i, new_list)
+    else
+      new_list
+    end
   end
 
 
-  # def listen_from_robotB(state, cli_proc_name) do
-  #   receive do
-  #     {:toyrobot_status, robot_x, robot_y, robot_face} ->
-  #       IO.puts("Received RobotB #{robot_x}, #{robot_y}, #{robot_face}")
-  #       send(cli_proc_name, {:toyrobotA_status, x, y, facing})
-  #       listen_from_robotB([{robot_x, robot_y, robot_face} | state], cli_proc_name)
-  #   end
-  # end
+  def dist(%CLI.Position{x: x, y: y, facing: facing} = robot, goal_locs, i, index_list, dist_list) do
+    index_list = index_list ++ [i]
+    distance = dist_from_A(%CLI.Position{x: x, y: y, facing: facing} = robot, goal_locs, i)
+    dist_list = dist_list ++ [distance]
+    i = i + 1
+    if i < Enum.count(goal_locs) do
+      dist(robot, goal_locs, i, index_list, dist_list)
+    else
+    new_list = []
+    new_list = add_index(dist_list, goal_locs, 0, new_list)
+    new_list = Enum.sort(new_list, fn x, y -> x.value < y.value end)
+    # IO.inspect(new_list)
+    new_list
+    end
+  end
 
-  def stop(robot, goal_locs, cli_proc_name) do
+  defp make_int(main, i, new_list) do
+    if(i >= 0) do
+      new_list =
+      if (rem(i, 2) == 0) do
+        {k, ""} = Integer.parse(Enum.at(main, i))
+        new_list = new_list ++ [k]
+        new_list
+      else
+        new_list
+      end
+      i = i - 1
+      make_int(main, i, new_list)
+    else
+      new_list
+    end
+  end
 
-    part1 = Enum.at(Enum.at(goal_locs, 0), 1)
-    part2 = Enum.at(goal_locs, 1)
-    IO.puts(part1)
-    IO.puts(part2)
-    Process.sleep(1_000)
-    IO.puts(Agent.get(:your_map_name, fn map -> Map.get(map, :robotB) end ))
+  defp sort_B() do
+    string = get_posB()
+    main = String.slice(string, 4..-1)
+    main = String.split(main, "", trim: true)
+    main = Enum.reject(main, fn x -> x in [","] end)
+    new_list = []
+    new_list = make_int(main, Enum.count(main) - 1, new_list)
+    sorted_B = []
+    sorted_B = add_index(new_list, new_list, 0, sorted_B)
+    sorted_B =  Enum.sort(sorted_B, fn x, y -> x.value < y.value end)
+    # IO.inspect(sorted_B)
+    sorted_B
+  end
 
+  def give_A(a_data) do
+    {:ok, pid} = Agent.start_link(fn -> %{} end)
+    Process.register(pid, :give_info_A)
+    Agent.update(:give_info_A, fn list -> a_data end)
+    # Agent.update(agent, fn list -> ["eggs" | list] end)
+  end
 
+  def set_goal(a_data, b_data, i, goal_locs) do
+    if(i < Map.count(a_data)) do
+      k = Enum.at(a_data, i)
+      j = Enum.at(b_data, i)
+      if((k.value <= j.value) and (k.index <= j.index)) do
+        goal_A = Enum.at(goal_locs, k.index)
+        # go_to_goal(goal_A)
+      end
+    end
+  end
+
+  def stop(%CLI.Position{x: x, y: y, facing: facing} = robot, goal_locs, cli_proc_name) do
+    index_list = []
+    dist_list = []
+    a_data = dist(%CLI.Position{x: x, y: y, facing: facing} = robot, goal_locs, 0, index_list, dist_list)
+    b_data = sort_B()
+    give_A(a_data)
+    # set_goal(a_data, b_data, 0, goal_locs)
+    IO.inspect(b_data)
   end
 
   @doc """
