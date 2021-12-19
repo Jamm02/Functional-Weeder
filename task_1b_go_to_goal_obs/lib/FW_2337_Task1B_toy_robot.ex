@@ -15,6 +15,7 @@ defmodule ToyRobot do
       {:ok, %ToyRobot.Position{facing: :north, x: 1, y: :a}}
   """
 
+
   def place do
     {:ok, %ToyRobot.Position{}}
   end
@@ -169,6 +170,108 @@ defmodule ToyRobot do
     valid_y = [:a,:b,:c,:d,:e]
     Enum.member?(valid_x,x) and Enum.member?(valid_y,y)
   end
+  def robot_movement(robot, final_cordinates,cli_proc_name) do
+    %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+    if(x > final_cordinates.x and y == final_cordinates.y) do
+      cond do
+        facing == :north->
+          robot = right(robot)
+          is_obs = check_for_obs(robot,cli_proc_name)
+          robot = move(robot)
+          is_obs = check_for_obs(robot,cli_proc_name)
+        facing == :south->
+          robot = left(robot)
+          is_obs = check_for_obs(robot,cli_proc_name)
+          robot = move(robot)
+          is_obs = check_for_obs(robot,cli_proc_name)
+        facing == :west ->
+          robot = right(robot)
+          is_obs = check_for_obs(robot,cli_proc_name)
+          robot = right(robot)
+          is_obs = check_for_obs(robot,cli_proc_name)
+          robot = move(robot)
+          is_obs = check_for_obs(robot,cli_proc_name)
+        facing == :east ->
+          robot = move(robot)
+          is_obs = check_for_obs(robot,cli_proc_name)
+      end
+    end
+
+    if(x < final_cordinates.x and y == final_cordinates.y) do
+      cond do
+        facing == :north->
+          robot = left(robot)
+          is_obs = check_for_obs(robot,cli_proc_name)
+          robot = move(robot)
+          is_obs = check_for_obs(robot,cli_proc_name)
+        facing == :south->
+          robot = right(robot)
+          is_obs = check_for_obs(robot,cli_proc_name)
+          robot = move(robot)
+          is_obs = check_for_obs(robot,cli_proc_name)
+        facing == :east ->
+          robot = right(robot)
+          is_obs = check_for_obs(robot,cli_proc_name)
+          robot = right(robot)
+          is_obs = check_for_obs(robot,cli_proc_name)
+          robot = move(robot)
+          is_obs = check_for_obs(robot,cli_proc_name)
+        facing == :west
+        robot = move(robot)
+        is_obs = check_for_obs(robot,cli_proc_name)
+      end
+    end
+
+    if(y < final_cordinates.y and x == final_cordinates.x) do
+      cond do
+        facing == :north->
+          robot = move(robot)
+          is_obs = check_for_obs(robot,cli_proc_name)
+        facing == :south->
+          robot = right(robot)
+          is_obs = check_for_obs(robot,cli_proc_name)
+          robot = right(robot)
+          is_obs = check_for_obs(robot,cli_proc_name)
+          robot = move(robot)
+          is_obs = check_for_obs(robot,cli_proc_name)
+        facing == :east ->
+          robot = left(robot)
+          is_obs = check_for_obs(robot,cli_proc_name)
+          robot = move(robot)
+          is_obs = check_for_obs(robot,cli_proc_name)
+        facing == :west
+        robot = right(robot)
+        is_obs = check_for_obs(robot,cli_proc_name)
+        robot = move(robot)
+        is_obs = check_for_obs(robot,cli_proc_name)
+      end
+    end
+    if(y > final_cordinates.y and x == final_cordinates.x) do
+      cond do
+        facing == :north->
+          robot = right(robot)
+          is_obs = check_for_obs(robot,cli_proc_name)
+          robot = right(robot)
+          is_obs = check_for_obs(robot,cli_proc_name)
+          robot = move(robot)
+          is_obs = check_for_obs(robot,cli_proc_name)
+        facing == :south->
+          robot = move(robot)
+          is_obs = check_for_obs(robot,cli_proc_name)
+        facing == :east ->
+          robot = right(robot)
+          is_obs = check_for_obs(robot,cli_proc_name)
+          robot = move(robot)
+          is_obs = check_for_obs(robot,cli_proc_name)
+        facing == :west
+        robot = left(robot)
+        is_obs = check_for_obs(robot,cli_proc_name)
+        robot = move(robot)
+        is_obs = check_for_obs(robot,cli_proc_name)
+      end
+    end
+
+  end
 
   # function to check the 4 successors(surrounding nodes to the parent node)
   def checkSuccessor(openList, closedList, nodeDetails, goal_x, goal_y, cli_proc_name,goal_reached) do
@@ -181,34 +284,36 @@ defmodule ToyRobot do
     else
       # remove the first cell form openList
       # this shoul be the node with least f so whenever a node is added to a open list in the upcoming code the list is sorted.
-      current_node = Enum.at(openList, 0)
-      IO.inspect(current_node)
+      open_list_node_1 = Enum.at(openList, 0)
+      # IO.inspect(current_node)
       # IO.inspect(node)
       IO.puts(" ")
       # IO.puts("openList:")
       # IO.inspect(openList)
       openList = List.delete_at(openList, 0)
-
+      close_list_node_1 = Enum.at(closedList, 0)
       # add it to closed list
-      node_closed = %ClosedListStruct{x: current_node.x, y: current_node.y}
+      node_closed = %ClosedListStruct{x: open_list_node_1.x, y: open_list_node_1.y}
+      robot_i = %ToyRobot.Position{x: close_list_node_1.x, y: close_list_node_1.y, facing: open_list_node_1.facing}
       closedList = [node_closed | closedList]
+      final_coordinates = %{x: node_closed.x, y: node_closed.y}
       # IO.puts("closedList:")
       # IO.inspect(closedList)
+      ####################################################################################
+      robot_movement(robot_i,final_coordinates,cli_proc_name)
+      ####################################################################################
       openList = []
-      ####################################################################################
-      # TODO robot movement code here
-      ####################################################################################
       # now check all the 4 surrounding nodes
       # x_p ==> x - coordinate of the parent node
       # y_p ==> y - coordinate of the parent node
       is_dest = false
       # ################   north   ############################
-      x = find_successor_coordinates_x(current_node.x, :north)
-      y = find_successor_coordinates_y(current_node.y, :north)
+      x = find_successor_coordinates_x(open_list_node_1.x, :north)
+      y = find_successor_coordinates_y(open_list_node_1.y, :north)
       # IO.puts("x: #{x} , y: #{y}")
       {nodeDetails,openList,is_dest} =
       if(is_dest == false) do
-        {nodeDetails,openList,is_dest} = process_successor(openList, closedList, nodeDetails, goal_x, goal_y,current_node,x,y)
+        {nodeDetails,openList,is_dest} = process_successor(openList, closedList, nodeDetails, goal_x, goal_y,open_list_node_1,x,y)
         # IO.puts("checked north")
         # IO.puts("destionation reached : #{is_dest}")
         {nodeDetails,openList,is_dest}
@@ -217,12 +322,12 @@ defmodule ToyRobot do
       end
 
       # ################   east   ############################
-      x = find_successor_coordinates_x(current_node.x, :east)
-      y = find_successor_coordinates_y(current_node.y, :east)
+      x = find_successor_coordinates_x(open_list_node_1.x, :east)
+      y = find_successor_coordinates_y(open_list_node_1.y, :east)
       # IO.puts("x: #{x} , y: #{y}")
       {nodeDetails,openList,is_dest} =
       if(is_dest == false) do
-        {nodeDetails,openList,is_dest} = process_successor(openList, closedList, nodeDetails, goal_x, goal_y,current_node,x,y)
+        {nodeDetails,openList,is_dest} = process_successor(openList, closedList, nodeDetails, goal_x, goal_y,open_list_node_1,x,y)
         # IO.puts("checked east")
         # IO.puts("destionation reached : #{is_dest}")
         {nodeDetails,openList,is_dest}
@@ -231,12 +336,12 @@ defmodule ToyRobot do
       end
 
       # ################   south   ############################
-      x = find_successor_coordinates_x(current_node.x, :south)
-      y = find_successor_coordinates_y(current_node.y, :south)
+      x = find_successor_coordinates_x(open_list_node_1.x, :south)
+      y = find_successor_coordinates_y(open_list_node_1.y, :south)
       # IO.puts("x: #{x} , y: #{y}")
       {nodeDetails,openList,is_dest} =
       if (is_dest == false) do
-        {nodeDetails,openList,is_dest} = process_successor(openList, closedList, nodeDetails, goal_x, goal_y,current_node,x,y)
+        {nodeDetails,openList,is_dest} = process_successor(openList, closedList, nodeDetails, goal_x, goal_y,open_list_node_1,x,y)
         # IO.puts("checked south")
         # IO.puts("destionation reached : #{is_dest}")
         {nodeDetails,openList,is_dest}
@@ -245,12 +350,12 @@ defmodule ToyRobot do
       end
 
       # ################   west   ############################
-      x = find_successor_coordinates_x(current_node.x, :west)
-      y = find_successor_coordinates_y(current_node.y, :west)
+      x = find_successor_coordinates_x(open_list_node_1.x, :west)
+      y = find_successor_coordinates_y(open_list_node_1.y, :west)
       # IO.puts("x: #{x} , y: #{y}")
       {nodeDetails,openList,is_dest} =
       if (is_dest == false) do
-        {nodeDetails,openList,is_dest} = process_successor(openList, closedList, nodeDetails, goal_x, goal_y,current_node,x,y)
+        {nodeDetails,openList,is_dest} = process_successor(openList, closedList, nodeDetails, goal_x, goal_y,open_list_node_1,x,y)
         # IO.puts("checked west")
         # IO.puts("destionation reached : #{is_dest}")
         {nodeDetails,openList,is_dest}
