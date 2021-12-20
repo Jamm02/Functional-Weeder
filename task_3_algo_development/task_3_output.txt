@@ -1,8 +1,8 @@
 A => 1, a, north
 A => 1, b, north
 A => 1, c, north
-A => 1, c, west
-A => 1, c, west
+A => 1, c, east
+A => 2, c, east
 A => 2, d, north
 A => 3, d, north
 B => 5, e, south

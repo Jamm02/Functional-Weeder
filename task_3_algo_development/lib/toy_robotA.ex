@@ -186,7 +186,9 @@ defmodule CLI.ToyRobotA do
   end
   def robot_movement(robot, final_cordinates,cli_proc_name) do
     %CLI.Position{x: x, y: y, facing: facing} = robot
-    if(x > final_cordinates.x and y == final_cordinates.y) do
+    # IO.inspect(robot)
+    # IO.inspect(final_cordinates)
+    if(final_cordinates.x > x and y == final_cordinates.y) do
       cond do
         facing == :north->
           robot = right(robot)
@@ -211,7 +213,7 @@ defmodule CLI.ToyRobotA do
       end
     end
 
-    if(x < final_cordinates.x and y == final_cordinates.y) do
+    if(final_cordinates.x < x and y == final_cordinates.y) do
       cond do
         facing == :north->
           robot = left(robot)
@@ -236,7 +238,7 @@ defmodule CLI.ToyRobotA do
       end
     end
 
-    if(y < final_cordinates.y and x == final_cordinates.x) do
+    if(final_cordinates.y > y and x == final_cordinates.x) do
       cond do
         facing == :north->
           robot = move(robot)
@@ -260,7 +262,7 @@ defmodule CLI.ToyRobotA do
         is_obs = check_for_obs(robot,cli_proc_name)
       end
     end
-    if(y > final_cordinates.y and x == final_cordinates.x) do
+    if(final_cordinates.y < y and x == final_cordinates.x) do
       cond do
         facing == :north->
           robot = right(robot)
@@ -385,14 +387,14 @@ defmodule CLI.ToyRobotA do
       # this shoul be the node with least f so whenever a node is added to a open list in the upcoming code the list is sorted.
       open_list_node_1 = Enum.at(openList, 0)
       facing = open_list_node_1.facing
-      IO.puts("openList:")
-      IO.inspect(openList)
+      # IO.puts("openList:")
+      # IO.inspect(openList)
       openList = List.delete_at(openList, 0)
       # add it to closed list
       node_closed = %ClosedListStruct{x: open_list_node_1.x, y: open_list_node_1.y}
       closedList = [node_closed | closedList]
-      IO.puts("closedList: ")
-      IO.inspect(closedList)
+      # IO.puts("closedList: ")
+      # IO.inspect(closedList)
 
       if (Enum.count(closedList) > 1) do
         closed_list_node_0 = Enum.at(closedList,0)
