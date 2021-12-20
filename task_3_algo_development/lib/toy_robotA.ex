@@ -184,7 +184,8 @@ defmodule CLI.ToyRobotA do
       end
     end
   end
-  def robot_movement(robot, final_cordinates,cli_proc_name) do
+  def robot_movement(robot, final_cordinates,cli_proc_name, counter) do
+    counter = counter + 1
     %CLI.Position{x: x, y: y, facing: facing} = robot
     # IO.inspect(robot)
     # IO.inspect(final_cordinates)
@@ -299,7 +300,6 @@ defmodule CLI.ToyRobotA do
                 is_obs = check_for_obs(robot,cli_proc_name)
                 facing_ret = robot.facing
               facing == :west ->
-                IO.puts(" Bharosa rakh bhai:  idhar tak pohoch gaya hai")
                 robot = left(robot)
                 is_obs = check_for_obs(robot,cli_proc_name)
                 robot = move(robot)
@@ -307,7 +307,7 @@ defmodule CLI.ToyRobotA do
                 facing_ret = robot.facing
             end
     end
-    facing_ret
+    {facing_ret,counter}
   end
   # finds the x coordinate of the successor according to its facing
   def find_successor_coordinates_x(x, facing) do
@@ -396,7 +396,7 @@ defmodule CLI.ToyRobotA do
     Enum.member?(valid_x, x) and Enum.member?(valid_y, y)
   end
 
-  def checkSuccessor(openList, closedList, nodeDetails, goal_x, goal_y, cli_proc_name,goal_reached,facing_ret) do
+  def checkSuccessor(openList, closedList, nodeDetails, goal_x, goal_y, cli_proc_name,goal_reached,facing_ret,counter) do
     # if the open list is empty return
     if(Enum.empty?(openList) or goal_reached == true) do
       destination = Enum.at(openList, 0)
@@ -407,16 +407,15 @@ defmodule CLI.ToyRobotA do
       # remove the first cell form openList
       # this shoul be the node with least f so whenever a node is added to a open list in the upcoming code the list is sorted.
       open_list_node_1 = Enum.at(openList, 0)
-      facing = open_list_node_1.facing
-      # IO.puts("openList:")
-      # IO.inspect(openList)
+      IO.puts("openList:")
+      IO.inspect(openList)
       openList = List.delete_at(openList, 0)
       # add it to closed list
       node_closed = %ClosedListStruct{x: open_list_node_1.x, y: open_list_node_1.y}
       closedList = [node_closed | closedList]
       # IO.puts("closedList: ")
       # IO.inspect(closedList)
-      facing_ret =
+      {facing_ret,counter} =
       if (Enum.count(closedList) > 1) do
         closed_list_node_0 = Enum.at(closedList,0)
         closed_list_node_1 = Enum.at(closedList,1)
@@ -426,11 +425,11 @@ defmodule CLI.ToyRobotA do
           facing: facing_ret
         }
         final_coordinates = %{x: closed_list_node_0.x, y: closed_list_node_0.y}
-        facing_ret = robot_movement(robot_i, final_coordinates, cli_proc_name)
+        {facing_ret,counter} = robot_movement(robot_i, final_coordinates, cli_proc_name,counter)
         # IO.puts("-----------------------------------------------------------------------------------")
         # IO.inspect(facing_ret)
         # IO.puts("-----------------------------------------------------------------------------------")
-        facing_ret
+        {facing_ret,counter}
         else
         closed_list_node_0 = Enum.at(closedList,0)
         robot_spawn_loc = %CLI.Position{
@@ -439,7 +438,8 @@ defmodule CLI.ToyRobotA do
           facing: open_list_node_1.facing
         }
         is_obs = check_for_obs(robot_spawn_loc,cli_proc_name)
-        robot_spawn_loc.facing
+        facing_ret = robot_spawn_loc.facing
+        {facing_ret,counter}
       end
       openList = []
       # now check all the 4 surrounding nodes
@@ -459,7 +459,7 @@ defmodule CLI.ToyRobotA do
         else
           {nodeDetails, openList, is_dest}
         end
-
+      # IO.puts("now checking successors")
       # ################   east   ############################
       x = find_successor_coordinates_x(open_list_node_1.x, :east)
       y = find_successor_coordinates_y(open_list_node_1.y, :east)
@@ -505,10 +505,23 @@ defmodule CLI.ToyRobotA do
           {nodeDetails, openList, is_dest}
         end
       ######################### recursive call##################################
-      checkSuccessor(openList, closedList, nodeDetails, goal_x, goal_y, cli_proc_name, is_dest,facing_ret)
+
+      checkSuccessor(openList, closedList, nodeDetails, goal_x, goal_y, cli_proc_name, is_dest, facing_ret,counter)
     end
   end
 
+  def find_best_successor(current_node, openList, cli_proc_name) do
+    node = Enum.at(openList,0)
+    robot = %CLI.Position{x: current_node.x, y: current_node.y, facing: current_node.facing}
+    is_obs = check_for_obs(robot,cli_proc_name)
+    openList =
+    if(is_obs == true) do
+      openList = List.delete_at(openList,0)
+      find_best_successor(current_node,openList,cli_proc_name)
+    else
+      openList
+    end
+  end
   def process_successor(openList, closedList, nodeDetails, goal_x, goal_y, current_node, x, y) do
     is_dest_reached = false
     %OpenListStruct{x: x_p, y: y_p, facing: facing, f: _f} = current_node
@@ -566,6 +579,24 @@ defmodule CLI.ToyRobotA do
                 {nodeDetails_return, openList_return, is_dest_reached} =
                   if(node_new.f == 10000.0 or node_new.f > fNew) do
                     # add the cell to open list
+                    x_i = x_p
+                    x_f = x
+                    y_map_atom_to_int = %{:a => 1, :b => 2, :c => 3, :d => 4, :e => 5}
+                    y_i = y_map_atom_to_int[y_p]
+                    y_f = y_map_atom_to_int[y]
+                    # IO.puts("final x : #{x_f} and final y : #{y_f}")
+                    # IO.puts("initial x : #{x_i} and initial y : #{y_i}")
+                    facing =
+                      cond do
+                        x_f > x_i and y_f == y_i ->
+                          :east
+                        x_f < x_i and y_f == y_i ->
+                          :west
+                        y_f > y_i and x_f == x_i ->
+                          :north
+                        y_f < y_i and x_f == x_i ->
+                          :south
+                      end
                     cell_to_insert = %OpenListStruct{x: x, y: y, facing: facing, f: fNew}
                     openList = [cell_to_insert | openList]
                     # sort the list so that the cell with lowest f is in the begining
@@ -644,7 +675,8 @@ defmodule CLI.ToyRobotA do
       # IO.inspect(opentList)
       goal_reached = false
       facing_ret = facing
-      checkSuccessor(opentList, closedList, nodeDetails, goal_x, goal_y, cli_proc_name,goal_reached,facing_ret)
+      counter = 0
+      checkSuccessor(opentList, closedList, nodeDetails, goal_x, goal_y, cli_proc_name,goal_reached,facing_ret,counter)
     end
   end
 
