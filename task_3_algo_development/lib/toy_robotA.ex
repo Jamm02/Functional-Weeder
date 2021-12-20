@@ -188,105 +188,126 @@ defmodule CLI.ToyRobotA do
     %CLI.Position{x: x, y: y, facing: facing} = robot
     # IO.inspect(robot)
     # IO.inspect(final_cordinates)
-    if(final_cordinates.x > x and y == final_cordinates.y) do
-      cond do
-        facing == :north->
-          robot = right(robot)
-          is_obs = check_for_obs(robot,cli_proc_name)
-          robot = move(robot)
-          is_obs = check_for_obs(robot,cli_proc_name)
-        facing == :south->
-          robot = left(robot)
-          is_obs = check_for_obs(robot,cli_proc_name)
-          robot = move(robot)
-          is_obs = check_for_obs(robot,cli_proc_name)
-        facing == :west ->
-          robot = right(robot)
-          is_obs = check_for_obs(robot,cli_proc_name)
-          robot = right(robot)
-          is_obs = check_for_obs(robot,cli_proc_name)
-          robot = move(robot)
-          is_obs = check_for_obs(robot,cli_proc_name)
-        facing == :east ->
-          robot = move(robot)
-          is_obs = check_for_obs(robot,cli_proc_name)
-      end
-    end
+    facing_ret =
+    cond do
+      final_cordinates.x > x and y == final_cordinates.y ->
+        facing_ret =
+          cond do
+          facing == :north->
+            robot = right(robot)
+            is_obs = check_for_obs(robot,cli_proc_name)
+            robot = move(robot)
+            is_obs = check_for_obs(robot,cli_proc_name)
+            facing_ret = robot.facing
+          facing == :south->
+            robot = left(robot)
+            is_obs = check_for_obs(robot,cli_proc_name)
+            robot = move(robot)
+            is_obs = check_for_obs(robot,cli_proc_name)
+            facing_ret = robot.facing
+          facing == :west ->
+            robot = right(robot)
+            is_obs = check_for_obs(robot,cli_proc_name)
+            robot = right(robot)
+            is_obs = check_for_obs(robot,cli_proc_name)
+            robot = move(robot)
+            is_obs = check_for_obs(robot,cli_proc_name)
+            facing_ret = robot.facing
+          facing == :east ->
+            robot = move(robot)
+            is_obs = check_for_obs(robot,cli_proc_name)
+            facing_ret = robot.facing
+        end
 
-    if(final_cordinates.x < x and y == final_cordinates.y) do
-      cond do
-        facing == :north->
-          robot = left(robot)
-          is_obs = check_for_obs(robot,cli_proc_name)
-          robot = move(robot)
-          is_obs = check_for_obs(robot,cli_proc_name)
-        facing == :south->
-          robot = right(robot)
-          is_obs = check_for_obs(robot,cli_proc_name)
-          robot = move(robot)
-          is_obs = check_for_obs(robot,cli_proc_name)
-        facing == :east ->
-          robot = right(robot)
-          is_obs = check_for_obs(robot,cli_proc_name)
-          robot = right(robot)
-          is_obs = check_for_obs(robot,cli_proc_name)
-          robot = move(robot)
-          is_obs = check_for_obs(robot,cli_proc_name)
-        facing == :west
-        robot = move(robot)
-        is_obs = check_for_obs(robot,cli_proc_name)
-      end
-    end
+      final_cordinates.x < x and y == final_cordinates.y ->
+        facing_ret =
+          cond do
+            facing == :north->
+              robot = left(robot)
+              is_obs = check_for_obs(robot,cli_proc_name)
+              robot = move(robot)
+              is_obs = check_for_obs(robot,cli_proc_name)
+              facing_ret = robot.facing
+            facing == :south->
+              robot = right(robot)
+              is_obs = check_for_obs(robot,cli_proc_name)
+              robot = move(robot)
+              is_obs = check_for_obs(robot,cli_proc_name)
+              facing_ret = robot.facing
+            facing == :east ->
+              robot = right(robot)
+              is_obs = check_for_obs(robot,cli_proc_name)
+              robot = right(robot)
+              is_obs = check_for_obs(robot,cli_proc_name)
+              robot = move(robot)
+              is_obs = check_for_obs(robot,cli_proc_name)
+              facing_ret = robot.facing
+            facing == :west ->
+              robot = move(robot)
+              is_obs = check_for_obs(robot,cli_proc_name)
+              facing_ret = robot.facing
+          end
+      final_cordinates.y > y and x == final_cordinates.x ->
+        facing_ret =
+          cond do
+            facing == :north->
+              robot = move(robot)
+              is_obs = check_for_obs(robot,cli_proc_name)
+              facing_ret = robot.facing
+            facing == :south->
+              robot = right(robot)
+              is_obs = check_for_obs(robot,cli_proc_name)
+              robot = right(robot)
+              is_obs = check_for_obs(robot,cli_proc_name)
+              robot = move(robot)
+              is_obs = check_for_obs(robot,cli_proc_name)
+              facing_ret = robot.facing
+            facing == :east ->
+              robot = left(robot)
+              is_obs = check_for_obs(robot,cli_proc_name)
+              robot = move(robot)
+              is_obs = check_for_obs(robot,cli_proc_name)
+              facing_ret = robot.facing
+            facing == :west ->
+              robot = right(robot)
+              is_obs = check_for_obs(robot,cli_proc_name)
+              robot = move(robot)
+              is_obs = check_for_obs(robot,cli_proc_name)
+              facing_ret = robot.facing
+          end
 
-    if(final_cordinates.y > y and x == final_cordinates.x) do
-      cond do
-        facing == :north->
-          robot = move(robot)
-          is_obs = check_for_obs(robot,cli_proc_name)
-        facing == :south->
-          robot = right(robot)
-          is_obs = check_for_obs(robot,cli_proc_name)
-          robot = right(robot)
-          is_obs = check_for_obs(robot,cli_proc_name)
-          robot = move(robot)
-          is_obs = check_for_obs(robot,cli_proc_name)
-        facing == :east ->
-          robot = left(robot)
-          is_obs = check_for_obs(robot,cli_proc_name)
-          robot = move(robot)
-          is_obs = check_for_obs(robot,cli_proc_name)
-        facing == :west
-        robot = right(robot)
-        is_obs = check_for_obs(robot,cli_proc_name)
-        robot = move(robot)
-        is_obs = check_for_obs(robot,cli_proc_name)
-      end
-    end
-    if(final_cordinates.y < y and x == final_cordinates.x) do
-      cond do
-        facing == :north->
-          robot = right(robot)
-          is_obs = check_for_obs(robot,cli_proc_name)
-          robot = right(robot)
-          is_obs = check_for_obs(robot,cli_proc_name)
-          robot = move(robot)
-          is_obs = check_for_obs(robot,cli_proc_name)
-        facing == :south->
-          robot = move(robot)
-          is_obs = check_for_obs(robot,cli_proc_name)
-        facing == :east ->
-          robot = right(robot)
-          is_obs = check_for_obs(robot,cli_proc_name)
-          robot = move(robot)
-          is_obs = check_for_obs(robot,cli_proc_name)
-        facing == :west
-        robot = left(robot)
-        is_obs = check_for_obs(robot,cli_proc_name)
-        robot = move(robot)
-        is_obs = check_for_obs(robot,cli_proc_name)
-      end
-    end
+        final_cordinates.y < y and x == final_cordinates.x ->
+          facing_ret =
+            cond do
 
+              facing == :north->
+                robot = right(robot)
+                is_obs = check_for_obs(robot,cli_proc_name)
+                robot = right(robot)
+                is_obs = check_for_obs(robot,cli_proc_name)
+                robot = move(robot)
+                is_obs = check_for_obs(robot,cli_proc_name)
+                facing_ret = robot.facing
+              facing == :south->
+                robot = move(robot)
+                is_obs = check_for_obs(robot,cli_proc_name)
+                facing_ret = robot.facing
+              facing == :east ->
+                robot = right(robot)
+                is_obs = check_for_obs(robot,cli_proc_name)
+                robot = move(robot)
+                is_obs = check_for_obs(robot,cli_proc_name)
+                facing_ret = robot.facing
+              facing == :west ->
+                IO.puts(" Bharosa rakh bhai:  idhar tak pohoch gaya hai")
+                robot = left(robot)
+                is_obs = check_for_obs(robot,cli_proc_name)
+                robot = move(robot)
+                is_obs = check_for_obs(robot,cli_proc_name)
+                facing_ret = robot.facing
+            end
+    end
+    facing_ret
   end
   # finds the x coordinate of the successor according to its facing
   def find_successor_coordinates_x(x, facing) do
@@ -375,7 +396,7 @@ defmodule CLI.ToyRobotA do
     Enum.member?(valid_x, x) and Enum.member?(valid_y, y)
   end
 
-  def checkSuccessor(openList, closedList, nodeDetails, goal_x, goal_y, cli_proc_name,goal_reached) do
+  def checkSuccessor(openList, closedList, nodeDetails, goal_x, goal_y, cli_proc_name,goal_reached,facing_ret) do
     # if the open list is empty return
     if(Enum.empty?(openList) or goal_reached == true) do
       destination = Enum.at(openList, 0)
@@ -395,17 +416,21 @@ defmodule CLI.ToyRobotA do
       closedList = [node_closed | closedList]
       # IO.puts("closedList: ")
       # IO.inspect(closedList)
-
+      facing_ret =
       if (Enum.count(closedList) > 1) do
         closed_list_node_0 = Enum.at(closedList,0)
         closed_list_node_1 = Enum.at(closedList,1)
         robot_i = %CLI.Position{
           x: closed_list_node_1.x,
           y: closed_list_node_1.y,
-          facing: open_list_node_1.facing
+          facing: facing_ret
         }
         final_coordinates = %{x: closed_list_node_0.x, y: closed_list_node_0.y}
-        robot_movement(robot_i, final_coordinates, cli_proc_name)
+        facing_ret = robot_movement(robot_i, final_coordinates, cli_proc_name)
+        # IO.puts("-----------------------------------------------------------------------------------")
+        # IO.inspect(facing_ret)
+        # IO.puts("-----------------------------------------------------------------------------------")
+        facing_ret
         else
         closed_list_node_0 = Enum.at(closedList,0)
         robot_spawn_loc = %CLI.Position{
@@ -414,6 +439,7 @@ defmodule CLI.ToyRobotA do
           facing: open_list_node_1.facing
         }
         is_obs = check_for_obs(robot_spawn_loc,cli_proc_name)
+        robot_spawn_loc.facing
       end
       openList = []
       # now check all the 4 surrounding nodes
@@ -479,7 +505,7 @@ defmodule CLI.ToyRobotA do
           {nodeDetails, openList, is_dest}
         end
       ######################### recursive call##################################
-      checkSuccessor(openList, closedList, nodeDetails, goal_x, goal_y, cli_proc_name, is_dest)
+      checkSuccessor(openList, closedList, nodeDetails, goal_x, goal_y, cli_proc_name, is_dest,facing_ret)
     end
   end
 
@@ -617,8 +643,8 @@ defmodule CLI.ToyRobotA do
       opentList = [start_cell_on_list | opentList]
       # IO.inspect(opentList)
       goal_reached = false
-
-      checkSuccessor(opentList, closedList, nodeDetails, goal_x, goal_y, cli_proc_name,goal_reached)
+      facing_ret = facing
+      checkSuccessor(opentList, closedList, nodeDetails, goal_x, goal_y, cli_proc_name,goal_reached,facing_ret)
     end
   end
 
