@@ -1,4 +1,5 @@
 defmodule CLI.ToyRobotB do
+  use Agent
   # max x-coordinate of table top
   @table_top_x 5
   # max y-coordinate of table top
@@ -52,13 +53,18 @@ defmodule CLI.ToyRobotB do
   Provide START position to the robot as given location of (x, y, facing) and place it.
   """
   def start(x, y, facing) do
-    ###########################
-    ## complete this funcion ##
-    ###########################
+    place(x, y, facing)
+
   end
 
-  def stop(_robot, goal_x, goal_y, _cli_proc_name) when goal_x < 1 or goal_y < :a or goal_x > @table_top_x or goal_y > @table_top_y do
-    {:failure, "Invalid STOP position"}
+  def start() do
+    place()
+
+  end
+
+
+  def go_to_goal(_robot, goal_x, goal_y, _cli_proc_name) when goal_x < 1 or goal_y < :a or goal_x > @table_top_x or goal_y > @table_top_y do
+    {:failure, "Invalid go_to_goal position"}
   end
 
   @doc """
@@ -67,11 +73,119 @@ defmodule CLI.ToyRobotB do
   Spawn a process and register it with name ':client_toyrobotB' which is used by CLI Server to send an
   indication for the presence of obstacle ahead of robot's current position and facing.
   """
-  def stop(robot, goal_locs, cli_proc_name) do
-    ###########################
-    ## complete this funcion ##
-    ###########################
+  defmodule SortedListStruct do
+    defstruct value: -1, index: -1
   end
+
+def dist_from_B(%CLI.Position{x: x, y: y, facing: facing} = robot, goal_locs, i) do
+
+  y_map_atom_to_int = %{:a => 1, :b => 2, :c => 3, :d => 4, :e => 5}
+  y_int = y_map_atom_to_int[y]
+
+  y_dest_int = y_map_atom_to_int[String.to_atom(Enum.at(Enum.at(goal_locs, i), 1))]
+  {k, ""} = (Integer.parse(Enum.at(Enum.at(goal_locs, i), 0)))
+  abs(k - x) + abs(y_dest_int - y_int)
+
+end
+
+def add_index(dist_list, goal_locs, i, new_list) do
+  if (i < Enum.count(goal_locs)) do
+    # %OpenListStruct{x: x_p, y: y_p, facing: facing, f: _f} = current_node
+    cell_to_insert = %SortedListStruct{value: Enum.at(dist_list, i), index: i}
+    new_list = [cell_to_insert | new_list]
+    i = i + 1
+    add_index(dist_list, goal_locs, i, new_list)
+  else
+    new_list
+  end
+
+end
+
+
+def dist(%CLI.Position{x: x, y: y, facing: facing} = robot, goal_locs, i, index_list, dist_list) do
+
+  index_list = index_list ++ [i]
+  distance = dist_from_B(%CLI.Position{x: x, y: y, facing: facing} = robot, goal_locs, i)
+  dist_list = dist_list ++ [distance]
+  i = i + 1
+  if i < Enum.count(goal_locs) do
+    dist(robot, goal_locs, i, index_list, dist_list)
+  else
+  new_list = []
+  new_list = add_index(dist_list, goal_locs, 0, new_list)
+  # IO.inspect(new_list)
+  # new_list = Enum.sort(new_list, fn x, y -> x.value < y.value end)
+  # IO.inspect(new_list)
+  end
+end
+
+def put_info(new_list, finaldata, i) do
+
+  if (i < Enum.count(new_list)) do
+    temp_struct = Enum.at(new_list, i)
+    value = to_string(temp_struct.value)
+    finaldata = Enum.join([finaldata, value], ",")
+    index = to_string(temp_struct.index)
+    finaldata = Enum.join([finaldata, index], ",")
+    i = i + 1
+    put_info(new_list, finaldata, i)
+  else
+    finaldata
+  end
+
+end
+
+def give_A_info(%CLI.Position{x: x, y: y, facing: facing} = robot, goal_locs) do
+  {:ok, pid} = Agent.start_link(fn -> %{} end)
+  Process.register(pid, :your_map_name)
+  data = to_string(x)
+  finaldata = Enum.join([data, to_string(y)], ",")
+  index_list = []
+  dist_list = []
+  new_list = dist(%CLI.Position{x: x, y: y, facing: facing} = robot, goal_locs, 0, index_list, dist_list)
+  finaldata = put_info(new_list, finaldata, 0)
+  Agent.update(:your_map_name, fn map -> Map.put(map, :robotB, finaldata) end )
+end
+
+def get_A() do
+  Process.sleep(100)
+  Agent.get(:give_info_A, fn list -> list end)
+end
+
+
+def set_goal(a_data, b_data, i, goal_locs, %CLI.Position{x: x, y: y, facing: facing} = robot, cli_proc_name) do
+
+    # k = Enum.at(a_data, 0)
+    # j = Enum.at(b_data, 0)
+    # # if((k.value > j.value) and (k.index > j.index)) do
+    #   goal_B = Enum.at(goal_locs, j.index)
+    #   # IO.inspect(is_number(Enum.at(goal_B, 0)))
+    #   {k, ""} = Integer.parse(Enum.at(goal_B, 0))
+
+    #   j = String.to_atom(Enum.at(goal_B, 1))
+    #   y_map_atom_to_int = %{:a => 1, :b => 2, :c => 3, :d => 4, :e => 5}
+    #   j = y_map_atom_to_int[j]
+
+    #   IO.inspect(is_number(j))
+    #   goal_x = k
+    #   goal_y = j
+    #   go_to_goal(%CLI.Position{x: x, y: y, facing: facing} = robot, goal_x, goal_y, cli_proc_name)
+    # # end
+
+end
+
+
+
+def stop(%CLI.Position{x: x, y: y, facing: facing} = robot, goal_locs, cli_proc_name) do
+  give_A_info(robot, goal_locs)
+  a_data = get_A()
+  index_list = []
+  dist_list = []
+  b_data = dist(%CLI.Position{x: x, y: y, facing: facing} = robot, goal_locs, 0, index_list, dist_list)
+  IO.inspect(a_data)
+  # set_goal(a_data, b_data, 0 , goal_locs, %CLI.Position{x: x, y: y, facing: facing} = robot, cli_proc_name)
+
+end
 
   @doc """
   Send Toy Robot's current status i.e. location (x, y) and facing
@@ -79,6 +193,16 @@ defmodule CLI.ToyRobotB do
   Listen to the CLI Server and wait for the message indicating the presence of obstacle.
   The message with the format: '{:obstacle_presence, < true or false >}'.
   """
+  def check_for_obs(robot,cli_proc_name)do
+    current = self()
+    pid = spawn_link(fn -> x = send_robot_status(robot, cli_proc_name)
+                           send(current,x) end)
+    Process.register(pid, :client_toyrobot)
+    receive do
+      value -> value
+    end
+  end
+
   def send_robot_status(%CLI.Position{x: x, y: y, facing: facing} = _robot, cli_proc_name) do
     send(cli_proc_name, {:toyrobotB_status, x, y, facing})
     # IO.puts("Sent by Toy Robot Client: #{x}, #{y}, #{facing}")
