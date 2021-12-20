@@ -1,0 +1,12 @@
+A => 1, a, north
+A => 1, b, north
+A => 1, c, north
+A => 1, c, west
+A => 1, c, west
+A => 2, d, north
+A => 3, d, north
+B => 5, e, south
+B => 5, e, east
+B => 5, e, east
+B => 4, d, south
+B => 3, d, south

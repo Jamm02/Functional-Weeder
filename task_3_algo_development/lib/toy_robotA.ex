@@ -377,36 +377,42 @@ defmodule CLI.ToyRobotA do
     # if the open list is empty return
     if(Enum.empty?(openList) or goal_reached == true) do
       destination = Enum.at(openList, 0)
-      IO.inspect(destination)
       robot = %CLI.Position{x: destination.x, y: destination.y, facing: destination.facing}
+      is_obs = check_for_obs(robot,cli_proc_name)
       {:ok, robot}
     else
       # remove the first cell form openList
       # this shoul be the node with least f so whenever a node is added to a open list in the upcoming code the list is sorted.
       open_list_node_1 = Enum.at(openList, 0)
-      # IO.inspect(current_node)
-      # IO.inspect(node)
-      IO.puts(" ")
-      # IO.puts("openList:")
-      # IO.inspect(openList)
+      facing = open_list_node_1.facing
+      IO.puts("openList:")
+      IO.inspect(openList)
       openList = List.delete_at(openList, 0)
-      close_list_node_1 = Enum.at(closedList, 0)
       # add it to closed list
       node_closed = %ClosedListStruct{x: open_list_node_1.x, y: open_list_node_1.y}
-
-      robot_i = %CLI.Position{
-        x: close_list_node_1.x,
-        y: close_list_node_1.y,
-        facing: open_list_node_1.facing
-      }
-
       closedList = [node_closed | closedList]
-      final_coordinates = %{x: node_closed.x, y: node_closed.y}
-      # IO.puts("closedList:")
-      # IO.inspect(closedList)
-      ####################################################################################
-      robot_movement(robot_i, final_coordinates, cli_proc_name)
-      ####################################################################################
+      IO.puts("closedList: ")
+      IO.inspect(closedList)
+
+      if (Enum.count(closedList) > 1) do
+        closed_list_node_0 = Enum.at(closedList,0)
+        closed_list_node_1 = Enum.at(closedList,1)
+        robot_i = %CLI.Position{
+          x: closed_list_node_1.x,
+          y: closed_list_node_1.y,
+          facing: open_list_node_1.facing
+        }
+        final_coordinates = %{x: closed_list_node_0.x, y: closed_list_node_0.y}
+        robot_movement(robot_i, final_coordinates, cli_proc_name)
+        else
+        closed_list_node_0 = Enum.at(closedList,0)
+        robot_spawn_loc = %CLI.Position{
+          x: closed_list_node_0.x,
+          y: closed_list_node_0.y,
+          facing: open_list_node_1.facing
+        }
+        is_obs = check_for_obs(robot_spawn_loc,cli_proc_name)
+      end
       openList = []
       # now check all the 4 surrounding nodes
       # x_p ==> x - coordinate of the parent node
@@ -624,7 +630,7 @@ defmodule CLI.ToyRobotA do
     b_data = sort_B()
     give_A(a_data)
     # set_goal(a_data, b_data, 0, goal_locs)
-    IO.inspect(b_data)
+    # IO.inspect(b_data)
     goal_x = String.to_integer(Enum.at(Enum.at(goal_locs, 0), 0))
     goal_y = String.to_atom(Enum.at(Enum.at(goal_locs, 0), 1))
     # IO.inspect(goal_x)
