@@ -492,7 +492,9 @@ defmodule ToyRobot do
     # x_s = find_successor_coordinates_x(2,:north)
     # y_s = find_successor_coordinates_y(:d,:north)
     # IO.inspect({x_s,y_s})
-    find_shortest_path(robot, goal_x, goal_y, cli_proc_name)
+    IO.inspect(goal_x)
+    IO.inspect(goal_y)
+    # find_shortest_path(robot, goal_x, goal_y, cli_proc_name)
   end
 
   @doc """
