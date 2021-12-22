@@ -407,8 +407,8 @@ defmodule CLI.ToyRobotB do
       # remove the first cell form openList
       # this shoul be the node with least f so whenever a node is added to a open list in the upcoming code the list is sorted.
       open_list_node_1 = Enum.at(openList, 0)
-      IO.puts("openList:")
-      IO.inspect(openList)
+      # IO.puts("openList:")
+      # IO.inspect(openList)
       openList = List.delete_at(openList, 0)
       # add it to closed list
       node_closed = %ClosedListStruct{x: open_list_node_1.x, y: open_list_node_1.y}

@@ -3,3 +3,4 @@
 4, e, west | 3, e, east
 3, a, north | 3, b, south
 4, c, north | 4, d, south
+1, b, north | 1, c, south
