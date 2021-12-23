@@ -404,7 +404,7 @@ defmodule CLI.ToyRobotA do
 
   # function to sort the list according to the f value (accending)
   def sort_list(list) do
-    list_new = Enum.sort(list, fn x, y -> x.f < y.f end)
+    list_new = Enum.sort(list, fn x, y -> x.f > y.f end)
   end
 
   # function to calculate the hueristic value of h(euclidian path)
@@ -477,8 +477,10 @@ defmodule CLI.ToyRobotA do
       #add the cell to the final path agter the node is reached.
       node_closed = %ClosedListStruct{x: open_list_node_1.x, y: open_list_node_1.y}
       closedList = [node_closed | closedList]
+      # IO.puts("closedList: ")
+      # IO.inspect(closedList)
       # empty the open list
-      openList = []
+      # openList = []
       is_dest = false
 
       # now check all the 4 surrounding nodes
@@ -501,43 +503,42 @@ defmodule CLI.ToyRobotA do
           {nodeDetails, openList, is_dest}
         end
 
-      ###############################################################################################################################
-      ###################################################### East  ##################################################################
-      ###############################################################################################################################
 
-      # find the east successor coordinates.
-      x = find_successor_coordinates_x(open_list_node_1.x, :east)
-      y = find_successor_coordinates_y(open_list_node_1.y, :east)
-      succ_facing = open_list_node_1.facing
-      # IO.puts("x: #{x} , y: #{y}")
+        ###############################################################################################################################
+        ###################################################### South ##################################################################
+        ###############################################################################################################################
+        # find the south successor coordinates.
+        x = find_successor_coordinates_x(open_list_node_1.x, :south)
+        y = find_successor_coordinates_y(open_list_node_1.y, :south)
+        succ_facing = open_list_node_1.facing
+        # IO.puts("x: #{x} , y: #{y}")
 
-      #check this successor only if the destination is not reached
-      {nodeDetails, openList, is_dest} =
-        if(is_dest == false) do
-          {nodeDetails,openList,is_dest} = process_successor(openList, closedList, nodeDetails, goal_x, goal_y,open_list_node_1,x,y,succ_facing)
-          {nodeDetails, openList, is_dest}
-        else
-          {nodeDetails, openList, is_dest}
-        end
+        # find the south successor coordinates.
+        {nodeDetails, openList, is_dest} =
+          if is_dest == false do
+            {nodeDetails,openList,is_dest} = process_successor(openList, closedList, nodeDetails, goal_x, goal_y,open_list_node_1,x,y,succ_facing)
+            {nodeDetails, openList, is_dest}
+          else
+            {nodeDetails, openList, is_dest}
+          end
+          ###############################################################################################################################
+          ###################################################### East  ##################################################################
+          ###############################################################################################################################
 
-      ###############################################################################################################################
-      ###################################################### South ##################################################################
-      ###############################################################################################################################
+          # find the east successor coordinates.
+          x = find_successor_coordinates_x(open_list_node_1.x, :east)
+          y = find_successor_coordinates_y(open_list_node_1.y, :east)
+          succ_facing = open_list_node_1.facing
+          # IO.puts("x: #{x} , y: #{y}")
 
-      # find the south successor coordinates.
-      x = find_successor_coordinates_x(open_list_node_1.x, :south)
-      y = find_successor_coordinates_y(open_list_node_1.y, :south)
-      succ_facing = open_list_node_1.facing
-      # IO.puts("x: #{x} , y: #{y}")
-
-      # find the south successor coordinates.
-      {nodeDetails, openList, is_dest} =
-        if is_dest == false do
-          {nodeDetails,openList,is_dest} = process_successor(openList, closedList, nodeDetails, goal_x, goal_y,open_list_node_1,x,y,succ_facing)
-          {nodeDetails, openList, is_dest}
-        else
-          {nodeDetails, openList, is_dest}
-        end
+          #check this successor only if the destination is not reached
+          {nodeDetails, openList, is_dest} =
+            if(is_dest == false) do
+              {nodeDetails,openList,is_dest} = process_successor(openList, closedList, nodeDetails, goal_x, goal_y,open_list_node_1,x,y,succ_facing)
+              {nodeDetails, openList, is_dest}
+            else
+              {nodeDetails, openList, is_dest}
+            end
 
       ###############################################################################################################################
       ###################################################### West ##################################################################
@@ -561,6 +562,8 @@ defmodule CLI.ToyRobotA do
       # this fuction eliminates the successor that is blocked.
       is_obs = false
       {openList,robot,is_obs} = whille(open_list_node_1, openList, cli_proc_name,counter,is_obs)
+      # IO.puts("openList")
+      # IO.inspect(openList)
 
       #move the robot accordint to the best successor which should be the first node on the open list.
       # next_node = Enum.at(openList,0)
@@ -602,6 +605,7 @@ defmodule CLI.ToyRobotA do
       {openList,robot,is_obs}
     else
       robot = move(robot)
+      # is_obs = check_for_obs(robot,cli_proc_name)
       {openList,robot,is_obs}
     end
     {openList,robot,is_obs}
@@ -669,7 +673,7 @@ defmodule CLI.ToyRobotA do
                     cell_to_insert = %OpenListStruct{x: x, y: y, facing: facing, f: fNew}
                     openList = [cell_to_insert | openList]
                     # sort the list so that the cell with lowest f is in the begining
-                    openList = sort_list(openList)
+                    # openList = sort_list(openList)
                     # update the details of this node
                     new_node_successor = %NodeDetailStruct{
                       parent_x: x_p,
