@@ -50,7 +50,7 @@ defmodule CLI.ToyRobotB do
       new_list = []
       new_list = add_index(dist_list, goal_locs, 0, new_list)
       # IO.inspect(new_list)
-      # new_list = Enum.sort(new_list, fn x, y -> x.value < y.value end)
+      new_list = Enum.sort(new_list, fn x, y -> x.value < y.value end)
       # IO.inspect(new_list)
     end
   end
@@ -69,9 +69,11 @@ defmodule CLI.ToyRobotB do
     end
   end
 
-  def give_A_info(%CLI.Position{x: x, y: y, facing: facing} = robot, goal_locs) do
-    {:ok, pid} = Agent.start_link(fn -> %{} end)
-    Process.register(pid, :your_map_name)
+  def give_A_info(%CLI.Position{x: x, y: y, facing: facing} = robot, goal_locs, i) do
+    if(i == 0) do
+      {:ok, pid} = Agent.start_link(fn -> %{} end)
+      Process.register(pid, :your_map_name)
+    end
     data = to_string(x)
     finaldata = Enum.join([data, to_string(y)], ",")
     index_list = []
@@ -89,15 +91,6 @@ defmodule CLI.ToyRobotB do
     Agent.get(:give_info_A, fn list -> list end)
   end
 
-  def set_goal(
-        a_data,
-        b_data,
-        i,
-        goal_locs,
-        %CLI.Position{x: x, y: y, facing: facing} = robot,
-        cli_proc_name
-      ) do
-  end
 
   def wait_fot_conn() do
     # IO.puts("in conn b")
@@ -105,7 +98,7 @@ defmodule CLI.ToyRobotB do
     Process.sleep(100)
 
     if (Enum.at(Agent.get(:movementA, fn list -> list end), 0) == 0) do
-      IO.inspect(Enum.at(Agent.get(:movementA, fn list -> list end), 0))
+      # IO.inspect(Enum.at(Agent.get(:movementA, fn list -> list end), 0))
       wait_fot_conn()
     end
   end
@@ -696,6 +689,8 @@ end
       is_obs = check_for_obs(robot, cli_proc_name)
       {:ok,robot}
 
+      robot
+
     else
       is_obs = check_for_obs(robot, cli_proc_name)
       # IO.inspect(robot)
@@ -822,6 +817,9 @@ end
 
         else
           is_obs = check_for_obs(robot, cli_proc_name)
+          robot
+
+
           {:ok,robot}
 
         end
@@ -830,22 +828,84 @@ end
     end       # --> end for the main if - else
   end         # --> end for the main go_to_goal function
 
-
   end
 
-  def stop(robot, goal_locs, cli_proc_name) do
-    give_A_info(robot, goal_locs)
-    a_data = get_A()
-    index_list = []
-    dist_list = []
 
-    b_data =
+  def check_reached_list(reached_list, i, goal, bool_list) do
+
+  if(Enum.count(reached_list) == 1) do
+    bool_list
+  else
+    if i < 0 do
+      bool_list
+    else if (goal == Enum.at(reached_list, i)) do
+      bool_list = [1]
+      bool_list
+    else
+      i = i - 1
+      check_reached_list(reached_list, i, goal, bool_list)
+    end
+    end
+  end
+end
+
+def get_index_list() do
+  Process.sleep(350)
+  Agent.get(:indexes, fn list -> list end)
+end
+
+  def get_goal(robot, goal_locs, i, reached_list, cli_proc_name, j) do
+    if(j != Enum.count(goal_locs)) do
+      # IO.puts("B")
+      # IO.inspect(get_index_list())
+      # %CLI.Position{x: x, y: y, facing: facing} = robot
+      # IO.inspect(robot)
+      give_A_info(robot, goal_locs, j)
+      j = j + 1
+      a_data = get_A()
+
+      index_list = []
+      dist_list = []
+      b_data =
       dist(%CLI.Position{x: x, y: y, facing: facing} = robot, goal_locs, 0, index_list, dist_list)
 
-    IO.inspect(b_data)
+      # IO.puts("bdata")
+      # IO.inspect(b_data)
+      goal_index_A = Enum.at(a_data, i).index  #put 0, 1, 3 ... for next closest
+      goal_value_A = Enum.at(a_data, i).value
+      goal_value_B = Enum.at(b_data, i).value
+      goal_index_B = Enum.at(b_data, i).index
+      i = i + 1
 
-    goal_x = String.to_integer(Enum.at(Enum.at(goal_locs, 1), 0))
-    goal_y = String.to_atom(Enum.at(Enum.at(goal_locs, 1), 1))
+      if ((((goal_index_A == goal_index_B) and (goal_value_A <= goal_value_B))) or (goal_value_B == 0) or (Enum.member?(get_index_list, goal_index_B))) do
+        get_goal(robot, goal_locs, i, reached_list, cli_proc_name, j)
+      else
+        goal = Enum.at(goal_locs, goal_index_B)
+        # IO.puts("goalA")
+        # IO.inspect(goal)
+        check_reached = check_reached_list(reached_list, Enum.count(reached_list) - 1, goal, [0])
+        reached_list = reached_list ++ [goal]
+        if (check_reached == [1]) do
+          # i = i + 1
+          get_goal(robot, goal_locs, i, reached_list, cli_proc_name, j)
+        else
+          # i = i + 1
+          i = 0
+          goal_x = String.to_integer(Enum.at(goal, 0))
+          goal_y = String.to_atom(Enum.at(goal, 1))
+
+          robot = go_to_goal(robot, goal_x, goal_y, cli_proc_name)
+          get_goal(robot, goal_locs, i, reached_list, cli_proc_name, j)
+        end
+
+        # get_goal(robot, goal_locs, i, reached_list, cli_proc_name)
+      end
+  end
+end
+
+  def stop(robot, goal_locs, cli_proc_name) do
+
+    get_goal(robot, goal_locs, 0, [], cli_proc_name, 0)
     # go_to_goal(%CLI.Position{x: x, y: y, facing: facing} = robot, goal_x, goal_y, cli_proc_name)
   end
 
