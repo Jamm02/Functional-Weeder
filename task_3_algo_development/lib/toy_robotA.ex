@@ -549,6 +549,7 @@ end
     {:ok, %CLI.Position{}}
   end
 
+
   def place(x, y, _facing) when x < 1 or y < :a or x > @table_top_x or y > @table_top_y do
     {:failure, "Invalid position"}
   end
@@ -605,7 +606,9 @@ end
     if (y == goal_y) and (x == goal_x) do
       %CLI.Position{x: x, y: y, facing: facing} = robot
       is_obs = check_for_obs(robot, cli_proc_name)
-      {:ok,robot}
+      # {:ok,robot}
+      IO.puts("gotogA")
+      IO.inspect(robot)
       robot
 
     else
@@ -850,9 +853,7 @@ end
 
   def check_reached_list(reached_list, i, goal, bool_list) do
 
-  if(Enum.count(reached_list) == 1) do
-    bool_list
-  else
+
     if i < 0 do
       bool_list
     else if (goal == Enum.at(reached_list, i)) do
@@ -862,7 +863,7 @@ end
       i = i - 1
       check_reached_list(reached_list, i, goal, bool_list)
     end
-    end
+
   end
 end
 
@@ -924,7 +925,8 @@ end
         goal_x = String.to_integer(Enum.at(goal, 0))
         goal_y = String.to_atom(Enum.at(goal, 1))
         robot = go_to_goal(robot, goal_x, goal_y, cli_proc_name)
-
+        IO.puts("robotA")
+        IO.inspect(robot)
         get_goal(robot, goal_locs, i, reached_list, cli_proc_name, j, visited_index)
       end
       # get_goal(robot, goal_locs, i, reached_list, cli_proc_name)
