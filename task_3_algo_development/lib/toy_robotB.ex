@@ -15,16 +15,24 @@ defmodule CLI.ToyRobotB do
       {:ok, %CLI.Position{facing: :north, x: 1, y: :a}}
   """
   def sent_alt_status(robot, cli_proc_name) do
-    # Process.sleep(100)
-    {robot_a,bool} = GenServer.call(:robots_status,{:get})
+    # Process.sleep(1000)
+    {robot_a,bool,bool_if_finished} = GenServer.call(:robots_status,{:get})
+    # IO.inspect(bool_if_finished)
     # IO.puts("b")
     # IO.inspect({robot_a,bool})
+    bool =
+      if bool_if_finished do
+        true
+      else
+        bool
+      end
+    # IO.inspect(bool)
     is_obs =
     if bool do
       # IO.puts("file B")
       # IO.puts("printing form here")
       is_obs = check_for_obs(robot, cli_proc_name)
-      new_state = {robot_a,false}
+      new_state = {robot_a,false,bool_if_finished}
       GenServer.call(:robots_status,{:set,new_state})
       # Process.sleep(100)
       is_obs
@@ -907,8 +915,10 @@ end
           i = 0
           goal_x = String.to_integer(Enum.at(goal, 0))
           goal_y = String.to_atom(Enum.at(goal, 1))
+          # IO.puts("robot b up")
+          # IO.inspect(robot)
           robot = go_to_goal(robot, goal_x, goal_y, cli_proc_name)
-          # IO.puts("robot b")
+          # IO.puts("robot b down")
           # IO.inspect(robot)
           get_goal(robot, goal_locs, i, reached_list, cli_proc_name, j)
         end

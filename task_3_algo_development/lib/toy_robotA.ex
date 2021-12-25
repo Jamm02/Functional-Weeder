@@ -19,12 +19,12 @@ defmodule CLI.ToyRobotA do
   end
 
   def init(robot) do
-    {:ok,{robot,false}}
+    {:ok,{robot,false,false}}
   end
 
-  def set_robot_a(robot_new,bool) do
+  def set_robot_a(robot_new,bool,bool_if_finished) do
     # Process.sleep(100)
-    new_state = {robot_new,bool}
+    new_state = {robot_new,bool,bool_if_finished}
     GenServer.call(:robots_status,{:set,new_state})
   end
   def handle_call({:set,new_state}, _from, old_state) do
@@ -43,8 +43,8 @@ defmodule CLI.ToyRobotA do
   end
 
   def sent_alt_status(robot, cli_proc_name) do
-    # Process.sleep(100)
-    {robot_a, bool} = get_robot_a()
+    # Process.sleep(1000)
+    {robot_a, bool,bool_if_reached} = get_robot_a()
     # if(bool == false) do
       # IO.inspect({robot_a,bool})
     # IO.puts("a")
@@ -54,7 +54,7 @@ defmodule CLI.ToyRobotA do
       # IO.puts("file A: ")
       # IO.puts("printing form here")
       is_obs = check_for_obs(robot, cli_proc_name)
-      set_robot_a(robot,true)
+      set_robot_a(robot,true,false)
       # Process.sleep(100)
       is_obs
     else
@@ -63,7 +63,27 @@ defmodule CLI.ToyRobotA do
     end
     is_obs
   end
-
+  def sent_alt_statuss(robot, cli_proc_name,bool_if_reached) do
+    # Process.sleep(1000)
+    {robot_a, bool,bool_if} = get_robot_a()
+    # if(bool == false) do
+      # IO.inspect({robot_a,bool})
+    # IO.puts("a")
+    # end
+    is_obs =
+    if bool == false do
+      # IO.puts("file A: ")
+      # IO.puts("printing form here")
+      is_obs = check_for_obs(robot, cli_proc_name)
+      set_robot_a(robot,true,true)
+      # Process.sleep(100)
+      is_obs
+    else
+      is_obs = sent_alt_statuss(robot,cli_proc_name,bool_if_reached)
+      is_obs
+    end
+    is_obs
+  end
   def correct_X(%CLI.Position{x: x, y: y, facing: facing} = robot, goal_x, goal_y, cli_proc_name) do
     %CLI.Position{x: x, y: y, facing: facing} = robot
 
@@ -975,9 +995,9 @@ end
       end
       # get_goal(robot, goal_locs, i, reached_list, cli_proc_name)
     end
-  else if (j == Enum.count(goal_locs)) do
-    repeat(robot, cli_proc_name)
-  end
+  else
+    # IO.puts("reached here")
+    is_obs = sent_alt_statuss(robot,cli_proc_name,true)
   end
 end
 def repeat(robot, cli_proc_name) do
