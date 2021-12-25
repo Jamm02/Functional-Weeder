@@ -14,13 +14,13 @@ defmodule CLI.ToyRobotB do
       iex> CLI.ToyRobotB.place
       {:ok, %CLI.Position{facing: :north, x: 1, y: :a}}
   """
+
   defmodule SortedListStruct do
     defstruct value: -1, index: -1
   end
   def dist_from_B(%CLI.Position{x: x, y: y, facing: facing} = robot, goal_locs, i) do
     y_map_atom_to_int = %{:a => 1, :b => 2, :c => 3, :d => 4, :e => 5}
     y_int = y_map_atom_to_int[y]
-
     y_dest_int = y_map_atom_to_int[String.to_atom(Enum.at(Enum.at(goal_locs, i), 1))]
     {k, ""} = Integer.parse(Enum.at(Enum.at(goal_locs, i), 0))
     abs(k - x) + abs(y_dest_int - y_int)
@@ -834,21 +834,34 @@ end
   end
 
   def stop(robot, goal_locs, cli_proc_name) do
-    give_A_info(robot, goal_locs)
-    a_data = get_A()
-    index_list = []
-    dist_list = []
-
-    b_data =
-      dist(%CLI.Position{x: x, y: y, facing: facing} = robot, goal_locs, 0, index_list, dist_list)
-
-    IO.inspect(b_data)
-
-    goal_x = String.to_integer(Enum.at(Enum.at(goal_locs, 1), 0))
-    goal_y = String.to_atom(Enum.at(Enum.at(goal_locs, 1), 1))
+    # give_A_info(robot, goal_locs)
+    # a_data = get_A()
+    # index_list = []
+    # dist_list = []
+    # b_data =
+    #   dist(%CLI.Position{x: x, y: y, facing: facing} = robot, goal_locs, 0, index_list, dist_list)
+    # # IO.inspect(b_data)
+    # goal_x = String.to_integer(Enum.at(Enum.at(goal_locs, 1), 0))
+    # goal_y = String.to_atom(Enum.at(Enum.at(goal_locs, 1), 1))
+    # # robot_b_status_set(robot)
+    # # robot_a = robot_a_status_get()
+    # # IO.inspect(robot_a)
     # go_to_goal(%CLI.Position{x: x, y: y, facing: facing} = robot, goal_x, goal_y, cli_proc_name)
-  end
+    robot_returned = CLI.ToyRobotA.get_()
+    IO.puts("printing this from the file of robot b")
+    IO.inspect(robot_returned)
 
+  end
+  def robot_b_status_set(robot_b) do
+    {:ok, agent} = Agent.start_link fn -> %CLI.Position{x: robot_b.x, y: robot_b.y, facing: robot_b.facing} end
+    Process.register(agent,:collision_status_b)
+    # Agent.update(agent,fn robot_b -> robot_b end)
+    # Process.sleep(100)
+  end
+  def robot_a_status_get()do
+    Process.sleep(1000)
+    Agent.get(:collision_status_a,fn robot_a -> robot_a end )
+  end
   def check_for_obs(robot, cli_proc_name) do
     current = self()
     pid =
@@ -857,11 +870,34 @@ end
         send(current, x)
       end)
     Process.register(pid, :client_toyrobotB)
+    # robot_b_status_set(robot)
     receive do
       value -> value
     end
   end
 
+  def avoid_collision_and_obstacle(robot, cli_proc_name) do
+    robot_a = robot_a_status_get()
+    robot_b = robot
+    distance = calculate_distance(robot_a, robot_b)
+    min = :math.sqrt(2)
+    if (distance <= min) do
+      #avoid collision
+    end
+  end
+
+  def calculate_distance(robot_a, robot_b) do
+    x_a = robot_a.x
+    x_b = robot_b.x
+    y_map_atom_to_int = %{:a => 1, :b => 2, :c => 3, :d => 4, :e => 5}
+    y_int_a = y_map_atom_to_int[robot_a.y]
+    y_int_b = y_map_atom_to_int[robot_b.y]
+    dx = x_a - x_b
+    dy = y_int_a - y_int_b
+    sq_dist = dx * dx + dy * dy
+    :math.sqrt(sq_dist)
+    # 1.4142135623730951
+  end
   @doc """
   Provide GOAL positions to the robot as given location of [(x1, y1),(x2, y2),..] and plan the path from START to these locations.
   Passing the CLI Server process name that will be used to send robot's current status after each action is taken.

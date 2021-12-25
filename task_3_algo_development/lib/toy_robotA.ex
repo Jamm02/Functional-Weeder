@@ -6,6 +6,7 @@ defmodule CLI.ToyRobotA do
   # mapping of y-coordinates
   @robot_map_y_atom_to_num %{:a => 1, :b => 2, :c => 3, :d => 4, :e => 5}
 
+  use GenServer
   @doc """
   Places the robot to the default position of (1, A, North)
 
@@ -14,6 +15,21 @@ defmodule CLI.ToyRobotA do
       iex> CLI.ToyRobotA.place
       {:ok, %CLI.Position{facing: :north, x: 1, y: :a}}
   """
+  def start_link(robot) do
+    GenServer.start_link(__MODULE__,robot,name: :robots_status)
+  end
+
+  def init(robot) do
+    {:ok,robot}
+  end
+  def get_robot_a do
+    Process.sleep(1000)
+    GenServer.call(:robots_status,{:get})
+  end
+
+  def handle_call({:get}, _from, robot) do
+    {:reply, robot, robot}
+  end
   defmodule SortedListStruct do
     defstruct value: -1, index: -1
   end
@@ -864,19 +880,35 @@ end
   end
 
   def stop(robot, goal_locs, cli_proc_name) do
-    index_list = []
-    dist_list = []
-    a_data =
-    dist(%CLI.Position{x: x, y: y, facing: facing} = robot, goal_locs, 0, index_list, dist_list)
-    give_A(a_data)
-    b_data = sort_B()
-    get_goal(a_data, b_data)
-    IO.inspect(b_data)
-    goal_x = String.to_integer(Enum.at(Enum.at(goal_locs, 0), 0))
-    goal_y = String.to_atom(Enum.at(Enum.at(goal_locs, 0), 1))
+    # index_list = []
+    # dist_list = []
+    # a_data =
+    # dist(%CLI.Position{x: x, y: y, facing: facing} = robot, goal_locs, 0, index_list, dist_list)
+    # give_A(a_data)
+    # b_data = sort_B()
+    # get_goal(a_data, b_data)
+    # # IO.inspect(b_data)
+    # robot_b = robot_b_status_get()
+    # robot_a_status_set(robot)
+    # IO.inspect(robot_b)
+    # goal_x = String.to_integer(Enum.at(Enum.at(goal_locs, 0), 0))
+    # goal_y = String.to_atom(Enum.at(Enum.at(goal_locs, 0), 1))
     # go_to_goal(%CLI.Position{x: x, y: y, facing: facing} = robot, goal_x, goal_y, cli_proc_name)
+    # IO.puts("the current status of the robot is: ")
+    {:ok,_} = CLI.ToyRobotA.start_link(robot)
+    # IO.inspect(robot)
+    # IO.inspect(robot)
   end
-
+  def robot_a_status_set(robot_a) do
+    {:ok, agent} = Agent.start_link fn -> %CLI.Position{x: robot_a.x, y: robot_a.y, facing: robot_a.facing} end
+    Process.register(agent,:collision_status_a)
+    # Agent.update(agent,fn robot_a -> robot_a end)
+    # Process.sleep(1000)
+  end
+  def robot_b_status_get()do
+    Process.sleep(1000)
+    Agent.get(:collision_status_b,fn robot_b -> robot_b end )
+  end
   def check_for_obs(robot, cli_proc_name) do
     current = self()
     pid =
@@ -885,11 +917,15 @@ end
         send(current, x)
       end)
     Process.register(pid, :client_toyrobotA)
+    # robot_a_status_set(robot)
     receive do
       value -> value
     end
   end
 
+  def status_share(robot,cli_proc_name) do
+    check_for_obs(robot,cli_proc_name)
+  end
   @doc """
   Send Toy Robot's current status i.e. location (x, y) and facing
   to the CLI Server process after each action is taken.
