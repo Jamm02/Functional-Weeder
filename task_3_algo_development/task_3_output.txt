@@ -14,7 +14,6 @@ A => 3, c, east
 B => 3, d, west
 A => 4, c, east
 B => 3, d, north
-A => 4, c, east
 B => 3, e, north
 B => 4, e, west
 B => 4, e, north
