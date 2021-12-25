@@ -43,18 +43,24 @@ defmodule CLI.ToyRobotA do
   end
 
   def sent_alt_status(robot, cli_proc_name) do
-    Process.sleep(1000)
+    # Process.sleep(1000)
     {robot_a, bool,bool_if_reached} = get_robot_a()
     # if(bool == false) do
       # IO.inspect({robot_a,bool})
-    # IO.puts("a")
+    # IO.puts("hello there this is file a")
     # end
+    bool =
+      if bool_if_reached do
+        false
+      else
+        bool
+      end
     is_obs =
     if bool == false do
       # IO.puts("file A: ")
       # IO.puts("printing form here")
       is_obs = check_for_obs(robot, cli_proc_name)
-      set_robot_a(robot,true,false)
+      set_robot_a(robot,true,bool_if_reached)
       # Process.sleep(100)
       is_obs
     else
@@ -64,6 +70,7 @@ defmodule CLI.ToyRobotA do
     is_obs
   end
   def sent_alt_statuss(robot, cli_proc_name,bool_if_reached) do
+    # IO.puts("hello there")
     set_robot_a(robot,true,true)
   end
   def correct_X(%CLI.Position{x: x, y: y, facing: facing} = robot, goal_x, goal_y, cli_proc_name) do

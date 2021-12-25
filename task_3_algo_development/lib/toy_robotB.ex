@@ -14,11 +14,16 @@ defmodule CLI.ToyRobotB do
       iex> CLI.ToyRobotB.place
       {:ok, %CLI.Position{facing: :north, x: 1, y: :a}}
   """
+  def sent_alt_statuss(robot, cli_proc_name,bool_if_reached) do
+    # IO.puts("hello there")
+    new_state = {robot,false,true}
+    GenServer.call(:robots_status,{:set,new_state})
+  end
   def sent_alt_status(robot, cli_proc_name) do
     # Process.sleep(1000)
     {robot_a,bool,bool_if_finished} = GenServer.call(:robots_status,{:get})
     # IO.inspect(bool_if_finished)
-    # IO.puts("b")
+    # IO.puts("hello there this is file b")
     # IO.inspect({robot_a,bool})
     bool =
       if bool_if_finished do
@@ -922,9 +927,10 @@ end
           # IO.inspect(robot)
           get_goal(robot, goal_locs, i, reached_list, cli_proc_name, j)
         end
-
         # get_goal(robot, goal_locs, i, reached_list, cli_proc_name)
       end
+    else
+      sent_alt_statuss(robot,cli_proc_name,true)
   end
 end
 
