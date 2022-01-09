@@ -660,6 +660,8 @@ end
     if (y == goal_y) and (x == goal_x) do
       %CLI.Position{x: x, y: y, facing: facing} = robot
       is_obs = sent_alt_status(robot, cli_proc_name)
+      # IO.puts("goal to goal in file a")
+      # IO.inspect(robot)
       robot
       # {:ok,robot}
     else
@@ -978,7 +980,7 @@ end
         goal_x = String.to_integer(Enum.at(goal, 0))
         goal_y = String.to_atom(Enum.at(goal, 1))
         robot = go_to_goal(robot, goal_x, goal_y, cli_proc_name)
-        # IO.puts("robot A")
+        # IO.puts("robot below A")
         # IO.inspect(robot)
         get_goal(robot, goal_locs, i, reached_list, cli_proc_name, j, visited_index)
       end

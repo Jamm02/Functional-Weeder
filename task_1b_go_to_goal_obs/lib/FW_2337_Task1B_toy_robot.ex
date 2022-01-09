@@ -14,8 +14,6 @@ defmodule ToyRobot do
       iex> ToyRobot.place
       {:ok, %ToyRobot.Position{facing: :north, x: 1, y: :a}}
   """
-
-
   def place do
     {:ok, %ToyRobot.Position{}}
   end
@@ -25,7 +23,8 @@ defmodule ToyRobot do
   end
 
   def place(_x, _y, facing)
-      when facing not in [:north, :east, :south, :west] do
+  when facing not in [:north, :east, :south, :west]
+  do
     {:failure, "Invalid facing direction"}
   end
 
@@ -44,39 +43,194 @@ defmodule ToyRobot do
       iex> ToyRobot.place(3, :c, :north_east)
       {:failure, "Invalid facing direction"}
   """
+
+  def objInY_north(%ToyRobot.Position{x: x, y: y, facing: facing} = robot, goal_x, goal_y, cli_proc_name) do
+    %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+
+    # make sure bot is facing north
+    # IO.puts("in north")
+    if x == 1 do  #turn and right and face north
+      # IO.puts("in 1")
+      robot = right(robot);
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      is_obs = check_for_obs(robot, cli_proc_name)
+      robot = move(robot);
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      is_obs = check_for_obs(robot, cli_proc_name)
+      robot = left(robot);
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      #is_obs = check_for_obs(robot, cli_proc_name)
+      stop(robot, goal_x, goal_y, cli_proc_name)
+
+    else #turn and move left and face north
+      # IO.puts("in 2")
+      robot = left(robot);
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      is_obs = check_for_obs(robot, cli_proc_name)
+      robot = move(robot);
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      is_obs = check_for_obs(robot, cli_proc_name)
+      robot = right(robot);
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      #is_obs = check_for_obs(robot, cli_proc_name)
+      stop(robot, goal_x, goal_y, cli_proc_name)
+    end
+
+    %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+    # IO.puts("#{x}, #{y}, #{facing}")
+    #call the base stop func at this point
+
+  end
+
+
+  def objInY_south(%ToyRobot.Position{x: x, y: y, facing: facing} = robot, goal_x, goal_y, cli_proc_name) do
+
+    # make sure bot is facing south
+    # IO.puts("in south")
+
+    %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+    if x == 1 do  #turn, move left and face south
+      robot = left(robot);
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      is_obs = check_for_obs(robot, cli_proc_name)
+      robot = move(robot);
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      is_obs = check_for_obs(robot, cli_proc_name)
+      robot = right(robot);
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      # robot = move(robot)
+      # %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      #is_obs = check_for_obs(robot, cli_proc_name)
+      stop(robot, goal_x, goal_y, cli_proc_name)
+
+    else #turn, move right and go south
+      robot = right(robot);
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      is_obs = check_for_obs(robot, cli_proc_name)
+      robot = move(robot);
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      is_obs = check_for_obs(robot, cli_proc_name)
+      robot = left(robot);
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      # robot = move(robot)
+      # %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      #is_obs = check_for_obs(robot, cli_proc_name)
+      stop(robot, goal_x, goal_y, cli_proc_name)
+
+    end
+    %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+    #call the base stop func at this point
+    # stop(robot, goal_x, goal_y, cli_proc_name)
+  end
+
+  def objInX_west(%ToyRobot.Position{x: x, y: y, facing: facing} = robot, goal_x, goal_y, cli_proc_name) do
+
+    # make sure bot is facing west before running this func
+    # IO.puts("in west")
+
+    %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+
+    if y == :a do  #turn, move left and face east
+      robot = right(robot);
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      is_obs = check_for_obs(robot, cli_proc_name)
+      robot = move(robot);
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      is_obs = check_for_obs(robot, cli_proc_name)
+      robot = left(robot);
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      robot = move(robot)
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      #is_obs = check_for_obs(robot, cli_proc_name)
+      stop(robot, goal_x, goal_y, cli_proc_name)
+
+    else #turn, move right and go south
+
+      robot = left(robot);
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      is_obs = check_for_obs(robot, cli_proc_name)
+      robot = move(robot);
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      is_obs = check_for_obs(robot, cli_proc_name)
+      robot = right(robot);
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      robot = move(robot)
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      #is_obs = check_for_obs(robot, cli_proc_name)
+      stop(robot, goal_x, goal_y, cli_proc_name)
+
+    end
+    %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+    #call the base stop func at this point
+    # stop(robot, goal_x, goal_y, cli_proc_name)
+  end
+
+  def objInX_east(%ToyRobot.Position{x: x, y: y, facing: facing} = robot, goal_x, goal_y, cli_proc_name) do
+
+    # make sure bot is facing east before running this func
+    # IO.puts("in east")
+
+    %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+
+    if y == :a do  #turn, move left and face west
+      robot = left(robot);
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      is_obs = check_for_obs(robot, cli_proc_name)
+      robot = move(robot);
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      is_obs = check_for_obs(robot, cli_proc_name)
+      robot = right(robot);
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      is_obs = check_for_obs(robot, cli_proc_name)
+      robot = move(robot)
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      #is_obs = check_for_obs(robot, cli_proc_name)
+      # IO.puts("exited else")
+      stop(robot, goal_x, goal_y, cli_proc_name)
+
+    else #turn, move right and face east
+      robot = right(robot);
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      is_obs = check_for_obs(robot, cli_proc_name)
+      robot = move(robot);
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      is_obs = check_for_obs(robot, cli_proc_name)
+      robot = left(robot);
+      is_obs = check_for_obs(robot, cli_proc_name)
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      robot = move(robot)
+      %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+      #is_obs = check_for_obs(robot, cli_proc_name)
+      # IO.puts("exited if")
+      stop(robot, goal_x, goal_y, cli_proc_name)
+
+    end
+
+    %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+    #call the base stop func at this point
+    # stop(robot, goal_x, goal_y, cli_proc_name)
+  end
+
+
   def place(x, y, facing) do
     {:ok, %ToyRobot.Position{x: x, y: y, facing: facing}}
   end
 
-  ############################################################################ 3
-  # OpenListStruct is the elemetn of Oen list which will stort the successors that are to be evalluated.
-  # it has fields of x: x-coordinate y: y-coordinate facing: robots's facint f:the cost of that particular node
-  # Structs in elixir has same name as the module in which it is defined usnig defstruct construct.
-  defmodule OpenListStruct do
-    defstruct x: 1, y: :a, facing: :north, f: 0.0
-  end
-
-  # ClosedListStruct is a element of closed list that keep track of the nodes included in the path
-  # it has fields of x: x-coordinate y: y-coordinate
-  defmodule ClosedListStruct do
-    defstruct x: 1, y: :a
-  end
-
-  # NodeDetailStruct is a struct that represents each node on a grid.
-  defmodule NodeDetailStruct do
-    defstruct parent_x: -1, parent_y: :z, f: 10000.0, g: 10000.0, h: 10000.0
-  end
-
-  #################################################################################
   @doc """
   Provide START position to the robot as given location of (x, y, facing) and place it.
   """
   def start(x, y, facing) do
+    ###########################
+    ## complete this funcion ##
+    ###########################
     {:ok, %ToyRobot.Position{x: x, y: y, facing: facing}}
+
   end
 
-  def stop(_robot, goal_x, goal_y, _cli_proc_name)
-      when goal_x < 1 or goal_y < :a or goal_x > @table_top_x or goal_y > @table_top_y do
+
+
+
+  def stop(_robot, goal_x, goal_y, _cli_proc_name) when goal_x < 1 or goal_y < :a or goal_x > @table_top_x or goal_y > @table_top_y do
     {:failure, "Invalid STOP position"}
   end
 
@@ -86,416 +240,162 @@ defmodule ToyRobot do
   Spawn a process and register it with name ':client_toyrobot' which is used by CLI Server to send an
   indication for the presence of obstacle ahead of robot's current position and facing.
   """
-  # finds the x coordinate of the successor according to its facing
-  def find_successor_coordinates_x(x, facing) do
-    x_result =
-      cond do
-        facing == :east -> x + 1
-        facing == :west -> x - 1
-        facing == :north -> x
-        facing == :south -> x
-      end
-  end
+  def stop(%ToyRobot.Position{x: x, y: y, facing: facing} =robot, goal_x, goal_y, cli_proc_name) do
+    ###########################
+    ## complete this funcion ##
+    ###########################
+    if (y == goal_y) and (x == goal_x) do
+      is_obs = check_for_obs(robot, cli_proc_name)
+      # {:ok,robot}
 
-  # finds the y coordinate of the successor according to its facing
-  def find_successor_coordinates_y(y, facing) do
-    y_map_atom_to_int = %{:a => 1, :b => 2, :c => 3, :d => 4, :e => 5}
-    y_int = y_map_atom_to_int[y]
-
-    y_result =
-      cond do
-        facing == :east -> y_int
-        facing == :west -> y_int
-        facing == :north -> y_int + 1
-        facing == :south -> y_int - 1
-      end
-    y_map_int_to_atom = %{0 => :z, 1 => :a, 2 => :b, 3 => :c, 4 => :d, 5 => :e, 6 => :f}
-    y_final = y_map_int_to_atom[y_result]
-  end
-
-  # function to sort the list according to the f value (accending)
-  def sort_list(list) do
-    list_new = Enum.sort(list, fn x, y -> x.f < y.f end)
-  end
-
-  # function to calculate the hueristic value of h(euclidian path)
-  def calculate_h(x, y, goal_x, goal_y) do
-    y_map_atom_to_int = %{:a => 1, :b => 2, :c => 3, :d => 4, :e => 5}
-    dx = goal_x - x
-    dy = y_map_atom_to_int[goal_y] - y_map_atom_to_int[y]
-    sq_dist = dx * dx + dy * dy
-    :math.sqrt(sq_dist)
-  end
-
-  # checks if the node is present in the list
-  def list_check(list, cell) do
-    if(Enum.empty?(list) == false) do
-      is_member = Enum.member?(list, cell)
-    end
-  end
-
-  # to access the membets of the nodeDetails list(2d list)
-  def acces(x, y, grid) do
-    y_cord =
-      cond do
-        y == :a -> 1
-        y == :b -> 2
-        y == :c -> 3
-        y == :d -> 4
-        y == :e -> 5
-      end
-
-    coll = Enum.at(grid, x - 1)
-    node = Enum.at(coll, y_cord - 1)
-  end
-
-  # to modify the membets of the nodeDetails list(2d list)
-  def modify(x, y, grid, node) do
-    y_cord =
-      cond do
-        y == :a -> 1
-        y == :b -> 2
-        y == :c -> 3
-        y == :d -> 4
-        y == :e -> 5
-      end
-    coll = Enum.at(grid, x - 1)
-    coll = List.replace_at(coll, y_cord - 1, node)
-    grid_ret = List.replace_at(grid, x - 1, coll)
-  end
-
-  # function to check if the x and y coordinates are valid according to the constarains of the grid size and value
-  def is_valid(x, y) do
-    valid_x = [1,2,3,4,5]
-    valid_y = [:a,:b,:c,:d,:e]
-    Enum.member?(valid_x,x) and Enum.member?(valid_y,y)
-  end
-  def robot_movement(robot, final_cordinates,cli_proc_name) do
-    %ToyRobot.Position{x: x, y: y, facing: facing} = robot
-    if(x > final_cordinates.x and y == final_cordinates.y) do
-      cond do
-        facing == :north->
-          robot = right(robot)
-          is_obs = check_for_obs(robot,cli_proc_name)
-          robot = move(robot)
-          is_obs = check_for_obs(robot,cli_proc_name)
-        facing == :south->
-          robot = left(robot)
-          is_obs = check_for_obs(robot,cli_proc_name)
-          robot = move(robot)
-          is_obs = check_for_obs(robot,cli_proc_name)
-        facing == :west ->
-          robot = right(robot)
-          is_obs = check_for_obs(robot,cli_proc_name)
-          robot = right(robot)
-          is_obs = check_for_obs(robot,cli_proc_name)
-          robot = move(robot)
-          is_obs = check_for_obs(robot,cli_proc_name)
-        facing == :east ->
-          robot = move(robot)
-          is_obs = check_for_obs(robot,cli_proc_name)
-      end
-    end
-
-    if(x < final_cordinates.x and y == final_cordinates.y) do
-      cond do
-        facing == :north->
-          robot = left(robot)
-          is_obs = check_for_obs(robot,cli_proc_name)
-          robot = move(robot)
-          is_obs = check_for_obs(robot,cli_proc_name)
-        facing == :south->
-          robot = right(robot)
-          is_obs = check_for_obs(robot,cli_proc_name)
-          robot = move(robot)
-          is_obs = check_for_obs(robot,cli_proc_name)
-        facing == :east ->
-          robot = right(robot)
-          is_obs = check_for_obs(robot,cli_proc_name)
-          robot = right(robot)
-          is_obs = check_for_obs(robot,cli_proc_name)
-          robot = move(robot)
-          is_obs = check_for_obs(robot,cli_proc_name)
-        facing == :west
-        robot = move(robot)
-        is_obs = check_for_obs(robot,cli_proc_name)
-      end
-    end
-
-    if(y < final_cordinates.y and x == final_cordinates.x) do
-      cond do
-        facing == :north->
-          robot = move(robot)
-          is_obs = check_for_obs(robot,cli_proc_name)
-        facing == :south->
-          robot = right(robot)
-          is_obs = check_for_obs(robot,cli_proc_name)
-          robot = right(robot)
-          is_obs = check_for_obs(robot,cli_proc_name)
-          robot = move(robot)
-          is_obs = check_for_obs(robot,cli_proc_name)
-        facing == :east ->
-          robot = left(robot)
-          is_obs = check_for_obs(robot,cli_proc_name)
-          robot = move(robot)
-          is_obs = check_for_obs(robot,cli_proc_name)
-        facing == :west
-        robot = right(robot)
-        is_obs = check_for_obs(robot,cli_proc_name)
-        robot = move(robot)
-        is_obs = check_for_obs(robot,cli_proc_name)
-      end
-    end
-    if(y > final_cordinates.y and x == final_cordinates.x) do
-      cond do
-        facing == :north->
-          robot = right(robot)
-          is_obs = check_for_obs(robot,cli_proc_name)
-          robot = right(robot)
-          is_obs = check_for_obs(robot,cli_proc_name)
-          robot = move(robot)
-          is_obs = check_for_obs(robot,cli_proc_name)
-        facing == :south->
-          robot = move(robot)
-          is_obs = check_for_obs(robot,cli_proc_name)
-        facing == :east ->
-          robot = right(robot)
-          is_obs = check_for_obs(robot,cli_proc_name)
-          robot = move(robot)
-          is_obs = check_for_obs(robot,cli_proc_name)
-        facing == :west
-        robot = left(robot)
-        is_obs = check_for_obs(robot,cli_proc_name)
-        robot = move(robot)
-        is_obs = check_for_obs(robot,cli_proc_name)
-      end
-    end
-
-  end
-
-  # function to check the 4 successors(surrounding nodes to the parent node)
-  def checkSuccessor(openList, closedList, nodeDetails, goal_x, goal_y, cli_proc_name,goal_reached) do
-    # if the open list is empty return
-    if(Enum.empty?(openList) or goal_reached == true) do
-      destination = Enum.at(openList,0)
-      IO.inspect(destination)
-      robot = %ToyRobot.Position{x: destination.x, y: destination.y, facing: destination.facing}
-      {:ok, robot}
     else
-      # remove the first cell form openList
-      # this shoul be the node with least f so whenever a node is added to a open list in the upcoming code the list is sorted.
-      open_list_node_1 = Enum.at(openList, 0)
-      # IO.inspect(current_node)
-      # IO.inspect(node)
-      IO.puts(" ")
-      # IO.puts("openList:")
-      # IO.inspect(openList)
-      openList = List.delete_at(openList, 0)
-      close_list_node_1 = Enum.at(closedList, 0)
-      # add it to closed list
-      node_closed = %ClosedListStruct{x: open_list_node_1.x, y: open_list_node_1.y}
-      robot_i = %ToyRobot.Position{x: close_list_node_1.x, y: close_list_node_1.y, facing: open_list_node_1.facing}
-      closedList = [node_closed | closedList]
-      final_coordinates = %{x: node_closed.x, y: node_closed.y}
-      # IO.puts("closedList:")
-      # IO.inspect(closedList)
-      ####################################################################################
-      robot_movement(robot_i,final_coordinates,cli_proc_name)
-      ####################################################################################
-      openList = []
-      # now check all the 4 surrounding nodes
-      # x_p ==> x - coordinate of the parent node
-      # y_p ==> y - coordinate of the parent node
-      is_dest = false
-      # ################   north   ############################
-      x = find_successor_coordinates_x(open_list_node_1.x, :north)
-      y = find_successor_coordinates_y(open_list_node_1.y, :north)
-      # IO.puts("x: #{x} , y: #{y}")
-      {nodeDetails,openList,is_dest} =
-      if(is_dest == false) do
-        {nodeDetails,openList,is_dest} = process_successor(openList, closedList, nodeDetails, goal_x, goal_y,open_list_node_1,x,y)
-        # IO.puts("checked north")
-        # IO.puts("destionation reached : #{is_dest}")
-        {nodeDetails,openList,is_dest}
-      else
-        {nodeDetails,openList,is_dest}
-      end
+      is_obs = check_for_obs(robot, cli_proc_name)
+      # IO.inspect(robot)
+      # IO.puts("----")
 
-      # ################   east   ############################
-      x = find_successor_coordinates_x(open_list_node_1.x, :east)
-      y = find_successor_coordinates_y(open_list_node_1.y, :east)
-      # IO.puts("x: #{x} , y: #{y}")
-      {nodeDetails,openList,is_dest} =
-      if(is_dest == false) do
-        {nodeDetails,openList,is_dest} = process_successor(openList, closedList, nodeDetails, goal_x, goal_y,open_list_node_1,x,y)
-        # IO.puts("checked east")
-        # IO.puts("destionation reached : #{is_dest}")
-        {nodeDetails,openList,is_dest}
-      else
-        {nodeDetails,openList,is_dest}
-      end
+      if y < goal_y do
 
-      # ################   south   ############################
-      x = find_successor_coordinates_x(open_list_node_1.x, :south)
-      y = find_successor_coordinates_y(open_list_node_1.y, :south)
-      # IO.puts("x: #{x} , y: #{y}")
-      {nodeDetails,openList,is_dest} =
-      if (is_dest == false) do
-        {nodeDetails,openList,is_dest} = process_successor(openList, closedList, nodeDetails, goal_x, goal_y,open_list_node_1,x,y)
-        # IO.puts("checked south")
-        # IO.puts("destionation reached : #{is_dest}")
-        {nodeDetails,openList,is_dest}
-      else
-        {nodeDetails,openList,is_dest}
-      end
+        if (facing != :north) do
+          robot = right(robot)
+          %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+          #is_obs = check_for_obs(robot,cli_proc_name)
+          # send_robot_status(robot, cli_proc_name)
+          stop(robot, goal_x, goal_y, cli_proc_name)
 
-      # ################   west   ############################
-      x = find_successor_coordinates_x(open_list_node_1.x, :west)
-      y = find_successor_coordinates_y(open_list_node_1.y, :west)
-      # IO.puts("x: #{x} , y: #{y}")
-      {nodeDetails,openList,is_dest} =
-      if (is_dest == false) do
-        {nodeDetails,openList,is_dest} = process_successor(openList, closedList, nodeDetails, goal_x, goal_y,open_list_node_1,x,y)
-        # IO.puts("checked west")
-        # IO.puts("destionation reached : #{is_dest}")
-        {nodeDetails,openList,is_dest}
-      else
-        {nodeDetails,openList,is_dest}
-      end
+        else
+          # is_obs = check_for_obs(robot, cli_proc_name)
+          %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+          # is_obs = check_for_obs(robot, cli_proc_name)
 
-      #########################recursive call##################################
-      checkSuccessor(openList, closedList, nodeDetails, goal_x, goal_y, cli_proc_name,is_dest)
-    end
-  end
+          if(is_obs) do
+          #  IO.put("Obstacle at #{x}, #{y + 1}")
+          # IO.puts("Obstacle at #{x}, #{y}, #{facing}")
 
-  def process_successor(openList, closedList, nodeDetails, goal_x, goal_y,current_node,x,y) do
-    is_dest_reached = false
-    %OpenListStruct{x: x_p, y: y_p, facing: facing, f: _f} = current_node
-    {nodeDetails_return,openList_return,is_dest_reached} = ##[1]
-    if(is_valid(x,y) == false)do ### if 1####
-      {:failure,"invalid coordinates"}
-      nodeDetails_return = nodeDetails
-      openList_return = openList
-      {nodeDetails_return,openList_return,is_dest_reached} ### return if 1 #####   [1]
-    else  ### else 1 ###
-      {nodeDetails_return,openList_return,is_dest_reached} =  ##[2]
-      if(goal_x == x and goal_y == y) do ### if 2 ###
-        # IO.puts("this successor is the destination")
-        # Set the Parent of the destination cell and add it to the nodeDetails
-        new_node_dest = %NodeDetailStruct{
-          parent_x: x_p,
-          parent_y: y_p,
-          f: 10000.0,
-          g: 10000.0,
-          h: 10000.0
-        }
-        nodeDetails_return = modify(x, y, nodeDetails, new_node_dest)
-        destination = %OpenListStruct{x: x, y: y, facing: facing, f: 0.0}
-        openList_return = [destination | openList]
-        is_dest_reached = true
-        {nodeDetails_return,openList_return,is_dest_reached} ### return if 2 ####   [2]
-      else #### else 2 ###
-        # IO.puts("reached here ........................")
-        successor_cell_closed = %ClosedListStruct{x: x, y: y}
-        is_member_of_closed_list = list_check(closedList, successor_cell_closed)
-        # IO.puts("x: #{x} , y: #{y}")
-        {nodeDetails_return,openList_return,is_dest_reached} =  ## [3]
-        if(is_member_of_closed_list == false) do #### if 3 ####
-          node_new = acces(x, y, nodeDetails)
-          parent_node = acces(x_p,y_p,nodeDetails)
+           objInY_north(robot, goal_x, goal_y, cli_proc_name)
+           %ToyRobot.Position{x: x, y: y, facing: facing} = robot
 
-          gNew = parent_node.g + 1.0
-          hNew = calculate_h(x, y, goal_x, goal_y)
-          fNew = gNew + hNew
-
-          {nodeDetails_return,openList_return,is_dest_reached} = ##[4]
-          if(node_new.f == 10000.0 or node_new.f > fNew) do #### if 4 ####
-            # add the cell to open list
-            cell_to_insert = %OpenListStruct{x: x, y: y, facing: facing, f: fNew}
-            openList = [cell_to_insert | openList]
-            # sort the list so that the cell with lowest f is in the begining
-            openList = sort_list(openList)
-            # update the details of this node
-            new_node_successor = %NodeDetailStruct{
-              parent_x: x_p,
-              parent_y: y_p,
-              f: fNew,
-              g: gNew,
-              h: hNew
-            }
-            nodeDetails_return = modify(x, y, nodeDetails, new_node_successor)
-            openList_return = openList
-            {nodeDetails_return,openList_return,is_dest_reached}### return if 4 ###   [4]
           else
-            nodeDetails_return = nodeDetails
-            openList_return = openList
-            {nodeDetails_return,openList_return,is_dest_reached}
+            # %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+            # is_obs = check_for_obs(robot, cli_proc_name)
+            robot = move(robot)
+            %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+            # is_obs = check_for_obs(robot, cli_proc_name)
+            # send_robot_status(robot, cli_proc_name)
+            stop(robot, goal_x, goal_y, cli_proc_name)
           end
-          {nodeDetails_return,openList_return,is_dest_reached} ### return if 3 ###
-        else #### else 3 ######
-          nodeDetails_return = nodeDetails
-          openList_return = openList
-          {nodeDetails_return,openList_return,is_dest_reached} ### return else 3 #### [3]
         end
-      {nodeDetails_return,openList_return,is_dest_reached} ### return else 2 ##      [2]
+
+
+      else if y > goal_y do
+        if (facing != :south) do
+          robot = right(robot)
+          %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+          #is_obs = check_for_obs(robot,cli_proc_name)
+          # send_robot_status(robot, cli_proc_name)
+          stop(robot, goal_x, goal_y, cli_proc_name)
+
+        else
+          %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+          # is_obs = check_for_obs(robot,cli_proc_name)
+
+          if(is_obs) do
+            # IO.put("Obstacle at #{x}, #{y - 1}")
+            # IO.puts("Obstacle at #{x}, #{y}, #{facing}")
+
+            objInY_south(robot, goal_x, goal_y, cli_proc_name)
+
+            %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+
+          else
+            %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+            robot = move(robot)
+            %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+            stop(robot, goal_x, goal_y, cli_proc_name)
+          end
+          # send_robot_status(robot, cli_proc_name)
+        end
+
+      else
+        if x > goal_x do
+          if (facing != :west) do
+            robot = right(robot)
+            %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+            # send_robot_status(robot, cli_proc_name)
+            #is_obs = check_for_obs(robot,cli_proc_name)
+            stop(robot, goal_x, goal_y, cli_proc_name)
+          else
+            %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+            # is_obs = check_for_obs(robot,cli_proc_name)
+
+            if(is_obs) do
+              # IO.puts("Obstacle at #{x}, #{y}, #{facing}")
+              objInX_west(robot, goal_x, goal_y, cli_proc_name)
+              %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+
+            else
+              robot = move(robot)
+              %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+              stop(robot, goal_x, goal_y, cli_proc_name)
+            end
+          end
+            # send_robot_status(robot, cli_proc_name)
+
+        else if x < goal_x do
+          # is_obs = check_for_obs(robot, cli_proc_name)
+          %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+
+          if (facing != :east) do
+            robot = right(robot)
+            %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+            # send_robot_status(robot, cli_proc_name)
+            #is_obs = check_for_obs(robot,cli_proc_name)
+            stop(robot, goal_x, goal_y, cli_proc_name)
+
+          else
+            %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+            # is_obs = check_for_obs(robot,cli_proc_name)
+
+            if(is_obs) do
+              # IO.put("Obstacle at #{x + 1}, #{y}")
+              # IO.puts("Obstacle at #{x}, #{y}, #{facing}")
+              objInX_east(robot, goal_x, goal_y, cli_proc_name)
+              %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+
+
+            else
+              robot = move(robot)
+              %ToyRobot.Position{x: x, y: y, facing: facing} = robot
+              stop(robot, goal_x, goal_y, cli_proc_name)
+            end
+          end
+
+            # send_robot_status(robot, cli_proc_name)
+
+        else
+          is_obs = check_for_obs(robot, cli_proc_name)
+          # {:ok,robot}
+
+        end
+       end
       end
-    {nodeDetails_return,openList_return,is_dest_reached} ### return else 1 ###  [1]
-    end
-  {nodeDetails_return,openList_return,is_dest_reached}
+    end       # --> end for the main if - else
+  end         # --> end for the main stop function
+
+
+ end
+
+ def check_for_obs(robot,cli_proc_name)do
+  current = self()
+  pid = spawn_link(fn -> x = send_robot_status(robot, cli_proc_name)
+                         send(current,x) end)
+  Process.register(pid, :client_toyrobot)
+  receive do
+    value -> value
   end
+end
 
-  def create_grid_of_nodes do
-    coll = List.duplicate(%NodeDetailStruct{}, 5)
-    grid = List.duplicate(coll, 5)
-  end
 
-  def find_shortest_path(
-        %ToyRobot.Position{x: x, y: y, facing: facing} = robot,
-        goal_x,
-        goal_y,
-        cli_proc_name
-      ) do
-    # check if the destination has been reached
-    if(x == goal_x and y == goal_y) do
-      {:ok, robot}
-    else
-      # make and initialize the ClosedList
-      closedList = []
 
-      # make and initialize the node details list
-      nodeDetails = create_grid_of_nodes()
-
-      # Initialising the parameters of the starting node
-      start_node = %NodeDetailStruct{parent_x: x, parent_y: y, f: 0.0, g: 0.0, h: 0.0}
-      nodeDetails = modify(x, y, nodeDetails, start_node)
-      # IO.inspect(nodeDetails)
-
-      # make and initialize the opentlist
-      opentList = []
-
-      # put the starting cell on the openList
-      start_cell_on_list = %OpenListStruct{x: x, y: y, facing: facing, f: 0.0}
-      opentList = [start_cell_on_list | opentList]
-      # IO.inspect(opentList)
-      goal_reached = false
-      checkSuccessor(opentList, closedList, nodeDetails, goal_x, goal_y, cli_proc_name,goal_reached)
-    end
-  end
-
-  def stop(%ToyRobot.Position{x: x, y: y, facing: facing} = robot, goal_x, goal_y, cli_proc_name) do
-    # grid = create_grid_of_nodes()
-    # node = acces(3,:a,grid)
-    # IO.inspect(node)
-    # grid = modify(3,:a,grid,%NodeDetailStruct{parent_x: 1, parent_y: :a, f: 27.00, g: 54.0, h: 7.0})
-    # node = acces(3,:a,grid)
-    # IO.inspect(node)
-    # x_s = find_successor_coordinates_x(2,:north)
-    # y_s = find_successor_coordinates_y(:d,:north)
-    # IO.inspect({x_s,y_s})
-    IO.inspect(goal_x)
-    IO.inspect(goal_y)
-    # find_shortest_path(robot, goal_x, goal_y, cli_proc_name)
-  end
 
   @doc """
   Send Toy Robot's current status i.e. location (x, y) and facing
@@ -503,23 +403,11 @@ defmodule ToyRobot do
   Listen to the CLI Server and wait for the message indicating the presence of obstacle.
   The message with the format: '{:obstacle_presence, < true or false >}'.
   """
-  def check_for_obs(robot, cli_proc_name) do
-    current = self()
-    pid =
-      spawn_link(fn ->
-        x = send_robot_status(robot, cli_proc_name)
-        send(current, x)
-      end)
-    Process.register(pid, :client_toyrobot)
-    receive do
-      value -> value
-    end
-  end
-
   def send_robot_status(%ToyRobot.Position{x: x, y: y, facing: facing} = _robot, cli_proc_name) do
     send(cli_proc_name, {:toyrobot_status, x, y, facing})
-    # IO.puts("Sent by Toy Robot Client: #{x}, #{y}, #{facing}")
+    #IO.puts("Sent by Toy Robot Client: #{x}, #{y}, #{facing}")
     listen_from_server()
+    #IO.puts "called listen_from_server "
   end
 
   @doc """
@@ -532,6 +420,14 @@ defmodule ToyRobot do
     end
   end
 
+
+
+
+
+
+
+  #@spec report(%ToyRobot.Position{:facing => any, :x => any, :y => any, optional(any) => any}) ::
+          #{any, any, any}
   @doc """
   Provides the report of the robot's current position
 
@@ -565,14 +461,7 @@ defmodule ToyRobot do
   Moves the robot to the north, but prevents it to fall
   """
   def move(%ToyRobot.Position{x: _, y: y, facing: :north} = robot) when y < @table_top_y do
-    %ToyRobot.Position{
-      robot
-      | y:
-          Enum.find(@robot_map_y_atom_to_num, fn {_, val} ->
-            val == Map.get(@robot_map_y_atom_to_num, y) + 1
-          end)
-          |> elem(0)
-    }
+    %ToyRobot.Position{robot | y: Enum.find(@robot_map_y_atom_to_num, fn {_, val} -> val == Map.get(@robot_map_y_atom_to_num, y) + 1 end) |> elem(0)}
   end
 
   @doc """
@@ -586,14 +475,7 @@ defmodule ToyRobot do
   Moves the robot to the south, but prevents it to fall
   """
   def move(%ToyRobot.Position{x: _, y: y, facing: :south} = robot) when y > :a do
-    %ToyRobot.Position{
-      robot
-      | y:
-          Enum.find(@robot_map_y_atom_to_num, fn {_, val} ->
-            val == Map.get(@robot_map_y_atom_to_num, y) - 1
-          end)
-          |> elem(0)
-    }
+    %ToyRobot.Position{robot | y: Enum.find(@robot_map_y_atom_to_num, fn {_, val} -> val == Map.get(@robot_map_y_atom_to_num, y) - 1 end) |> elem(0)}
   end
 
   @doc """
