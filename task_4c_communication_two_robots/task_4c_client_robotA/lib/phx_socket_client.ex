@@ -17,11 +17,17 @@ defmodule Task4CClientRobotA.PhoenixSocketClient do
   You may refer: https://github.com/mobileoverlord/phoenix_client/issues/29#issuecomment-660518498
   """
   def connect_server do
+    socket_opts = [url: Application.get_env(:phoenix_server, :url)]
+    {:ok, socket} = PhoenixClient.Socket.start_link(socket_opts)
+    wait_until_connected(socket)
+    {:ok, _response, channel} = PhoenixClient.Channel.join(socket, "robot:status")
+  end
 
-    ###########################
-    ## complete this funcion ##
-    ###########################
-
+  defp wait_until_connected(socket) do
+    if !PhoenixClient.Socket.connected?(socket) do
+      Process.sleep(100)
+      wait_until_connected(socket)
+    end
   end
 
   @doc """
@@ -36,15 +42,12 @@ defmodule Task4CClientRobotA.PhoenixSocketClient do
   Create a tuple of this format: '{:obstacle_presence, < true or false >}' as a return of this function.
   """
   def send_robot_status(channel, %Task4CClientRobotA.Position{x: x, y: y, facing: facing} = _robot) do
-
-    ###########################
-    ## complete this funcion ##
-    ###########################
-
+    y_s = Atom.to_string(y)
+    facing_s = Atom.to_string(facing)
+    # message = %{"x"=> x, "y"=> y_s, "face"=> facing_s}
+    message = %{"client": "robot_A", "x": x, "y": y_s, "face": facing_s}
+    {:ok, is_obs_ahead} = PhoenixClient.Channel.push(channel, "new_msg", message)
+    # IO.inspect(is_obs_ahead)
+    is_obs_ahead
   end
-
-  ######################################################
-  ## You may create extra helper functions as needed. ##
-  ######################################################
-
 end

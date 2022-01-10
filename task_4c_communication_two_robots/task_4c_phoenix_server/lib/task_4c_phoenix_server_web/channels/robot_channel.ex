@@ -40,6 +40,267 @@ defmodule Task4CPhoenixServerWeb.RobotChannel do
     ###########################
     ## complete this funcion ##
     ###########################
+    if (message["x"] == 1) do
+      left_value = 0
+      if (message["y"] == "a") do
+        bottom_value = 0
+        face_value = message["face"]
+        data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
+        Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
+
+      else if (message["y"] == "b") do
+        bottom_value = 150
+        face_value = message["face"]
+        data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
+        Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
+
+      else if (message["y"] == "c") do
+        bottom_value = 300
+        face_value = message["face"]
+        data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
+        Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
+
+      else if (message["y"] == "d") do
+        bottom_value = 450
+        face_value = message["face"]
+        data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
+        Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
+
+      else if (message["y"] == "e") do
+        bottom_value = 600
+        face_value = message["face"]
+        data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
+        Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
+      else if (message["y"] == "f") do
+        bottom_value = 750
+        face_value = message["face"]
+        data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
+        Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
+      end
+      end
+      end
+      end
+      end
+      end
+
+    else if (message["x"] == 2) do
+      left_value = 150
+      if (message["y"] == "a") do
+        bottom_value = 0
+        face_value = message["face"]
+        data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
+        Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
+
+      else if (message["y"] == "b") do
+        bottom_value = 150
+        face_value = message["face"]
+        data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
+        Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
+
+      else if (message["y"] == "c") do
+        bottom_value = 300
+        face_value = message["face"]
+        data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
+        Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
+
+      else if (message["y"] == "d") do
+        bottom_value = 450
+        face_value = message["face"]
+        data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
+        Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
+
+      else if (message["y"] == "e") do
+        bottom_value = 600
+        face_value = message["face"]
+        data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
+        Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
+      else if (message["y"] == "f") do
+        bottom_value = 750
+        face_value = message["face"]
+        data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
+        Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
+      end
+      end
+      end
+      end
+      end
+      end
+
+    else if (message["x"] == 3) do
+      left_value = 300
+      if (message["y"] == "a") do
+        bottom_value = 0
+        face_value = message["face"]
+        data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
+        Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
+
+      else if (message["y"] == "b") do
+        bottom_value = 150
+        face_value = message["face"]
+        data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
+        Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
+
+      else if (message["y"] == "c") do
+        bottom_value = 300
+        face_value = message["face"]
+        data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
+        Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
+
+      else if (message["y"] == "d") do
+        bottom_value = 450
+        face_value = message["face"]
+        data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
+        Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
+
+      else if (message["y"] == "e") do
+        bottom_value = 600
+        face_value = message["face"]
+        data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
+        Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
+      else if (message["y"] == "f") do
+        bottom_value = 750
+        face_value = message["face"]
+        data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
+        Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
+      end
+      end
+      end
+      end
+      end
+      end
+
+      else if (message["x"] == 4) do
+        left_value = 450
+        if (message["y"] == "a") do
+          bottom_value = 0
+          face_value = message["face"]
+          data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
+          Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
+
+        else if (message["y"] == "b") do
+          bottom_value = 150
+          face_value = message["face"]
+          data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
+          Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
+
+        else if (message["y"] == "c") do
+          bottom_value = 300
+          face_value = message["face"]
+          data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
+          Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
+
+        else if (message["y"] == "d") do
+          bottom_value = 450
+          face_value = message["face"]
+          data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
+          Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
+
+        else if (message["y"] == "e") do
+          bottom_value = 600
+          face_value = message["face"]
+          data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
+          Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
+        else if (message["y"] == "f") do
+          bottom_value = 750
+          face_value = message["face"]
+          data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
+          Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
+        end
+        end
+        end
+        end
+        end
+        end
+
+      else if (message["x"] == 5) do
+        left_value = 600
+        if (message["y"] == "a") do
+          bottom_value = 0
+          face_value = message["face"]
+          data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
+          Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
+
+        else if (message["y"] == "b") do
+          bottom_value = 150
+          face_value = message["face"]
+          data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
+          Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
+
+        else if (message["y"] == "c") do
+          bottom_value = 300
+          face_value = message["face"]
+          data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
+          Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
+
+        else if (message["y"] == "d") do
+          bottom_value = 450
+          face_value = message["face"]
+          data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
+          Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
+
+        else if (message["y"] == "e") do
+          bottom_value = 600
+          face_value = message["face"]
+          data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
+          Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
+        else if (message["y"] == "f") do
+          bottom_value = 750
+          face_value = message["face"]
+          data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
+          Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
+        end
+        end
+        end
+        end
+        end
+        end
+      else if (message["x"] == 6) do
+        left_value = 750
+        if (message["y"] == "a") do
+          bottom_value = 0
+          face_value = message["face"]
+          data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
+          Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
+
+        else if (message["y"] == "b") do
+          bottom_value = 150
+          face_value = message["face"]
+          data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
+          Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
+
+        else if (message["y"] == "c") do
+          bottom_value = 300
+          face_value = message["face"]
+          data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
+          Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
+
+        else if (message["y"] == "d") do
+          bottom_value = 450
+          face_value = message["face"]
+          data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
+          Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
+
+        else if (message["y"] == "e") do
+          bottom_value = 600
+          face_value = message["face"]
+          data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
+          Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
+        else if (message["y"] == "f") do
+          bottom_value = 750
+          face_value = message["face"]
+          data = %{ "left" => left_value, "bottom" => bottom_value, "face" =>  face_value }
+          Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
+        end
+        end
+        end
+        end
+        end
+        end
+        end
+      end
+      end
+      end
+      end
 
     {:reply, {:ok, is_obs_ahead}, socket}
   end

@@ -10,7 +10,7 @@ use Mix.Config
 
 # You can configure your application as:
 #
-#     config :toy_robot, key: :value
+    config :toy_robot, key: :value
 #
 # and access this configuration in your application as:
 #
