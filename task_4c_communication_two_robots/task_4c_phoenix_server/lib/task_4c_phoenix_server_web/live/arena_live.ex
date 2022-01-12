@@ -227,9 +227,38 @@ defmodule Task4CPhoenixServerWeb.ArenaLive do
   """
   def handle_info(data, socket) do
 
-    ###########################
-    ## complete this funcion ##
-    ###########################
+    if (data["client"] == "robot_A") do
+      cond do
+        (data["face"] == "north")->
+          socket = assign(socket, :img_robotA, "robot_facing_north.png")
+        (data["face"]  == "south")->
+          socket = assign(socket, :img_robotA, "robot_facing_south.png")
+        (data["face"] == "east")->
+          socket = assign(socket, :img_robotA, "robot_facing_east.png")
+        (data["face"] == "west")->
+          socket = assign(socket, :img_robotA, "robot_facing_.png")
+      end
+      socket = assign(socket, :bottom_robotA, data["bottom"])
+      socket = assign(socket, :left_robotA, data["left"])
+    end
+    if (data["client"] == "robot_B") do
+      cond do
+        (data["face"] == "north")->
+          socket = assign(socket, :img_robotB, "robot_facing_north.png")
+        (data["face"]  == "south")->
+          socket = assign(socket, :img_robotB, "robot_facing_south.png")
+        (data["face"] == "east")->
+          socket = assign(socket, :img_robotB, "robot_facing_east.png")
+        (data["face"] == "west")->
+          socket = assign(socket, :img_robotB, "robot_facing_.png")
+      end
+      socket = assign(socket, :bottom_robotB, data["bottom"])
+      socket = assign(socket, :left_robotB, data["left"])
+    end
+
+    # socket = assign(socket, :robotA_goals, [])
+    # socket = assign(socket, :robotB_goals, [])
+    # socket = assign(socket, :obstacle_pos, MapSet.new())
 
     {:noreply, socket}
 
