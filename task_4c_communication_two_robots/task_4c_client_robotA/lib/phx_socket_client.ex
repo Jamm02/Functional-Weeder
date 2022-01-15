@@ -17,9 +17,11 @@ defmodule Task4CClientRobotA.PhoenixSocketClient do
   You may refer: https://github.com/mobileoverlord/phoenix_client/issues/29#issuecomment-660518498
   """
   def connect_server do
-    socket_opts = [url: Application.get_env(:phoenix_server, :url)]
+    socket_opts = [url: Application.get_env(:task_4c_client_robota, :phoenix_server_url)]
     {:ok, socket} = PhoenixClient.Socket.start_link(socket_opts)
     wait_until_connected(socket)
+    IO.inspect(socket)
+    IO.puts("reached in pnx socket client module")
     {:ok, _response, channel} = PhoenixClient.Channel.join(socket, "robot:status")
   end
 

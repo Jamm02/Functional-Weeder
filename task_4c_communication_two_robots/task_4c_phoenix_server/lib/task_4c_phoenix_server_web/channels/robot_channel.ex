@@ -28,18 +28,24 @@ defmodule Task4CPhoenixServerWeb.RobotChannel do
   If an obstacle is present ahead of the robot, then broadcast the pixel location of the obstacle to be displayed on the Dashboard.
   """
   def handle_in("new_msg", message, socket) do
+
     # determine the obstacle's presence in front of the robot and return the boolean value
     is_obs_ahead = Task4CPhoenixServerWeb.FindObstaclePresence.is_obstacle_ahead?(message["x"], message["y"], message["face"])
+
     # file object to write each action taken by each Robot (A as well as B)
     {:ok, out_file} = File.open("task_4c_output.txt", [:append])
     # write the robot actions to a text file
     IO.binwrite(out_file, "#{message["client"]} => #{message["x"]}, #{message["y"]}, #{message["face"]}\n")
-    map_left_value_to_x = %{1 => 0, 2 => 150, 3 => 300, 4 => 450, 5 => 600, 6 => 750}
-    map_bottom_value_to_y = %{"a" => 0, "b" => 150, "c" => 300, "d" => 450, "e" => 600, "f" => 750}
-    left_value = Map.get(map_left_value_to_x,message["x"])
-    bottom_value = Map.get(map_bottom_value_to_y, message["y"])
-    data = %{ "client" => message["client"], "left" => left_value, "bottom" => bottom_value, "face" =>  message["face"] }
-    Phoenix.PubSub.broadcast(Task2PhoenixServer.PubSub, "robot:update", data)
+
+    ###########################
+    ## complete this funcion ##
+    ###########################
+
     {:reply, {:ok, is_obs_ahead}, socket}
   end
+
+  #########################################
+  ## define callback functions as needed ##
+  #########################################
+
 end

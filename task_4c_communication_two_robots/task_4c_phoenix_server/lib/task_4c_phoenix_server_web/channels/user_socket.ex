@@ -10,8 +10,7 @@ defmodule Task4cPhoenixServerWeb.UserSocket do
   # Uncomment the following line to define a "room:*" topic
   # pointing to the `Task4cPhoenixServerWeb.RoomChannel`:
   #
-  channel "robot:*", Task4cPhoenixServerWeb.RobotChannel
-  channel "timer:*", Task4CPhoenixServerWeb.TimerChannel
+  channel "robot:*", Task4CPhoenixServerWeb.RobotChannel
   #
   # To create a channel file, use the mix task:
   #
