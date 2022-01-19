@@ -10,10 +10,6 @@ defmodule Task4CPhoenixServerWeb.Endpoint do
     signing_salt: "FQBSDUYN"
   ]
 
-  #############################################################
-  ## add the configuration of UserSocket module once created ##
-  ## make sure the websocket flag is set to true             ##
-  #############################################################
   socket "/socket", Task4cPhoenixServerWeb.UserSocket,
   websocket: true,
   longpoll: false

@@ -14,6 +14,7 @@ defmodule Task4CPhoenixServerWeb.ArenaLive do
 
     Task4CPhoenixServerWeb.Endpoint.subscribe("robot:update")
     :ok = Phoenix.PubSub.subscribe(Task4CPhoenixServer.PubSub, "timer:update")
+    # :ok = Phoenix.PubSub.subscribe(Task4CPhoenixServer.PubSub, "robot:position")
 
     socket = assign(socket, :img_robotA, "robot_facing_north.png")
     socket = assign(socket, :bottom_robotA, 0)
@@ -174,17 +175,21 @@ defmodule Task4CPhoenixServerWeb.ArenaLive do
   the PLAY button on the dashboard.
   """
   def handle_event("start_clock", data, socket) do
-
     socket = assign(socket, :robotA_start, data["robotA_start"])
     socket = assign(socket, :robotB_start, data["robotB_start"])
     Task4CPhoenixServerWeb.Endpoint.broadcast("timer:start", "start_timer", %{})
-
-    #################################
-    ## edit the function if needed ##
-    #################################
-
+    new = String.replace(data["robotA_start"]," ","")
+    str = String.split(new,",")
+    # map = %{"face"=>Enum.at(str,2),"x" => Enum.at(str,0), "y"=> Enum.at(str,1)}
+    # map_left_value_to_x = %{"1" => 0, "2" => 150, "3" => 300, "4" => 450, "5" => 600, "6" => 750}
+    # map_bottom_value_to_y = %{"a" => 0, "b" => 150, "c" => 300, "d" => 450, "e" => 600, "f" => 750}
+    # left_value = Map.get(map_left_value_to_x,map["x"])
+    # bottom_value = Map.get(map_bottom_value_to_y, map["y"])
+    # data = %{"client" => "robot_A", "left" => left_value, "bottom" => bottom_value, "face" =>  map["face"] }
+    # Phoenix.PubSub.broadcast(Task4CPhoenixServer.PubSub, "robot:position", data)
+    Task4CPhoenixServerWeb.Endpoint.broadcast("robot:get_position", "startPos", data)
+    IO.puts("broadcast done")
     {:noreply, socket}
-
   end
 
   @doc """
@@ -226,10 +231,39 @@ defmodule Task4CPhoenixServerWeb.ArenaLive do
   These values msut be in pixels. You may handle these variables in separate callback functions as well.
   """
   def handle_info(data, socket) do
+    # data = data.payload
+    if (data["client"] == "robot_A") do
+      cond do
+        (data["face"] == "north")->
+          socket = assign(socket, :img_robotA, "robot_facing_north.png")
+        (data["face"]  == "south")->
+          socket = assign(socket, :img_robotA, "robot_facing_south.png")
+        (data["face"] == "east")->
+          socket = assign(socket, :img_robotA, "robot_facing_east.png")
+        (data["face"] == "west")->
+          socket = assign(socket, :img_robotA, "robot_facing_.png")
+      end
+      socket = assign(socket, :bottom_robotA, data["bottom"])
+      socket = assign(socket, :left_robotA, data["left"])
+    end
+    if (data["client"] == "robot_B") do
+      cond do
+        (data["face"] == "north")->
+          socket = assign(socket, :img_robotB, "robot_facing_north.png")
+        (data["face"]  == "south")->
+          socket = assign(socket, :img_robotB, "robot_facing_south.png")
+        (data["face"] == "east")->
+          socket = assign(socket, :img_robotB, "robot_facing_east.png")
+        (data["face"] == "west")->
+          socket = assign(socket, :img_robotB, "robot_facing_.png")
+      end
+      socket = assign(socket, :bottom_robotB, data["bottom"])
+      socket = assign(socket, :left_robotB, data["left"])
+    end
 
-    ###########################
-    ## complete this funcion ##
-    ###########################
+    # socket = assign(socket, :robotA_goals, [])
+    # socket = assign(socket, :robotB_goals, [])
+    # socket = assign(socket, :obstacle_pos, MapSet.new())
 
     {:noreply, socket}
 

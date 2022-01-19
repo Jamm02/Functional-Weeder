@@ -59,9 +59,15 @@ defmodule Task4CClientRobotA do
   You may create extra helper functions as needed.
   """
   def main do
-    {:ok, _response, channel} = Task4CClientRobotA.PhoenixSocketClient.connect_server()
-    robot = %Task4CClientRobotA.Position{x: 1, y: :a, facing: :north}
-    Task4CClientRobotA.PhoenixSocketClient.send_robot_status(channel, robot)
+    {:ok, _response, channel_status,channel_startPos} = Task4CClientRobotA.PhoenixSocketClient.connect_server()
+    {:ok, position} = get_start_pos(channel_startPos)
+    robot = %Task4CClientRobotA.Position{x: 2, y: :b, facing: :north}
+    is_obs = Task4CClientRobotA.PhoenixSocketClient.send_robot_status(channel_status,robot)
+    {:ok, _response, channel_status,channel_startPos}
+  end
+
+  def get_start_pos(channel) do
+    {:ok, position} = PhoenixClient.Channel.push(channel, "give_start_pos", "",1000000)
   end
 
   @doc """

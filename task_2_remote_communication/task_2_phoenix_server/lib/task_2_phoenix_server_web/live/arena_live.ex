@@ -81,6 +81,7 @@ defmodule Task2PhoenixServerWeb.ArenaLive do
   based on the data recevied.
   """
   def handle_info(data ,socket) do
+    IO.puts("handle infor called --------------------------")
     if (data["face"] == "north") do
       socket = assign(socket, :img, "robot_facing_north.png")
     else if (data["face"]  == "south") do

@@ -20,9 +20,9 @@ defmodule Task4CClientRobotA.PhoenixSocketClient do
     socket_opts = [url: Application.get_env(:task_4c_client_robota, :phoenix_server_url)]
     {:ok, socket} = PhoenixClient.Socket.start_link(socket_opts)
     wait_until_connected(socket)
-    IO.inspect(socket)
-    IO.puts("reached in pnx socket client module")
-    {:ok, _response, channel} = PhoenixClient.Channel.join(socket, "robot:status")
+    {:ok, _response, channel_status} = PhoenixClient.Channel.join(socket, "robot:status")
+    {:ok, _response, channel_startPos} = PhoenixClient.Channel.join(socket, "robot:position")
+    {:ok, _response, channel_status,channel_startPos}
   end
 
   defp wait_until_connected(socket) do
@@ -47,9 +47,10 @@ defmodule Task4CClientRobotA.PhoenixSocketClient do
     y_s = Atom.to_string(y)
     facing_s = Atom.to_string(facing)
     # message = %{"x"=> x, "y"=> y_s, "face"=> facing_s}
-    message = %{"client": "robot_A", "x": x, "y": y_s, "face": facing_s}
+    message = %{"client"=> "robot_A", "x"=> x, "y"=> y_s, "face"=> facing_s}
     {:ok, is_obs_ahead} = PhoenixClient.Channel.push(channel, "new_msg", message)
     # IO.inspect(is_obs_ahead)
     is_obs_ahead
   end
+
 end
