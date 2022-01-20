@@ -66,8 +66,15 @@ defmodule Task4CClientRobotA do
   end
 
   def get_start_pos(channel) do
-    {:ok, position} = PhoenixClient.Channel.push(channel, "give_start_pos", "")
-    IO.inspect(position)
+    {:ok, position} = PhoenixClient.Channel.push(channel, "give_start_pos", "nil")
+    position =
+    if position == "start pos not recived" do
+      Process.sleep(3000)
+      {:ok, position} = get_start_pos(channel)
+      position
+    else
+      position
+    end
     {:ok,position}
   end
 

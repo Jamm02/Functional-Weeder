@@ -56,13 +56,23 @@ defmodule Task4CPhoenixServerWeb.RobotChannel do
   #callback invoked when message is pushed from the robot client.
   def handle_in("give_start_pos", message, socket) do
     # wait_for_arena_live(message)
-    position = socket.assigns.robota_start_pos
+    # socket = assign(socket, :robota_start_pos,message)
+    position =
+    if Map.has_key?(socket.assigns,:robota_start_pos) == false do
+      position = "start pos not recived"
+    else
+      position = socket.assigns.robota_start_pos
+    end
+    IO.inspect(position)
+    IO.inspect(socket)
     {:reply, {:ok, position}, socket}
   end
+
   #callback invoked when start positions are broadcasted from the areana live module
   def handle_info(%{event: "startPos", payload: data}, socket) do
     socket = assign(socket, :robota_start_pos, data["robotA_start"])
     #socket with the robot:postion
+    IO.puts("callback to update called")
     {:noreply, socket}
   end
   def handle_info(msg, socket) do
