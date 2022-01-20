@@ -7,7 +7,7 @@ defmodule Task4CPhoenixServerWeb.RobotChannel do
   Reply or Acknowledge with socket PID received from the Client.
   """
   def join("robot:status", _params, socket) do
-    # Task4CPhoenixServerWeb.Endpoint.subscribe("robot:update")
+    Task4CPhoenixServerWeb.Endpoint.subscribe("robot:update")
     {:ok, socket}
   end
   def join("robot:position", _params, socket) do
@@ -53,26 +53,26 @@ defmodule Task4CPhoenixServerWeb.RobotChannel do
     {:reply, {:ok, is_obs_ahead}, socket}
   end
 
-
+  #callback invoked when message is pushed from the robot client.
   def handle_in("give_start_pos", message, socket) do
     # wait_for_arena_live(message)
-    IO.puts("888888888888888888888888888888888888888888888888888888888888888888")
-    IO.inspect(message)
-    IO.puts("888888888888888888888888888888888888888888888888888888888888888888")
-    position = "1,a,north beach"
+    IO.puts("7777777777777777777777777777777777777777777777777777777777777777777777777777")
+    IO.inspect(socket)
+    position = socket.assigns.robota_start_pos
     {:reply, {:ok, position}, socket}
   end
-
-  def handle_info(%{event: "startPos", payload: data, topic: "robot:get_position"}, socket) do
-
+  #callback invoked when start positions are broadcasted from the areana live module
+  def handle_info(%{event: "startPos", payload: data}, socket) do
+    socket = assign(socket, :robota_start_pos, data["robotA_start"])
+    #socket with the robot:postion
+    IO.puts("recived start positionfrom the arena live module in handle info of the robot channel")
+    IO.inspect(socket)
+    push(socket,"give_start_pos", data)
     {:noreply, socket}
   end
-
-  def wait_for_arena_live(message) do
-    if message == "" do
-      wait_for_arena_live(message)
-    end
-    Process.sleep(100)
+  def handle_info(msg, socket) do
+    IO.inspect("sdfadsfasdfasdfjal;skdjfl;kajfl;skdjf;laskdjfkl;safjl;askdfjal;skdfj")
+    {:noreply, socket}
   end
   #########################################
   ## define callback functions as needed ##

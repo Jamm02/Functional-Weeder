@@ -177,7 +177,7 @@ defmodule Task4CPhoenixServerWeb.ArenaLive do
   def handle_event("start_clock", data, socket) do
     socket = assign(socket, :robotA_start, data["robotA_start"])
     socket = assign(socket, :robotB_start, data["robotB_start"])
-    Task4CPhoenixServerWeb.Endpoint.broadcast("timer:start", "start_timer", %{})
+    # Task4CPhoenixServerWeb.Endpoint.broadcast("timer:start", "start_timer", %{})
     new = String.replace(data["robotA_start"]," ","")
     str = String.split(new,",")
     # map = %{"face"=>Enum.at(str,2),"x" => Enum.at(str,0), "y"=> Enum.at(str,1)}
@@ -188,7 +188,6 @@ defmodule Task4CPhoenixServerWeb.ArenaLive do
     # data = %{"client" => "robot_A", "left" => left_value, "bottom" => bottom_value, "face" =>  map["face"] }
     # Phoenix.PubSub.broadcast(Task4CPhoenixServer.PubSub, "robot:position", data)
     Task4CPhoenixServerWeb.Endpoint.broadcast("robot:get_position", "startPos", data)
-    IO.puts("broadcast done")
     {:noreply, socket}
   end
 
