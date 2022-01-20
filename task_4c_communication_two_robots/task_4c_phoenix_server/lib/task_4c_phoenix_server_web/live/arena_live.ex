@@ -178,8 +178,7 @@ defmodule Task4CPhoenixServerWeb.ArenaLive do
     socket = assign(socket, :robotA_start, data["robotA_start"])
     socket = assign(socket, :robotB_start, data["robotB_start"])
     # Task4CPhoenixServerWeb.Endpoint.broadcast("timer:start", "start_timer", %{})
-    new = String.replace(data["robotA_start"]," ","")
-    str = String.split(new,",")
+
     # map = %{"face"=>Enum.at(str,2),"x" => Enum.at(str,0), "y"=> Enum.at(str,1)}
     # map_left_value_to_x = %{"1" => 0, "2" => 150, "3" => 300, "4" => 450, "5" => 600, "6" => 750}
     # map_bottom_value_to_y = %{"a" => 0, "b" => 150, "c" => 300, "d" => 450, "e" => 600, "f" => 750}

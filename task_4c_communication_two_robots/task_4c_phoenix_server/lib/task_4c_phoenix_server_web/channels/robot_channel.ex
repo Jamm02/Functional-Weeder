@@ -63,8 +63,6 @@ defmodule Task4CPhoenixServerWeb.RobotChannel do
     else
       position = socket.assigns.robota_start_pos
     end
-    IO.inspect(position)
-    IO.inspect(socket)
     {:reply, {:ok, position}, socket}
   end
 
@@ -72,7 +70,6 @@ defmodule Task4CPhoenixServerWeb.RobotChannel do
   def handle_info(%{event: "startPos", payload: data}, socket) do
     socket = assign(socket, :robota_start_pos, data["robotA_start"])
     #socket with the robot:postion
-    IO.puts("callback to update called")
     {:noreply, socket}
   end
   def handle_info(msg, socket) do

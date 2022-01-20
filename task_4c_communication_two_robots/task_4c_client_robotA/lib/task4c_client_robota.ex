@@ -62,7 +62,12 @@ defmodule Task4CClientRobotA do
     {:ok, _response, channel_status,channel_startPos} = Task4CClientRobotA.PhoenixSocketClient.connect_server()
     # robot = %Task4CClientRobotA.Position{x: 2, y: :b, facing: :north}
     {:ok, position} = get_start_pos(channel_startPos)
-
+    new = String.replace(position," ","")
+    str = String.split(new,",")
+    {x,""} = Integer.parse(Enum.at(str,0))
+    y = String.to_atom(Enum.at(str,1))
+    facing = String.to_atom(Enum.at(str,2))
+    start(x,y,facing)
   end
 
   def get_start_pos(channel) do
