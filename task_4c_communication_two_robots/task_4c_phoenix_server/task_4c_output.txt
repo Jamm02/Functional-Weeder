@@ -140,3 +140,4 @@ robot_A => 2, b, north
 robot_A => 2, b, north
 robot_A => 2, b, north
 robot_A => 2, b, north
+robot_A => 2, b, north

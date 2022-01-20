@@ -56,8 +56,6 @@ defmodule Task4CPhoenixServerWeb.RobotChannel do
   #callback invoked when message is pushed from the robot client.
   def handle_in("give_start_pos", message, socket) do
     # wait_for_arena_live(message)
-    IO.puts("7777777777777777777777777777777777777777777777777777777777777777777777777777")
-    IO.inspect(socket)
     position = socket.assigns.robota_start_pos
     {:reply, {:ok, position}, socket}
   end
@@ -65,13 +63,9 @@ defmodule Task4CPhoenixServerWeb.RobotChannel do
   def handle_info(%{event: "startPos", payload: data}, socket) do
     socket = assign(socket, :robota_start_pos, data["robotA_start"])
     #socket with the robot:postion
-    IO.puts("recived start positionfrom the arena live module in handle info of the robot channel")
-    IO.inspect(socket)
-    push(socket,"give_start_pos", data)
     {:noreply, socket}
   end
   def handle_info(msg, socket) do
-    IO.inspect("sdfadsfasdfasdfjal;skdjfl;kajfl;skdjf;laskdjfkl;safjl;askdfjal;skdfj")
     {:noreply, socket}
   end
   #########################################

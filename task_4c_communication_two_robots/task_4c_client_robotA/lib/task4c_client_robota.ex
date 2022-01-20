@@ -60,10 +60,9 @@ defmodule Task4CClientRobotA do
   """
   def main do
     {:ok, _response, channel_status,channel_startPos} = Task4CClientRobotA.PhoenixSocketClient.connect_server()
-    # {:ok, position} = get_start_pos(channel_startPos)
-    robot = %Task4CClientRobotA.Position{x: 2, y: :b, facing: :north}
-    is_obs = Task4CClientRobotA.PhoenixSocketClient.send_robot_status(channel_status,robot)
-    {:ok, _response, channel_status,channel_startPos}
+    # robot = %Task4CClientRobotA.Position{x: 2, y: :b, facing: :north}
+    {:ok, position} = get_start_pos(channel_startPos)
+
   end
 
   def get_start_pos(channel) do
