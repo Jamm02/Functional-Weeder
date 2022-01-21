@@ -54,7 +54,7 @@ defmodule Task4CPhoenixServerWeb.RobotChannel do
   end
 
   #callback invoked when message is pushed from the robot client.
-  def handle_in("give_start_pos", message, socket) do
+  def handle_in("give_start_posa", message, socket) do
     # wait_for_arena_live(message)
     # socket = assign(socket, :robota_start_pos,message)
     position =
@@ -65,10 +65,22 @@ defmodule Task4CPhoenixServerWeb.RobotChannel do
     end
     {:reply, {:ok, position}, socket}
   end
+  def handle_in("give_start_posb", message, socket) do
+    # wait_for_arena_live(message)
+    # socket = assign(socket, :robota_start_pos,message)
+    position =
+    if Map.has_key?(socket.assigns,:robotb_start_pos) == false do
+      position = "start pos not recived"
+    else
+      position = socket.assigns.robotb_start_pos
+    end
+    {:reply, {:ok, position}, socket}
+  end
 
   #callback invoked when start positions are broadcasted from the areana live module
   def handle_info(%{event: "startPos", payload: data}, socket) do
     socket = assign(socket, :robota_start_pos, data["robotA_start"])
+    socket = assign(socket, :robotb_start_pos, data["robotB_start"])
     #socket with the robot:postion
     {:noreply, socket}
   end

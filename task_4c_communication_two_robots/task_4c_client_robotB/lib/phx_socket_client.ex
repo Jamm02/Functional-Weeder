@@ -17,10 +17,12 @@ defmodule Task4CClientRobotB.PhoenixSocketClient do
   You may refer: https://github.com/mobileoverlord/phoenix_client/issues/29#issuecomment-660518498
   """
   def connect_server do
-    socket_opts = [url: Application.get_env(:phoenix_server, :url)]
+    socket_opts = [url: Application.get_env(:task_4c_client_robotb, :phoenix_server_url)]
     {:ok, socket} = PhoenixClient.Socket.start_link(socket_opts)
     wait_until_connected(socket)
-    {:ok, _response, channel} = PhoenixClient.Channel.join(socket, "robot:status")
+    {:ok, _response, channel_status} = PhoenixClient.Channel.join(socket, "robot:status")
+    {:ok, _response, channel_startPos} = PhoenixClient.Channel.join(socket, "robot:position")
+    {:ok, _response, channel_status,channel_startPos}
   end
 
   defp wait_until_connected(socket) do
@@ -41,7 +43,7 @@ defmodule Task4CClientRobotB.PhoenixSocketClient do
   in this format: {:ok, < true OR false >}.
   Create a tuple of this format: '{:obstacle_presence, < true or false >}' as a return of this function.
   """
-  def send_robot_status(channel, %Task4CClientRobotA.Position{x: x, y: y, facing: facing} = _robot) do
+  def send_robot_status(channel, %Task4CClientRobotB.Position{x: x, y: y, facing: facing} = _robot) do
     y_s = Atom.to_string(y)
     facing_s = Atom.to_string(facing)
     # message = %{"x"=> x, "y"=> y_s, "face"=> facing_s}

@@ -59,13 +59,29 @@ defmodule Task4CClientRobotB do
   You may create extra helper functions as needed.
   """
   def main do
-
-    ###########################
-    ## complete this funcion ##
-    ###########################
-
+    {:ok, _response, channel_status,channel_startPos} = Task4CClientRobotB.PhoenixSocketClient.connect_server()
+    # robot = %Task4CClientRobotA.Position{x: 2, y: :b, facing: :north}
+    {:ok, position} = get_start_pos(channel_startPos)
+    new = String.replace(position," ","")
+    str = String.split(new,",")
+    {x,""} = Integer.parse(Enum.at(str,0))
+    y = String.to_atom(Enum.at(str,1))
+    facing = String.to_atom(Enum.at(str,2))
+    start(x,y,facing)
   end
 
+  def get_start_pos(channel) do
+    {:ok, position} = PhoenixClient.Channel.push(channel, "give_start_posb", "nil")
+    position =
+    if position == "start pos not recived" do
+      Process.sleep(3000)
+      {:ok, position} = get_start_pos(channel)
+      position
+    else
+      position
+    end
+    {:ok,position}
+  end
   @doc """
   Provide GOAL positions to the robot as given location of [(x1, y1),(x2, y2),..] and plan the path from START to these locations.
   Make a call to ToyRobot.PhoenixSocketClient.send_robot_status/2 to get the indication of obstacle presence ahead of the robot.
