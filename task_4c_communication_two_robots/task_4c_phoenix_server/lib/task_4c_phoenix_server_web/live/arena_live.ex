@@ -189,6 +189,7 @@ defmodule Task4CPhoenixServerWeb.ArenaLive do
     # data = %{"client" => "robot_A", "left" => left_value, "bottom" => bottom_value, "face" =>  map["face"] }
     # Phoenix.PubSub.broadcast(Task4CPhoenixServer.PubSub, "robot:position", data)
     Task4CPhoenixServerWeb.Endpoint.broadcast("robot:get_position", "startPos", data)
+    # IO.inspect(socket)
     {:noreply, socket}
   end
 

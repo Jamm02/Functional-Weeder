@@ -60,7 +60,8 @@ defmodule Task4CClientRobotA do
   """
   def main do
     {:ok, _response, channel_status,channel_startPos} = Task4CClientRobotA.PhoenixSocketClient.connect_server()
-    # robot = %Task4CClientRobotA.Position{x: 2, y: :b, facing: :north}
+    robot = %Task4CClientRobotA.Position{x: 1, y: :b, facing: :north}
+    is_obs = Task4CClientRobotA.PhoenixSocketClient.send_robot_status(channel_status,channel_startPos,robot)
     {:ok, position} = get_start_pos(channel_startPos)
     new = String.replace(position," ","")
     str = String.split(new,",")
@@ -71,7 +72,7 @@ defmodule Task4CClientRobotA do
     {:ok,goal_locs} = get_goal_locs(channel_startPos)
     IO.inspect(goal_locs)
   end
-
+  #fucntio to get the start positions entered by the user on the server arena live
   def get_start_pos(channel) do
     {:ok, position} = PhoenixClient.Channel.push(channel, "give_start_posa", "nil")
     position =
@@ -84,6 +85,7 @@ defmodule Task4CClientRobotA do
     end
     {:ok,position}
   end
+  #fucntion to get the goal location from the csv file in the server
   def get_goal_locs(channel) do
     {:ok, goal_locs} = PhoenixClient.Channel.push(channel, "give_goal_loc", "nil")
     goal_locs =
@@ -97,6 +99,9 @@ defmodule Task4CClientRobotA do
     {:ok,goal_locs}
   end
 
+  def get_robot_b(channel) do
+    {:ok, robot_b_pos} = PhoenixClient.Channel.push(channel, "give_robot_b_pos","nil")
+  end
   @doc """
   Provide GOAL positions to the robot as given location of [(x1, y1),(x2, y2),..] and plan the path from START to these locations.
   Make a call to ToyRobot.PhoenixSocketClient.send_robot_status/2 to get the indication of obstacle presence ahead of the robot.

@@ -37,7 +37,17 @@ defmodule Task4CPhoenixServerWeb.RobotChannel do
     {:ok, out_file} = File.open("task_4c_output.txt", [:append])
     IO.binwrite(out_file, "#{message["client"]} => #{message["x"]}, #{message["y"]}, #{message["face"]}\n")
 
+    # IO.inspect(message)
+    # %{"client" => "robot_A", "face" => "north", "x" => 2, "y" => "b"}
+    # if message["client"] == "robot_A" do
+    #   IO.puts("enterred here")
+    #   socket = assign(socket,:robot_A,%{x: message["x"], y: message["y"], facing: message["face"]})
+    # end
 
+    # if message["client"] == "robot_B" do
+    #   socket = assign(socket,:robot_B,%{x: message["x"], y: message["y"], facing: message["face"]})
+    # end
+    # IO.inspect(socket)
     map_left_value_to_x = %{1 => 0, 2 => 150, 3 => 300, 4 => 450, 5 => 600, 6 => 750}
     map_bottom_value_to_y = %{"a" => 0, "b" => 150, "c" => 300, "d" => 450, "e" => 600, "f" => 750}
     left_value = Map.get(map_left_value_to_x,message["x"])
@@ -65,6 +75,7 @@ defmodule Task4CPhoenixServerWeb.RobotChannel do
     end
     {:reply, {:ok, position}, socket}
   end
+
   def handle_in("give_start_posb", message, socket) do
     # wait_for_arena_live(message)
     # socket = assign(socket, :robota_start_pos,message)
@@ -76,6 +87,7 @@ defmodule Task4CPhoenixServerWeb.RobotChannel do
     end
     {:reply, {:ok, position}, socket}
   end
+
   def handle_in("give_goal_loc", message, socket) do
     # wait_for_arena_live(message)
     # socket = assign(socket, :robota_start_pos,message)
@@ -88,12 +100,42 @@ defmodule Task4CPhoenixServerWeb.RobotChannel do
     {:reply, {:ok, position}, socket}
   end
 
+  def handle_in("robot_a_pos_update", message, socket) do
+    # wait_for_arena_live(message)
+    # socket = assign(socket, :robota_start_pos,message)
+    # position =
+    # if Map.has_key?(socket.assigns,:goal_locs) == false do
+    #   position = "goal pos not recived"
+    # else
+    #   position = socket.assigns.goal_locs
+    # end
+    reply = "position updated"
+    socket = assign(socket,:robot_A_pos,message)
+    {:reply, {:ok, reply}, socket}
+  end
+
+  def handle_in("robot_b_pos_update", message, socket) do
+    reply = "position updated"
+    socket = assign(socket,:robot_B_pos,message)
+    {:reply, {:ok, reply}, socket}
+  end
+
+  def handle_in("give_robot_b_pos", _message, socket) do
+    robot_b_pos = socket.assigns.robot_B_pos
+    {:reply, {:ok, robot_b_pos}, socket}
+  end
+
+  def handle_in("give_robot_a_pos", _message, socket) do
+    robot_a_pos = socket.assigns.robot_A_pos
+    {:reply, {:ok, robot_a_pos}, socket}
+  end
   #callback invoked when start positions are broadcasted from the areana live module
   def handle_info(%{event: "startPos", payload: data}, socket) do
     socket = assign(socket, :robota_start_pos, data["robotA_start"])
     socket = assign(socket, :robotb_start_pos, data["robotB_start"])
     socket = assign(socket, :goal_locs, data["goal_locs"])
     #socket with the robot:postion
+    # IO.inspect(socket)
     {:noreply, socket}
   end
 

@@ -60,7 +60,8 @@ defmodule Task4CClientRobotB do
   """
   def main do
     {:ok, _response, channel_status,channel_startPos} = Task4CClientRobotB.PhoenixSocketClient.connect_server()
-    # robot = %Task4CClientRobotA.Position{x: 2, y: :b, facing: :north}
+    robot = %Task4CClientRobotB.Position{x: 2, y: :b, facing: :north}
+    is_obs = Task4CClientRobotB.PhoenixSocketClient.send_robot_status(channel_status,channel_startPos,robot)
     {:ok, position} = get_start_pos(channel_startPos)
     new = String.replace(position," ","")
     str = String.split(new,",")
@@ -68,8 +69,9 @@ defmodule Task4CClientRobotB do
     y = String.to_atom(Enum.at(str,1))
     facing = String.to_atom(Enum.at(str,2))
     start(x,y,facing)
+    {:ok,goal_locs} = get_goal_locs(channel_startPos)
   end
-
+#fucntio to get the start positions entered by the user on the server arena live
   def get_start_pos(channel) do
     {:ok, position} = PhoenixClient.Channel.push(channel, "give_start_posb", "nil")
     position =
@@ -81,6 +83,19 @@ defmodule Task4CClientRobotB do
       position
     end
     {:ok,position}
+  end
+  #fucntion to get the goal location from the csv file in the server
+  def get_goal_locs(channel) do
+    {:ok, goal_locs} = PhoenixClient.Channel.push(channel, "give_goal_loc", "nil")
+    goal_locs =
+    if goal_locs == "start pos not recived" do
+      Process.sleep(3000)
+      {:ok, goal_locs} = get_goal_locs(channel)
+      goal_locs
+    else
+      goal_locs
+    end
+    {:ok,goal_locs}
   end
   @doc """
   Provide GOAL positions to the robot as given location of [(x1, y1),(x2, y2),..] and plan the path from START to these locations.
