@@ -933,7 +933,8 @@ end
 end
 
   def stop(robot, goal_locs, cli_proc_name) do
-
+    IO.puts("in robot B")
+    IO.inspect(goal_locs)
     get_goal(robot, goal_locs, 0, [], cli_proc_name, 0)
     # robot_returned = CLI.ToyRobotA.get_robot_a()
     # IO.puts("printing this from the file of robot b")

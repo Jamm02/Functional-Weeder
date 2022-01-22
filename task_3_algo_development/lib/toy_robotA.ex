@@ -796,12 +796,12 @@ end
   end         # --> end for the main go_to_goal function
 
   end
-
+  ##############################################################################################
   def get_posB() do
     Process.sleep(200)
     Agent.get(:your_map_name, fn map -> Map.get(map, :robotB) end)
   end
-
+  ###################################################################################################
   def dist_from_A(%CLI.Position{x: x, y: y, facing: facing} = robot, goal_locs, i) do
     y_map_atom_to_int = %{:a => 1, :b => 2, :c => 3, :d => 4, :e => 5}
     y_int = y_map_atom_to_int[y]
@@ -870,16 +870,16 @@ end
     # IO.inspect(sorted_B)
     sorted_B
   end
-
+  ########################################################################################################3
   def give_A(a_data, i) do
     if (i == 0) do
-      {:ok, pid} = Agent.start_link(fn -> %{} end)
+      {:ok, pid} = Agent.start_link(fn -> %{} end)      #######################################################3
       Process.register(pid, :give_info_A)
     end
     Agent.update(:give_info_A, fn list -> a_data end)
-    # Agent.update(agent, fn list -> ["eggs" | list] end)
+    # Agent.update(agent, fn list -> ["eggs" | list] end)           #########################333333333333333
   end
-
+  3###########################################################################################################
   def set_goal(a_data, b_data, i, goal_locs) do
     if(i < Map.count(a_data)) do
       k = Enum.at(a_data, i)
@@ -891,17 +891,17 @@ end
       end
     end
   end
-
+######################################################################################################################
   def wait_fot_conn() do
     # IO.puts("in conn a")
     Process.sleep(100)
 
-    if (Enum.at(Agent.get(:movementB, fn list -> list end), 0) == 0) do
+    if (Enum.at(Agent.get(:movementB, fn list -> list end), 0) == 0) do###############################################
       # IO.inspect(Agent.get(:movementB, fn list -> list end))
       wait_fot_conn()
     end
   end
-
+#####################################################################################################################
   def check_reached_list(reached_list, i, goal, bool_list) do
 
 
@@ -917,15 +917,15 @@ end
 
   end
 end
-
+###########################################################################################################################
 def visited_index(j, visited_index) do
   if(j == 0) do
     {:ok, pid} = Agent.start_link(fn -> %{} end)
-    Process.register(pid, :indexes)
+    Process.register(pid, :indexes)                                           #################################################3
   end
   Agent.update(:indexes, fn list -> visited_index end)
 end
-
+###################################################################################################################################
   def get_goal(robot, goal_locs, i, reached_list, cli_proc_name, j, visited_index) do
 
     if(j != Enum.count(goal_locs)) do
@@ -992,6 +992,8 @@ def repeat(robot, cli_proc_name) do
   repeat(robot,cli_proc_name)
 end
   def stop(robot, goal_locs, cli_proc_name) do
+    IO.puts("in robot A")
+    IO.inspect(goal_locs)
     start_link(robot)
     get_goal(robot, goal_locs, 0, [], cli_proc_name, 0, [])
     # goal_x = String.to_integer(Enum.at(Enum.at(goal_locs, 0), 0))

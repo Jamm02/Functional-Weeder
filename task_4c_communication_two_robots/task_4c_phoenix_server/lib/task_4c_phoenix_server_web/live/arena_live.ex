@@ -178,7 +178,9 @@ defmodule Task4CPhoenixServerWeb.ArenaLive do
     socket = assign(socket, :robotA_start, data["robotA_start"])
     socket = assign(socket, :robotB_start, data["robotB_start"])
     # Task4CPhoenixServerWeb.Endpoint.broadcast("timer:start", "start_timer", %{})
-
+    # IO.inspect(data)
+    goal_locs = make_goal_loc()
+    data = Map.put(data,"goal_locs",goal_locs)
     # map = %{"face"=>Enum.at(str,2),"x" => Enum.at(str,0), "y"=> Enum.at(str,1)}
     # map_left_value_to_x = %{"1" => 0, "2" => 150, "3" => 300, "4" => 450, "5" => 600, "6" => 750}
     # map_bottom_value_to_y = %{"a" => 0, "b" => 150, "c" => 300, "d" => 450, "e" => 600, "f" => 750}
@@ -266,7 +268,132 @@ defmodule Task4CPhoenixServerWeb.ArenaLive do
     {:noreply, socket}
 
   end
+  def make_goal_loc do
+    csv =
+      "~/Desktop/Functional-Weeder/task_4c_communication_two_robots/task_4c_phoenix_server/Plant_Positions.csv"
+      |> Path.expand(__DIR__)
+      |> File.stream!()
+      |> CSV.decode(headers: true)
+      |> Enum.map(fn data -> data end)
+    list_of_goals = []
+    goal_locs = make_list(csv,list_of_goals)
+    # IO.inspect(goal_locs)
+  end
 
+  def make_list(csv,list_of_goals) do
+    list_ret =
+    if(Enum.empty?(csv)) do
+      list_of_goals
+    else
+      map = Kernel.elem(Enum.at(csv,0),1)
+      n1 = Map.get(map,"Sowing")
+      n2 = Map.get(map,"Weeding")
+      # list_of_goals = list_of_goals ++ get_goal(n1)
+      # list_of_goals = list_of_goals ++ [List.to_tuple(get_goal(n1))]
+      list_of_goals = list_of_goals ++ [get_goal(n1)]
+      # IO.inspect(list_of_goals)
+      # IO.inspect(get_goal(n1))
+      # list_of_goals = list_of_goals ++ [List.to_tuple(get_goal(n2))]
+      list_of_goals = list_of_goals ++ [get_goal(n2)]
+      # list_of_goals = list_of_goals ++ get_goal(n2)
+      # IO.inspect(list_of_goals)
+      # IO.inspect(get_goal(n2))
+      csv = List.delete_at(csv,0)
+      make_list(csv,list_of_goals)
+    end
+    list_ret
+  end
+  def get_goal(n) do
+    map = %{1 =>"a", 2 => "b", 3 => "c", 4 => "d", 5 => "e" , 6 => "f"}
+    # if n>= 1 and n<=5 do
+    #   x1 =to_string(n)
+    #   # x2 =to_string(n+1)
+    #   y1 =map[1]
+    #   # y2 = map[2]
+    #   #IO.puts "#{x1},#{x2},#{y1},#{y2}"
+    #   # lst = [x1,y1,x1,y2,x2,y1,x2,y2]
+    #   lst = [x1,y1]
+
+    # else if n>=6 and n<=10 do
+    #   x1 =to_string(n-5)
+    #   # x2 =to_string(n-5+1)
+    #   y1 =map[2]
+    #   # y2 = map[3]
+    #   # lst = [x1,y1,x1,y2,x2,y1,x2,y2]
+    #   lst = [x1,y1]
+
+    # else if n>=11 and n<=15 do
+    #   x1 =to_string(n-10)
+    #   # x2 =to_string(n-10+1)
+    #   y1 =map[3]
+    #   # y2 = map[4]
+    #   # lst = [x1,y1,x1,y2,x2,y1,x2,y2]
+    #   lst = [x1,y1]
+
+    # else if n>=16 and n<=20 do
+    #   x1 =to_string(n-15)
+    #   # x2 =to_string(n-15+1)
+    #   y1 =map[4]
+    #   # y2 = map[5]
+    #   lst = [x1,y1]
+    #   # lst = [x1,y1,x1,y2,x2,y1,x2,y2]
+
+    # else if n>=21 and n<=25 do
+    #   x1 =to_string(n-20)
+    #   # x2 =to_string(n-20+1)
+    #   y1 = map[5]
+    #   # y2 = map[6]
+    #   # lst = [x1,y1,x1,y2,x2,y1,x2,y2]
+    #   lst = [x1,y1]
+
+    # end    # else if (4)
+    # end   # else if (3)
+    # end  # else if (2)
+
+    # end # else if (1)
+    # end # if
+    n = String.to_integer(n)
+    list =
+    cond do
+      n>= 1 and n<=5 ->
+        x1 =to_string(n)
+        # x2 =to_string(n+1)
+        y1 =map[1]
+        # y2 = map[2]
+        #IO.puts "#{x1},#{x2},#{y1},#{y2}"
+        # lst = [x1,y1,x1,y2,x2,y1,x2,y2]
+        lst = [x1,y1]
+      n>=6 and n<=10 ->
+        x1 =to_string(n-5)
+        # x2 =to_string(n-5+1)
+        y1 =map[2]
+        # y2 = map[3]
+        # lst = [x1,y1,x1,y2,x2,y1,x2,y2]
+        lst = [x1,y1]
+      n>=11 and n<=15 ->
+        x1 =to_string(n-10)
+        # x2 =to_string(n-10+1)
+        y1 =map[3]
+        # y2 = map[4]
+        # lst = [x1,y1,x1,y2,x2,y1,x2,y2]
+        lst = [x1,y1]
+      n>=16 and n<=20 ->
+        x1 =to_string(n-15)
+        # x2 =to_string(n-15+1)
+        y1 =map[4]
+        # y2 = map[5]
+        lst = [x1,y1]
+        # lst = [x1,y1,x1,y2,x2,y1,x2,y2]
+      n>=21 and n<=25 ->
+        x1 =to_string(n-20)
+        # x2 =to_string(n-20+1)
+        y1 = map[5]
+        # y2 = map[6]
+        # lst = [x1,y1,x1,y2,x2,y1,x2,y2]
+        lst = [x1,y1]
+    end
+    list
+  end
   ######################################################
   ## You may create extra helper functions as needed  ##
   ## and update remaining assign variables.           ##

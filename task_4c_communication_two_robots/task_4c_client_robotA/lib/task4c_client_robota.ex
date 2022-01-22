@@ -68,6 +68,8 @@ defmodule Task4CClientRobotA do
     y = String.to_atom(Enum.at(str,1))
     facing = String.to_atom(Enum.at(str,2))
     start(x,y,facing)
+    {:ok,goal_locs} = get_goal_locs(channel_startPos)
+    IO.inspect(goal_locs)
   end
 
   def get_start_pos(channel) do
@@ -81,6 +83,18 @@ defmodule Task4CClientRobotA do
       position
     end
     {:ok,position}
+  end
+  def get_goal_locs(channel) do
+    {:ok, goal_locs} = PhoenixClient.Channel.push(channel, "give_goal_loc", "nil")
+    goal_locs =
+    if goal_locs == "start pos not recived" do
+      Process.sleep(3000)
+      {:ok, goal_locs} = get_goal_locs(channel)
+      goal_locs
+    else
+      goal_locs
+    end
+    {:ok,goal_locs}
   end
 
   @doc """
