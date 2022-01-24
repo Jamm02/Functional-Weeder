@@ -52,7 +52,7 @@ defmodule Task4CClientRobotA.PhoenixSocketClient do
     # IO.inspect(is_obs_ahead)
 
     #Also update the robot position in the robot:positoin client server process.
-    {:ok,reply} = PhoenixClient.push(channel_position,"robot_a_pos_update",message)
+    {:ok,reply} = PhoenixClient.Channel.push(channel_position,"robot_a_pos_update",message)
     is_obs_ahead
   end
 

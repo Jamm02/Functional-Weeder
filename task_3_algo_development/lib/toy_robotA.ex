@@ -794,7 +794,6 @@ end
       end
     end       # --> end for the main if - else
   end         # --> end for the main go_to_goal function
-
   end
   ##############################################################################################
   def get_posB() do
@@ -992,8 +991,8 @@ def repeat(robot, cli_proc_name) do
   repeat(robot,cli_proc_name)
 end
   def stop(robot, goal_locs, cli_proc_name) do
-    IO.puts("in robot A")
-    IO.inspect(goal_locs)
+    # IO.puts("in robot A")
+    # IO.inspect(goal_locs)
     start_link(robot)
     get_goal(robot, goal_locs, 0, [], cli_proc_name, 0, [])
     # goal_x = String.to_integer(Enum.at(Enum.at(goal_locs, 0), 0))

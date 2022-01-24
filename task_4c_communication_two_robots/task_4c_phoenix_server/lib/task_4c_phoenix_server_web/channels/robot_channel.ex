@@ -120,7 +120,63 @@ defmodule Task4CPhoenixServerWeb.RobotChannel do
     {:reply, {:ok, reply}, socket}
   end
 
-  def handle_in("give_robot_b_pos", _message, socket) do
+
+
+  ################################################ from robot a for goal distribution #####################################################################
+  def handle_in("update_a_data", a_data, socket) do #update callback for a_data
+  reply = "a_data updated"
+    socket = assign(socket,:give_info_A,a_data)
+    {:reply, {:ok, reply}, socket}
+  end
+  def handle_in("update_visited_index", visited_index, socket) do #update callback for visited index list
+  reply = "indexes updated"
+  socket = assign(socket,:indexes,visited_index)
+  {:reply, {:ok, reply}, socket}
+end
+def handle_in("getPosB", message, socket) do # get callback for robot_b position
+reply =
+  if Map.has_key?(socket.assigns,:robotB) == false do
+    position = "robot b pos not recived"
+  else
+    position = socket.assigns.robotB
+  end
+  ######################################################################
+  # TODO
+  ######################################################################
+  {:reply, {:ok, reply}, socket}
+end
+################################################ from robot a #####################################################################
+
+################################################## from robot_b ################################################################
+def handle_in("update_robot_b", final_data, socket) do # update callback for robot b position
+  reply = "updated robot b"
+  socket = assign(socket,:robotB,final_data)
+  {:reply, {:ok, reply}, socket}
+end
+
+def handle_in("get_a_data", message, socket) do # get callback for a_data
+# reply = socket.assigns.give_info_A
+reply =
+  if Map.has_key?(socket.assigns,:give_info_A) == false do
+    "a_data not recived"
+  else
+    a_data = socket.assigns.robotB
+  end
+  {:reply, {:ok, reply}, socket}
+end
+def handle_in("get_index_list", message, socket) do # get callback for index ist
+reply = socket.assigns.indexes
+{:reply, {:ok, reply}, socket}
+######################################################################
+# TODO
+######################################################################
+end
+################################################## from robot_b ################################################################
+################################################ from robot a for goal distribution #####################################################################
+
+
+
+def handle_in("give_robot_b_pos", _message, socket) do
     robot_b_pos = socket.assigns.robot_B_pos
     {:reply, {:ok, robot_b_pos}, socket}
   end
