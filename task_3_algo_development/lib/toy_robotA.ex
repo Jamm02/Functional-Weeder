@@ -798,6 +798,7 @@ end
   ##############################################################################################
   def get_posB() do
     Process.sleep(200)
+    IO.puts("got robotB from :your_map_name in robot a file")
     Agent.get(:your_map_name, fn map -> Map.get(map, :robotB) end)
   end
   ###################################################################################################
@@ -875,6 +876,7 @@ end
       {:ok, pid} = Agent.start_link(fn -> %{} end)      #######################################################3
       Process.register(pid, :give_info_A)
     end
+    IO.puts("updated the a_data in :give_info_A in robot a file")
     Agent.update(:give_info_A, fn list -> a_data end)
     # Agent.update(agent, fn list -> ["eggs" | list] end)           #########################333333333333333
   end
@@ -922,6 +924,7 @@ def visited_index(j, visited_index) do
     {:ok, pid} = Agent.start_link(fn -> %{} end)
     Process.register(pid, :indexes)                                           #################################################3
   end
+  IO.inspect("updated index list from robot a file")
   Agent.update(:indexes, fn list -> visited_index end)
 end
 ###################################################################################################################################
@@ -932,6 +935,7 @@ end
     index_list = []
     dist_list = []
     # %CLI.Position{x: x, y: y, facing: facing} = robot
+    #distancd of a from goal
     a_data = dist(robot, goal_locs, 0, index_list, dist_list)
 
     # IO.inspect(a_data)
@@ -941,10 +945,10 @@ end
     give_A(a_data, j)
     j = j + 1
     b_data = sort_B()
-    # IO.puts("adata")
-    # IO.inspect(a_data)
-    # IO.puts("bdata")
-    # IO.inspect(b_data)
+    IO.puts("adata")
+    IO.inspect(a_data)
+    IO.puts("bdata")
+    IO.inspect(b_data)
     goal_index_A = Enum.at(a_data, i).index  #put 0, 1, 3 ... for next closest
     goal_value_A = Enum.at(a_data, i).value
     goal_value_B = Enum.at(b_data, i).value

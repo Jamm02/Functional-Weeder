@@ -611,7 +611,6 @@ end
   # fucntion to get the goal location from the csv file in the server
   def get_goal_locs(channel) do
     {:ok, goal_locs} = PhoenixClient.Channel.push(channel, "give_goal_loc", "nil")
-
     goal_locs =
       if goal_locs == "start pos not recived" do
         Process.sleep(3000)
@@ -670,28 +669,33 @@ end
 
   ###########################################################################################################################
   def visited_index(j, visited_index,channel_position) do
+    ##function to update the visited index list
     {:ok, reply} = PhoenixClient.Channel.push(channel_position,"update_visited_index", visited_index)
     # Agent.update(:indexes, fn list -> visited_index end)
   end
   def get_posB(channel_position) do
-    Process.sleep(200)
+    # Process.sleep(200)
+    #fuction to get the robot B position
     {:ok,robot_b_data} = PhoenixClient.Channel.push(channel_position,"getPosB","nil")
-    position =
+    robot_b_data =
       if robot_b_data == "robot b pos not recived" do
         Process.sleep(3000)
-        {:ok, position} = get_posB(channel_position)
+        {:ok, robot_b_data} = get_posB(channel_position)
         robot_b_data
       else
         robot_b_data
       end
     # Agent.get(:your_map_name, fn map -> Map.get(map, :robotB) end)
-    position
+    robot_b_data
   end
   def give_A(a_data,i,channel_position) do
     # if i == 0 do
     #   {:ok, pid} = Agent.start_link(fn -> %{} end)
     #   Process.register(pid, :give_info_A)
     # end
+
+    #function to update a_data list
+    # IO.inspect(a_data)
     PhoenixClient.Channel.push(channel_position,"update_a_data",a_data)
     # Agent.update(:give_info_A, fn list -> a_data end)
   end
@@ -755,7 +759,7 @@ end
     give_A(a_data, j,channel_position)
     j = j + 1
     b_data = sort_B(channel_position)
-    IO.puts("sort b sorted")
+    # IO.puts("sort b sorted")
     # IO.puts("adata")
     # IO.inspect(a_data)
     # IO.puts("bdata")

@@ -116,11 +116,14 @@ defmodule CLI.ToyRobotB do
       dist(%CLI.Position{x: x, y: y, facing: facing} = robot, goal_locs, 0, index_list, dist_list)
 
     finaldata = put_info(new_list, finaldata, 0)
+    IO.puts("updated final data on :your_map_name, :robotB in robot b file")
+    IO.inspect(finaldata)
     Agent.update(:your_map_name, fn map -> Map.put(map, :robotB, finaldata) end)
   end
 
   def get_A() do
     Process.sleep(100)
+    IO.inspect("got list form :give_info_A in robotb file")
     Agent.get(:give_info_A, fn list -> list end)
   end
 
@@ -876,6 +879,7 @@ end
 
 def get_index_list() do
   Process.sleep(150)
+  IO.puts("got index list in robot b file")
   Agent.get(:indexes, fn list -> list end)
 end
 

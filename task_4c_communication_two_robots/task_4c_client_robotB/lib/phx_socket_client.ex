@@ -50,7 +50,7 @@ defmodule Task4CClientRobotB.PhoenixSocketClient do
     message = %{"client": "robot_B", "x": x, "y": y_s, "face": facing_s}
     {:ok, is_obs_ahead} = PhoenixClient.Channel.push(channel_status, "new_msg", message)
     # IO.inspect(is_obs_ahead)
-    {:ok,reply} = PhoenixClient.Channel.push(channel_position,"robot_b_pos_update",message)
+    # {:ok,reply} = PhoenixClient.Channel.push(channel_position,"robot_b_pos_update",message)
     is_obs_ahead
   end
 

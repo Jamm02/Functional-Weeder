@@ -70,7 +70,7 @@ defmodule Task4CClientRobotB do
     start(x,y,facing)
     robot_start = %Task4CClientRobotB.Position{x: x, y: y, facing: facing}
     {:ok,goal_locs} = get_goal_locs(channel_startPos)
-    IO.inspect(robot_start)
+    # IO.inspect(robot_start)
     stop(robot_start,goal_locs,channel_status,channel_startPos)
   end
 #fucntio to get the start positions entered by the user on the server arena live
@@ -176,10 +176,10 @@ defmodule Task4CClientRobotB do
     Process.sleep(100)
     # Agent.get(:give_info_A, fn list -> list end)
     {:ok,a_data} = PhoenixClient.Channel.push(channel_position,"get_a_data","nil")
-
+    a_data =
     if a_data == "a_data not recived" do
       Process.sleep(3000)
-      {:ok, position} = get_A(channel_position)
+      {:ok, a_data} = get_A(channel_position)
       a_data
     else
       a_data
@@ -187,9 +187,17 @@ defmodule Task4CClientRobotB do
     a_data
   end
   def get_index_list(channel_position) do
-    Process.sleep(150)
+    # Process.sleep(150)
     # Agent.get(:indexes, fn list -> list end)
     {:ok,index_list} = PhoenixClient.Channel.push(channel_position,"get_index_list","nil")
+    index_list =
+      if index_list == "index list not recived" do
+        Process.sleep(3000)
+        {:ok, index_list} = get_index_list(channel_position)
+        index_list
+      else
+        index_list
+      end
     index_list
     #####################################################################################
     #####################################################################################
@@ -897,8 +905,8 @@ end
 
       # IO.puts("bdata")
       # IO.inspect(b_data)
-      goal_index_A = Enum.at(a_data, i).index  #put 0, 1, 3 ... for next closest
-      goal_value_A = Enum.at(a_data, i).value
+      goal_index_A = Enum.at(a_data, i)["index"]  #put 0, 1, 3 ... for next closest
+      goal_value_A = Enum.at(a_data, i)["value"]
       goal_value_B = Enum.at(b_data, i).value
       goal_index_B = Enum.at(b_data, i).index
       i = i + 1

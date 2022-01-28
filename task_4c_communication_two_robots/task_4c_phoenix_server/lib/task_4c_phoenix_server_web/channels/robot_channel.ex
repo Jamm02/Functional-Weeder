@@ -10,6 +10,7 @@ defmodule Task4CPhoenixServerWeb.RobotChannel do
     Task4CPhoenixServerWeb.Endpoint.subscribe("robot:update")
     {:ok, socket}
   end
+
   def join("robot:position", _params, socket) do
     Task4CPhoenixServerWeb.Endpoint.subscribe("robot:get_position")
     {:ok, socket}
@@ -33,9 +34,19 @@ defmodule Task4CPhoenixServerWeb.RobotChannel do
   """
 
   def handle_in("new_msg", message, socket) do
-    is_obs_ahead = Task4CPhoenixServerWeb.FindObstaclePresence.is_obstacle_ahead?(message["x"], message["y"], message["face"])
+    is_obs_ahead =
+      Task4CPhoenixServerWeb.FindObstaclePresence.is_obstacle_ahead?(
+        message["x"],
+        message["y"],
+        message["face"]
+      )
+
     {:ok, out_file} = File.open("task_4c_output.txt", [:append])
-    IO.binwrite(out_file, "#{message["client"]} => #{message["x"]}, #{message["y"]}, #{message["face"]}\n")
+
+    IO.binwrite(
+      out_file,
+      "#{message["client"]} => #{message["x"]}, #{message["y"]}, #{message["face"]}\n"
+    )
 
     # IO.inspect(message)
     # %{"client" => "robot_A", "face" => "north", "x" => 2, "y" => "b"}
@@ -49,134 +60,198 @@ defmodule Task4CPhoenixServerWeb.RobotChannel do
     # end
     # IO.inspect(socket)
     map_left_value_to_x = %{1 => 0, 2 => 150, 3 => 300, 4 => 450, 5 => 600, 6 => 750}
-    map_bottom_value_to_y = %{"a" => 0, "b" => 150, "c" => 300, "d" => 450, "e" => 600, "f" => 750}
-    left_value = Map.get(map_left_value_to_x,message["x"])
+
+    map_bottom_value_to_y = %{
+      "a" => 0,
+      "b" => 150,
+      "c" => 300,
+      "d" => 450,
+      "e" => 600,
+      "f" => 750
+    }
+
+    left_value = Map.get(map_left_value_to_x, message["x"])
     bottom_value = Map.get(map_bottom_value_to_y, message["y"])
+
     data =
       if is_obs_ahead == false do
-        data = %{ "client" => message["client"], "left" => left_value, "bottom" => bottom_value, "face" =>  message["face"] }
+        data = %{
+          "client" => message["client"],
+          "left" => left_value,
+          "bottom" => bottom_value,
+          "face" => message["face"]
+        }
       else
-        data = %{ "obs" => "true", "left" => left_value, "bottom" => bottom_value, "face" =>  message["face"] }
+        data = %{
+          "obs" => "true",
+          "left" => left_value,
+          "bottom" => bottom_value,
+          "face" => message["face"]
+        }
       end
+
     Phoenix.PubSub.broadcast(Task4CPhoenixServer.PubSub, "robot:update", data)
     # Task4CPhoenixServerWeb.Endpoint.broadcast("robot:update","", data)
     {:reply, {:ok, is_obs_ahead}, socket}
   end
 
-  #callback invoked when message is pushed from the robot client.
-  def handle_in("give_start_posa", message, socket) do
+  # callback invoked when message is pushed from the robot client.
+  def handle_in("give_start_posa", _message, socket) do
     # wait_for_arena_live(message)
     # socket = assign(socket, :robota_start_pos,message)
     position =
-    if Map.has_key?(socket.assigns,:robota_start_pos) == false do
-      position = "start pos not recived"
-    else
-      position = socket.assigns.robota_start_pos
-    end
+      if Map.has_key?(socket.assigns, :robota_start_pos) == false do
+        position = "start pos not recived"
+      else
+        position = socket.assigns.robota_start_pos
+      end
+
     {:reply, {:ok, position}, socket}
   end
 
-  def handle_in("give_start_posb", message, socket) do
+  def handle_in("give_start_posb", _message, socket) do
     # wait_for_arena_live(message)
     # socket = assign(socket, :robota_start_pos,message)
     position =
-    if Map.has_key?(socket.assigns,:robotb_start_pos) == false do
-      position = "start pos not recived"
-    else
-      position = socket.assigns.robotb_start_pos
-    end
+      if Map.has_key?(socket.assigns, :robotb_start_pos) == false do
+        position = "start pos not recived"
+      else
+        position = socket.assigns.robotb_start_pos
+      end
+
     {:reply, {:ok, position}, socket}
   end
 
-  def handle_in("give_goal_loc", message, socket) do
+  def handle_in("give_goal_loc", _message, socket) do
     # wait_for_arena_live(message)
     # socket = assign(socket, :robota_start_pos,message)
     position =
-    if Map.has_key?(socket.assigns,:goal_locs) == false do
-      position = "goal pos not recived"
-    else
-      position = socket.assigns.goal_locs
-    end
+      if Map.has_key?(socket.assigns, :goal_locs) == false do
+        position = "goal pos not recived"
+      else
+        position = socket.assigns.goal_locs
+      end
+
     {:reply, {:ok, position}, socket}
   end
 
-  def handle_in("robot_a_pos_update", message, socket) do
-    # wait_for_arena_live(message)
-    # socket = assign(socket, :robota_start_pos,message)
-    # position =
-    # if Map.has_key?(socket.assigns,:goal_locs) == false do
-    #   position = "goal pos not recived"
-    # else
-    #   position = socket.assigns.goal_locs
-    # end
-    reply = "position updated"
-    socket = assign(socket,:robot_A_pos,message)
-    {:reply, {:ok, reply}, socket}
-  end
+  # def handle_in("robot_a_pos_update", message, socket) do
+  #   # wait_for_arena_live(message)
+  #   # socket = assign(socket, :robota_start_pos,message)
+  #   # position =
+  #   # if Map.has_key?(socket.assigns,:goal_locs) == false do
+  #   #   position = "goal pos not recived"
+  #   # else
+  #   #   position = socket.assigns.goal_locs
+  #   # end
+  #   reply = "position updated"
+  #   socket = assign(socket,:robot_A_pos,message)
+  #   {:reply, {:ok, reply}, socket}
+  # end
 
-  def handle_in("robot_b_pos_update", message, socket) do
-    reply = "position updated"
-    socket = assign(socket,:robot_B_pos,message)
-    {:reply, {:ok, reply}, socket}
-  end
-
-
+  # def handle_in("robot_b_pos_update", message, socket) do
+  #   reply = "position updated"
+  #   socket = assign(socket,:robot_B_pos,message)
+  #   {:reply, {:ok, reply}, socket}
+  # end
 
   ################################################ from robot a for goal distribution #####################################################################
-  def handle_in("update_a_data", a_data, socket) do #update callback for a_data
-  reply = "a_data updated"
-    socket = assign(socket,:give_info_A,a_data)
+  # update callback for a_data
+  def handle_in("update_a_data", a_data, socket) do
+    reply = "a_data updated"
+    # IO.inspect(a_data)
+    socket = assign(socket, :give_info_A, a_data)
+
+    Task4CPhoenixServerWeb.Endpoint.broadcast(
+      "robot:get_position",
+      "update_data",
+      {:give_info_A, a_data}
+    )
+
+    # IO.inspect(socket)
     {:reply, {:ok, reply}, socket}
   end
-  def handle_in("update_visited_index", visited_index, socket) do #update callback for visited index list
-  reply = "indexes updated"
-  socket = assign(socket,:indexes,visited_index)
-  {:reply, {:ok, reply}, socket}
-end
-def handle_in("getPosB", message, socket) do # get callback for robot_b position
-reply =
-  if Map.has_key?(socket.assigns,:robotB) == false do
-    position = "robot b pos not recived"
-  else
-    position = socket.assigns.robotB
+
+  # update callback for visited index list
+  def handle_in("update_visited_index", visited_index, socket) do
+    reply = "indexes updated"
+    socket = assign(socket, :indexes, visited_index)
+
+    Task4CPhoenixServerWeb.Endpoint.broadcast(
+      "robot:get_position",
+      "update_data",
+      {:indexes, visited_index}
+    )
+
+    {:reply, {:ok, reply}, socket}
   end
-  ######################################################################
-  # TODO
-  ######################################################################
-  {:reply, {:ok, reply}, socket}
-end
-################################################ from robot a #####################################################################
 
-################################################## from robot_b ################################################################
-def handle_in("update_robot_b", final_data, socket) do # update callback for robot b position
-  reply = "updated robot b"
-  socket = assign(socket,:robotB,final_data)
-  {:reply, {:ok, reply}, socket}
-end
+  # get callback for robot_b position
+  def handle_in("getPosB", _message, socket) do
+    # IO.inspect(socket)
+    reply =
+      if Map.has_key?(socket.assigns, :robotB) == false do
+        position = "robot b pos not recived"
+      else
+        position = socket.assigns.robotB
+      end
 
-def handle_in("get_a_data", message, socket) do # get callback for a_data
-# reply = socket.assigns.give_info_A
-reply =
-  if Map.has_key?(socket.assigns,:give_info_A) == false do
-    "a_data not recived"
-  else
-    a_data = socket.assigns.robotB
+    ######################################################################
+    # TODO
+    ######################################################################
+    {:reply, {:ok, reply}, socket}
   end
-  {:reply, {:ok, reply}, socket}
-end
-def handle_in("get_index_list", message, socket) do # get callback for index ist
-reply = socket.assigns.indexes
-{:reply, {:ok, reply}, socket}
-######################################################################
-# TODO
-######################################################################
-end
-################################################## from robot_b ################################################################
-################################################ from robot a for goal distribution #####################################################################
 
+  ################################################ from robot a #####################################################################
 
+  ################################################## from robot_b ################################################################
+  # update callback for robot b position
+  def handle_in("update_robot_b", final_data, socket) do
+    reply = "updated robot b"
+    # socket = assign(socket,:robotB,final_data)
+    Task4CPhoenixServerWeb.Endpoint.broadcast(
+      "robot:get_position",
+      "update_data",
+      {:robotB, final_data}
+    )
 
-def handle_in("give_robot_b_pos", _message, socket) do
+    # IO.inspect(socket)
+    {:reply, {:ok, reply}, socket}
+  end
+
+  # get callback for a_data
+  def handle_in("get_a_data", _message, socket) do
+    # reply = socket.assigns.give_info_A
+    # IO.puts("handle in clalback of the get_a_data callback to see the socket")
+    # IO.inspect(socket)
+    reply =
+      if Map.has_key?(socket.assigns, :give_info_A) == false do
+        "a_data not recived"
+      else
+        a_data = socket.assigns.give_info_A
+
+      end
+
+    {:reply, {:ok, reply}, socket}
+  end
+
+  # get callback for index ist
+  def handle_in("get_index_list", _message, socket) do
+    # reply = socket.assigns.indexes
+    reply =
+      if Map.has_key?(socket.assigns, :indexes) == false do
+        position = "index list not recived"
+      else
+        position = socket.assigns.indexes
+      end
+
+    {:reply, {:ok, reply}, socket}
+  end
+
+  ################################################## from robot_b ################################################################
+  ################################################ from robot a for goal distribution ############################################
+
+  def handle_in("give_robot_b_pos", _message, socket) do
     robot_b_pos = socket.assigns.robot_B_pos
     {:reply, {:ok, robot_b_pos}, socket}
   end
@@ -185,22 +260,29 @@ def handle_in("give_robot_b_pos", _message, socket) do
     robot_a_pos = socket.assigns.robot_A_pos
     {:reply, {:ok, robot_a_pos}, socket}
   end
-  #callback invoked when start positions are broadcasted from the areana live module
+
+  # callback invoked when start positions are broadcasted from the areana live module
   def handle_info(%{event: "startPos", payload: data}, socket) do
     socket = assign(socket, :robota_start_pos, data["robotA_start"])
     socket = assign(socket, :robotb_start_pos, data["robotB_start"])
     socket = assign(socket, :goal_locs, data["goal_locs"])
-    #socket with the robot:postion
+    # socket with the robot:position
     # IO.inspect(socket)
     {:noreply, socket}
   end
 
-
-  def handle_info(msg, socket) do
+  def handle_info(%{event: "update_data", payload: {key, value}}, socket) do
+    # IO.inspect(socket)
+    socket = assign(socket, key, value)
     {:noreply, socket}
   end
+
+  def handle_info(msg, socket) do
+    ######################################
+    {:noreply, socket}
+  end
+
   #########################################
   ## define callback functions as needed ##
   #########################################
-
 end
