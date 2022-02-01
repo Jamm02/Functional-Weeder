@@ -174,29 +174,174 @@ defmodule Task4CPhoenixServerWeb.ArenaLive do
   Handle the event "start_clock" triggered by clicking
   the PLAY button on the dashboard.
   """
+  defmodule Position do
+    @derive Jason.Encoder
+    defstruct x: 1, y: :a, facing: :north
+  end
   def handle_event("start_clock", data, socket) do
     socket = assign(socket, :robotA_start, data["robotA_start"])
     socket = assign(socket, :robotB_start, data["robotB_start"])
     # Task4CPhoenixServerWeb.Endpoint.broadcast("timer:start", "start_timer", %{})
+    new = String.replace(data["robotA_start"], " ", "")
+    str = String.split(new, ",")
+    {x_a, ""} = Integer.parse(Enum.at(str, 0))
+    y_a = String.to_atom(Enum.at(str, 1))
+    facing_a = String.to_atom(Enum.at(str, 2))
+
+
+    new = String.replace(data["robotB_start"], " ", "")
+    str = String.split(new, ",")
+    {x_b, ""} = Integer.parse(Enum.at(str, 0))
+    y_b = String.to_atom(Enum.at(str, 1))
+    facing_b = String.to_atom(Enum.at(str, 2))
     # IO.inspect(data)
     goal_locs = make_goal_loc()
-    data = Map.put(data,"goal_locs",goal_locs)
-    # map = %{"face"=>Enum.at(str,2),"x" => Enum.at(str,0), "y"=> Enum.at(str,1)}
-    # map_left_value_to_x = %{"1" => 0, "2" => 150, "3" => 300, "4" => 450, "5" => 600, "6" => 750}
-    # map_bottom_value_to_y = %{"a" => 0, "b" => 150, "c" => 300, "d" => 450, "e" => 600, "f" => 750}
-    # left_value = Map.get(map_left_value_to_x,map["x"])
-    # bottom_value = Map.get(map_bottom_value_to_y, map["y"])
-    # data = %{"client" => "robot_A", "left" => left_value, "bottom" => bottom_value, "face" =>  map["face"] }
-    # Phoenix.PubSub.broadcast(Task4CPhoenixServer.PubSub, "robot:position", data)
+    robot_a_start = %Position{x: x_a, y: y_a, facing: facing_a}
+    robot_b_start = %Position{x: x_b, y: y_b, facing: facing_b}
+    # robot_b_start = %Position{x: 5, y: :e, facing: :south}
+    robot_a_goal_list = []
+    robot_b_goal_list = []
+    goal_struct_list = []
+    {robot_a_goal_list,robot_b_goal_list,goal_locs} =
+      while_loop(goal_locs,robot_a_start,robot_b_start,robot_a_goal_list,robot_b_goal_list,goal_struct_list)
+      IO.inspect({robot_a_goal_list,robot_b_goal_list})
+    data = Map.put(data,"goal_locs_a",robot_a_goal_list)
+    data = Map.put(data,"goal_locs_b",robot_b_goal_list)
     Task4CPhoenixServerWeb.Endpoint.broadcast("robot:get_position", "startPos", data)
     # IO.inspect(socket)
     {:noreply, socket}
   end
+  ################################################################################################################################
+  ################################################################################################################################
+  defmodule GoalStruct do
+    @derive Jason.Encoder
+    defstruct x: 1, y: :a, visited: false, distance_from_a: 0, distance_from_b: 0
+  end
+  def while_loop(goal_locs,robot_a_start,robot_b_start,robot_a_goal_list,robot_b_goal_list,goal_struct_list) do
+    {robot_a_goal_list,robot_b_goal_list,goal_locs} =
+    if Enum.empty?(goal_locs) == false do
+      {robot_a_goal_list,robot_b_goal_list} =
+        divide_goals(goal_locs,robot_a_start,robot_b_start,robot_a_goal_list,robot_b_goal_list,goal_struct_list)
+      roba = Enum.at(robot_a_goal_list,0)
+      robb = Enum.at(robot_b_goal_list,0)
+      goal_locs = rectify(goal_locs,roba,robb)
+      while_loop(goal_locs,robot_a_start,robot_b_start,robot_a_goal_list,robot_b_goal_list,goal_struct_list)
+    else
+      {robot_a_goal_list,robot_b_goal_list,goal_locs}
+    end
+    {robot_a_goal_list,robot_b_goal_list,goal_locs}
+  end
+  def rectify(goal_locs, robot_a_goal,robot_b_goal) do
+    robota_goal = [to_string(robot_a_goal.x),to_string(robot_a_goal.y)]
+    robotb_goal = [to_string(robot_b_goal.x),to_string(robot_b_goal.y)]
+    # IO.puts("rectify rectiry")
+    # IO.inspect({robota_goal,robotb_goal})
+    goal_locs = List.delete(goal_locs,robota_goal)
+    goal_locs = List.delete(goal_locs,robotb_goal)
 
+    goal_locs
+  end
+  def divide_goals(goal_locs,robot_a_start,robot_b_start,robot_a_goal_list, robot_b_goal_list,goal_struct_list) do
+
+    {goal_struct_list,goal_locs} =
+      make_goal_struct_list(goal_locs, robot_a_start, robot_b_start, goal_struct_list)
+    if Enum.empty?(goal_struct_list) == false do
+      # IO.inspect(goal_struct_list)
+      goal_list_sorted_acc_to_a = sort_list("a", goal_struct_list)
+      robot_a_goal = Enum.at(goal_list_sorted_acc_to_a,0)
+      robot_a_goal_list = [robot_a_goal | robot_a_goal_list]
+      robot_a_start = %Position{x: robot_a_goal.x, y: robot_a_goal.y, facing: :north}
+      List.delete(goal_struct_list,robot_a_goal)
+      # IO.inspect(goal_list_sorted_acc_to_a)
+      goal_list_sorted_acc_to_b = sort_list("b", goal_struct_list)
+      robot_b_goal = Enum.at(goal_list_sorted_acc_to_b,0)
+      robot_b_goal_list = [robot_b_goal | robot_b_goal_list]
+      robot_b_start = %Position{x: robot_b_goal.x, y: robot_b_goal.y, facing: :north}
+      List.delete(goal_struct_list,robot_b_goal)
+      goal_struct_list = []
+      divide_goals(goal_locs,robot_a_start,robot_b_start,robot_a_goal_list,robot_b_goal_list,goal_struct_list)
+    else
+      {robot_a_goal_list,robot_b_goal_list}
+    end
+    # IO.inspect(goal_list_sorted_acc_to_b)
+  end
+  def make_goal_struct_list(goal_locs, robota, robotb, goal_struct_list) do
+    {goal_struct_list,goal_locs} =
+      if Enum.empty?(goal_locs) == false do
+        x2 = String.to_integer(Enum.at(Enum.at(goal_locs, 0), 0))
+        y2 = String.to_atom(Enum.at(Enum.at(goal_locs, 0), 1))
+
+        x1_robota = robota.x
+        y1_robota = robota.y
+
+        x1_robotb = robotb.x
+        y1_robotb = robotb.y
+
+        dist_form_robota = calculate_dist(x1_robota, y1_robota, x2, y2)
+        dist_form_robotb = calculate_dist(x1_robotb, y1_robotb, x2, y2)
+
+        goal = %GoalStruct{
+          x: x2,
+          y: y2,
+          visited: false,
+          distance_from_a: dist_form_robota,
+          distance_from_b: dist_form_robotb
+        }
+
+        goal_struct_list = [goal | goal_struct_list]
+        goal_locs = List.delete_at(goal_locs, 0)
+        make_goal_struct_list(goal_locs, robota, robotb, goal_struct_list)
+      else
+        {goal_struct_list,goal_locs}
+      end
+      # IO.inspect(goal_struct_list)
+      {goal_struct_list,goal_locs}
+  end
+
+  def calculate_dist(x1, y1, x2, y2) do
+    # IO.inspect({x1,y1,x2,y2})
+    y_map_atom_to_int = %{:a => 1, :b => 2, :c => 3, :d => 4, :e => 5, f: 6}
+    y1 = y_map_atom_to_int[y1]
+    y2 = y_map_atom_to_int[y2]
+    abs(x2 - x1) * abs(x2 - x1) + abs(y2 - y1) * abs(y2 - y1)
+  end
+
+  def sort_list(robot, goal_list_struct) do
+    if robot == "a" do
+      sorted_list =
+        Enum.sort(goal_list_struct, fn x, y -> x.distance_from_a < y.distance_from_a end)
+    else
+      sorted_list =
+        Enum.sort(goal_list_struct, fn x, y -> x.distance_from_b < y.distance_from_b end)
+    end
+  end
+
+  ################################################################################################################################
+  ################################################################################################################################
   @doc """
   Handle the event "stop_clock" triggered by clicking
   the STOP button on the dashboard.
   """
+  # def handle_event("robot_b_goal", data, socket) do
+  #   IO.inspect("handled the goal robot_b_goal event")
+  #   socket = assign(socket,:robotB_goals,[data])
+  #   {:noreply, socket}
+  # end
+  def handle_info(%{event: "robot_b_goal", payload: data, topic: "robot:update"}, socket) do
+    # IO.inspect("handled the goal robot_b_goal event")
+    data_i = socket.assigns.robotB_goals
+    data = [data|data_i]
+    socket = assign(socket,:robotB_goals,[data])
+    {:noreply, socket}
+  end
+  def handle_info(%{event: "robot_a_goal", payload: data, topic: "robot:update"}, socket) do
+    # IO.inspect("handled the goal robot_b_goal event")
+    data_i = socket.assigns.robotA_goals
+    data = [data|data_i]
+    socket = assign(socket,:robotA_goals,[data])
+    {:noreply, socket}
+  end
+
   def handle_event("stop_clock", _data, socket) do
 
     Task4CPhoenixServerWeb.Endpoint.broadcast("timer:stop", "stop_timer", %{})
@@ -233,7 +378,13 @@ defmodule Task4CPhoenixServerWeb.ArenaLive do
   """
   def handle_info(data, socket) do
     # data = data.payload
+    # IO.inspect("handle_info called in arena live")
+    # IO.puts("############################################################################################################")
+    # IO.inspect(data)
+    # IO.puts("############################################################################################################")
+    socket =
     if (data["client"] == "robot_A") do
+      socket =
       cond do
         (data["face"] == "north")->
           socket = assign(socket, :img_robotA, "robot_facing_north.png")
@@ -242,12 +393,16 @@ defmodule Task4CPhoenixServerWeb.ArenaLive do
         (data["face"] == "east")->
           socket = assign(socket, :img_robotA, "robot_facing_east.png")
         (data["face"] == "west")->
-          socket = assign(socket, :img_robotA, "robot_facing_.png")
+          socket = assign(socket, :img_robotA, "robot_facing_west.png")
       end
       socket = assign(socket, :bottom_robotA, data["bottom"])
       socket = assign(socket, :left_robotA, data["left"])
+    else
+      socket
     end
+    socket =
     if (data["client"] == "robot_B") do
+      socket =
       cond do
         (data["face"] == "north")->
           socket = assign(socket, :img_robotB, "robot_facing_north.png")
@@ -256,18 +411,49 @@ defmodule Task4CPhoenixServerWeb.ArenaLive do
         (data["face"] == "east")->
           socket = assign(socket, :img_robotB, "robot_facing_east.png")
         (data["face"] == "west")->
-          socket = assign(socket, :img_robotB, "robot_facing_.png")
+          socket = assign(socket, :img_robotB, "robot_facing_west.png")
       end
       socket = assign(socket, :bottom_robotB, data["bottom"])
       socket = assign(socket, :left_robotB, data["left"])
+    else
+      socket
     end
+    socket =
+      if data["obs"] == true do
+        {left_data, bottom_data} = find_obs_pixels(data["face"],data["left"],data["bottom"])
+        map_set_old = socket.assigns.obstacle_pos
+        socket = assign(socket,:obstacle_pos,MapSet.put(map_set_old,{left_data,bottom_data}))
+      else
+        socket
+      end
 
+    # socket = assign(socket,:img_robotB, "robot_facing_east.png")
+    # IO.inspect(socket)
     # socket = assign(socket, :robotA_goals, [])
     # socket = assign(socket, :robotB_goals, [])
     # socket = assign(socket, :obstacle_pos, MapSet.new())
-
     {:noreply, socket}
-
+  end
+  def find_obs_pixels(face,left, bottom) do
+    {left_ret, bottom_ret} =
+      cond do
+        face == "east" ->
+          left_ret = left + 75
+          bottom_ret = bottom
+          {left_ret, bottom_ret}
+        face == "west" ->
+          left_ret = left - 75
+          bottom_ret = bottom
+          {left_ret, bottom_ret}
+        face == "north" ->
+          left_ret = left
+          bottom_ret = bottom + 75
+          {left_ret, bottom_ret}
+        face == "south" ->
+          left_ret = left
+          bottom_ret = bottom - 75
+          {left_ret, bottom_ret}
+      end
   end
   def make_goal_loc do
     csv =
@@ -306,53 +492,6 @@ defmodule Task4CPhoenixServerWeb.ArenaLive do
   end
   def get_goal(n) do
     map = %{1 =>"a", 2 => "b", 3 => "c", 4 => "d", 5 => "e" , 6 => "f"}
-    # if n>= 1 and n<=5 do
-    #   x1 =to_string(n)
-    #   # x2 =to_string(n+1)
-    #   y1 =map[1]
-    #   # y2 = map[2]
-    #   #IO.puts "#{x1},#{x2},#{y1},#{y2}"
-    #   # lst = [x1,y1,x1,y2,x2,y1,x2,y2]
-    #   lst = [x1,y1]
-
-    # else if n>=6 and n<=10 do
-    #   x1 =to_string(n-5)
-    #   # x2 =to_string(n-5+1)
-    #   y1 =map[2]
-    #   # y2 = map[3]
-    #   # lst = [x1,y1,x1,y2,x2,y1,x2,y2]
-    #   lst = [x1,y1]
-
-    # else if n>=11 and n<=15 do
-    #   x1 =to_string(n-10)
-    #   # x2 =to_string(n-10+1)
-    #   y1 =map[3]
-    #   # y2 = map[4]
-    #   # lst = [x1,y1,x1,y2,x2,y1,x2,y2]
-    #   lst = [x1,y1]
-
-    # else if n>=16 and n<=20 do
-    #   x1 =to_string(n-15)
-    #   # x2 =to_string(n-15+1)
-    #   y1 =map[4]
-    #   # y2 = map[5]
-    #   lst = [x1,y1]
-    #   # lst = [x1,y1,x1,y2,x2,y1,x2,y2]
-
-    # else if n>=21 and n<=25 do
-    #   x1 =to_string(n-20)
-    #   # x2 =to_string(n-20+1)
-    #   y1 = map[5]
-    #   # y2 = map[6]
-    #   # lst = [x1,y1,x1,y2,x2,y1,x2,y2]
-    #   lst = [x1,y1]
-
-    # end    # else if (4)
-    # end   # else if (3)
-    # end  # else if (2)
-
-    # end # else if (1)
-    # end # if
     n = String.to_integer(n)
     list =
     cond do

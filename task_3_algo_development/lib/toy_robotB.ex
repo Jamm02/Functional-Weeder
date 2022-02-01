@@ -116,14 +116,14 @@ defmodule CLI.ToyRobotB do
       dist(%CLI.Position{x: x, y: y, facing: facing} = robot, goal_locs, 0, index_list, dist_list)
 
     finaldata = put_info(new_list, finaldata, 0)
-    IO.puts("updated final data on :your_map_name, :robotB in robot b file")
-    IO.inspect(finaldata)
+    # IO.puts("updated final data on :your_map_name, :robotB in robot b file")
+    # IO.inspect(finaldata)
     Agent.update(:your_map_name, fn map -> Map.put(map, :robotB, finaldata) end)
   end
 
   def get_A() do
     Process.sleep(100)
-    IO.inspect("got list form :give_info_A in robotb file")
+    # IO.inspect("got list form :give_info_A in robotb file")
     Agent.get(:give_info_A, fn list -> list end)
   end
 
@@ -879,7 +879,7 @@ end
 
 def get_index_list() do
   Process.sleep(150)
-  IO.puts("got index list in robot b file")
+  # IO.puts("got index list in robot b file")
   Agent.get(:indexes, fn list -> list end)
 end
 
@@ -922,6 +922,7 @@ end
           i = 0
           goal_x = String.to_integer(Enum.at(goal, 0))
           goal_y = String.to_atom(Enum.at(goal, 1))
+          IO.inspect({"from robot b",goal_x, goal_y})
           # IO.puts("robot b up")
           # IO.inspect(robot)
           robot = go_to_goal(robot, goal_x, goal_y, cli_proc_name)
@@ -938,7 +939,7 @@ end
 
   def stop(robot, goal_locs, cli_proc_name) do
     IO.puts("in robot B")
-    IO.inspect(goal_locs)
+    # IO.inspect(goal_locs)
     get_goal(robot, goal_locs, 0, [], cli_proc_name, 0)
     # robot_returned = CLI.ToyRobotA.get_robot_a()
     # IO.puts("printing this from the file of robot b")

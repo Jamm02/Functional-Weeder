@@ -60,7 +60,6 @@ defmodule Task4CClientRobotB do
   """
   def main do
     {:ok, _response, channel_status,channel_startPos} = Task4CClientRobotB.PhoenixSocketClient.connect_server()
-
     {:ok, position} = get_start_pos(channel_startPos)
     new = String.replace(position," ","")
     str = String.split(new,",")
@@ -70,15 +69,18 @@ defmodule Task4CClientRobotB do
     start(x,y,facing)
     robot_start = %Task4CClientRobotB.Position{x: x, y: y, facing: facing}
     {:ok,goal_locs} = get_goal_locs(channel_startPos)
+    # IO.inspect(goal_locs)
+    # IO.inspect(goal_locs)
     # IO.inspect(robot_start)
-    stop(robot_start,goal_locs,channel_status,channel_startPos)
+    goal_locs = Enum.reverse(goal_locs)
+    goal_locs = stop(robot_start,goal_locs,channel_status,channel_startPos)
   end
 #fucntio to get the start positions entered by the user on the server arena live
   def get_start_pos(channel) do
     {:ok, position} = PhoenixClient.Channel.push(channel, "give_start_posb", "nil")
     position =
     if position == "start pos not recived" do
-      Process.sleep(3000)
+      # Process.sleep(3000)
       {:ok, position} = get_start_pos(channel)
       position
     else
@@ -88,10 +90,10 @@ defmodule Task4CClientRobotB do
   end
   #fucntion to get the goal location from the csv file in the server
   def get_goal_locs(channel) do
-    {:ok, goal_locs} = PhoenixClient.Channel.push(channel, "give_goal_loc", "nil")
+    {:ok, goal_locs} = PhoenixClient.Channel.push(channel, "give_goal_loc_b", "nil")
     goal_locs =
-    if goal_locs == "start pos not recived" do
-      Process.sleep(3000)
+    if goal_locs == "goal pos not recived" do
+      # Process.sleep(3000)
       {:ok, goal_locs} = get_goal_locs(channel)
       goal_locs
     else
@@ -173,18 +175,18 @@ defmodule Task4CClientRobotB do
   end
 
   def get_A(channel_position) do
-    Process.sleep(100)
+    # Process.sleep(100)
     # Agent.get(:give_info_A, fn list -> list end)
     {:ok,a_data} = PhoenixClient.Channel.push(channel_position,"get_a_data","nil")
     a_data =
     if a_data == "a_data not recived" do
-      Process.sleep(3000)
+      # Process.sleep(3000)
       {:ok, a_data} = get_A(channel_position)
       a_data
     else
       a_data
     end
-    a_data
+    {:ok,a_data}
   end
   def get_index_list(channel_position) do
     # Process.sleep(150)
@@ -192,13 +194,13 @@ defmodule Task4CClientRobotB do
     {:ok,index_list} = PhoenixClient.Channel.push(channel_position,"get_index_list","nil")
     index_list =
       if index_list == "index list not recived" do
-        Process.sleep(3000)
+        # Process.sleep(3000)
         {:ok, index_list} = get_index_list(channel_position)
         index_list
       else
         index_list
       end
-    index_list
+      {:ok,index_list}
     #####################################################################################
     #####################################################################################
   end
@@ -729,7 +731,20 @@ end
   Make a call to ToyRobot.PhoenixSocketClient.send_robot_status/2 to get the indication of obstacle presence ahead of the robot.
   """
   def stop(robot, goal_locs,channel_status, channel_position) do
-    get_goal(robot, goal_locs, 0, [], channel_status, channel_position, 0)
+    goal_locs =
+      if Enum.empty?(goal_locs) == false do
+        goal1 = Enum.at(goal_locs,0)
+        goal_x = goal1["x"]
+        goal_y = String.to_atom(goal1["y"])
+
+        IO.inspect({goal_x, goal_y})
+        robot = go_to_goal(robot,goal_x,goal_y,channel_status,channel_position)
+        goal_locs = List.delete_at(goal_locs,0)
+        stop(robot, goal_locs, channel_status,channel_position)
+      else
+        goal_locs
+      end
+      goal_locs
   end
   def go_to_goal(%Task4CClientRobotB.Position{x: x, y: y, facing: facing} = robot, goal_x, goal_y, channel_status, channel_position) do
 
@@ -888,57 +903,8 @@ end
   end
  end
 
-  def get_goal(robot, goal_locs, i, reached_list, channel_status, channel_position, j) do
-    if(j != Enum.count(goal_locs)) do
-      # IO.puts("B")
-      # IO.inspect(get_index_list())
-      # %Task4CClientRobotB.Position{x: x, y: y, facing: facing} = robot
-      # IO.inspect(robot)
-      give_A_info(robot, goal_locs, j,channel_position)
-      j = j + 1
-      a_data = get_A(channel_position)
-
-      index_list = []
-      dist_list = []
-      b_data =
-      dist(%Task4CClientRobotB.Position{x: x, y: y, facing: facing} = robot, goal_locs, 0, index_list, dist_list)
-
-      # IO.puts("bdata")
-      # IO.inspect(b_data)
-      goal_index_A = Enum.at(a_data, i)["index"]  #put 0, 1, 3 ... for next closest
-      goal_value_A = Enum.at(a_data, i)["value"]
-      goal_value_B = Enum.at(b_data, i).value
-      goal_index_B = Enum.at(b_data, i).index
-      i = i + 1
-
-      if ((((goal_index_A == goal_index_B) and (goal_value_A <= goal_value_B))) or (goal_value_B == 0) or (Enum.member?(get_index_list(channel_position), goal_index_B))) do
-        get_goal(robot, goal_locs, i, reached_list, channel_status, channel_position, j)
-      else
-        goal = Enum.at(goal_locs, goal_index_B)
-        check_reached = check_reached_list(reached_list, Enum.count(reached_list) - 1, goal, [0])
-        reached_list = reached_list ++ [goal]
-        if (check_reached == [1]) do
-          # i = i + 1
-          get_goal(robot, goal_locs, i, reached_list, channel_status, channel_position, j)
-        else
-          # i = i + 1
-          # IO.puts("goalB")
-          # IO.inspect(goal)
-          i = 0
-          goal_x = String.to_integer(Enum.at(goal, 0))
-          goal_y = String.to_atom(Enum.at(goal, 1))
-          # IO.puts("robot b up")
-          # IO.inspect(robot)
-          robot = go_to_goal(robot, goal_x, goal_y, channel_status, channel_position)
-          # IO.puts("robot b down")
-          # IO.inspect(robot)
-          get_goal(robot, goal_locs, i, reached_list, channel_status, channel_position, j)
-        end
-        # get_goal(robot, goal_locs, i, reached_list, channel_status, channel_position)
-      end
-    else
-      # sent_alt_statuss(robot,channel_status, channel_position,true)
-  end
+def send_goal_loc(channel_position, goal_location) do
+  {:ok, reply} = PhoenixClient.Channel.push(channel_position,"incoming_goal_loc_b",goal_location)
 end
   @doc """
   Provides the report of the robot's current position

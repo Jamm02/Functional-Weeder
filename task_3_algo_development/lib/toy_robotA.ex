@@ -798,7 +798,7 @@ end
   ##############################################################################################
   def get_posB() do
     Process.sleep(200)
-    IO.puts("got robotB from :your_map_name in robot a file")
+    # IO.puts("got robotB from :your_map_name in robot a file")
     Agent.get(:your_map_name, fn map -> Map.get(map, :robotB) end)
   end
   ###################################################################################################
@@ -876,7 +876,7 @@ end
       {:ok, pid} = Agent.start_link(fn -> %{} end)      #######################################################3
       Process.register(pid, :give_info_A)
     end
-    IO.puts("updated the a_data in :give_info_A in robot a file")
+    # IO.puts("updated the a_data in :give_info_A in robot a file")
     Agent.update(:give_info_A, fn list -> a_data end)
     # Agent.update(agent, fn list -> ["eggs" | list] end)           #########################333333333333333
   end
@@ -924,7 +924,7 @@ def visited_index(j, visited_index) do
     {:ok, pid} = Agent.start_link(fn -> %{} end)
     Process.register(pid, :indexes)                                           #################################################3
   end
-  IO.inspect("updated index list from robot a file")
+  # IO.inspect("updated index list from robot a file")
   Agent.update(:indexes, fn list -> visited_index end)
 end
 ###################################################################################################################################
@@ -945,10 +945,10 @@ end
     give_A(a_data, j)
     j = j + 1
     b_data = sort_B()
-    IO.puts("adata")
-    IO.inspect(a_data)
-    IO.puts("bdata")
-    IO.inspect(b_data)
+    # IO.puts("adata")
+    # IO.inspect(a_data)
+    # IO.puts("bdata")
+    # IO.inspect(b_data)
     goal_index_A = Enum.at(a_data, i).index  #put 0, 1, 3 ... for next closest
     goal_value_A = Enum.at(a_data, i).value
     goal_value_B = Enum.at(b_data, i).value
@@ -978,6 +978,7 @@ end
         # IO.inspect(visited_index)
         goal_x = String.to_integer(Enum.at(goal, 0))
         goal_y = String.to_atom(Enum.at(goal, 1))
+        IO.inspect({"from robot-a",goal_x, goal_y})
         robot = go_to_goal(robot, goal_x, goal_y, cli_proc_name)
         # IO.puts("robot A")
         # IO.inspect(robot)

@@ -74,7 +74,9 @@ defmodule Task4CClientRobotA do
     robot_start = %Task4CClientRobotA.Position{x: x, y: y, facing: facing}
     start(x, y, facing)
     {:ok, goal_locs} = get_goal_locs(channel_position)
-    stop(robot_start,goal_locs,channel_status,channel_position)
+    # IO.inspect(goal_locs)
+    goal_locs = Enum.reverse(goal_locs)
+    goal_locs = stop(robot_start,goal_locs,channel_status,channel_position)
   end
   def correct_X(%Task4CClientRobotA.Position{x: x, y: y, facing: facing} = robot, goal_x, goal_y, channel_status, channel_position) do
     %Task4CClientRobotA.Position{x: x, y: y, facing: facing} = robot
@@ -598,7 +600,7 @@ end
 
     position =
       if position == "start pos not recived" do
-        Process.sleep(3000)
+        # Process.sleep(3000)
         {:ok, position} = get_start_pos(channel)
         position
       else
@@ -610,10 +612,10 @@ end
 
   # fucntion to get the goal location from the csv file in the server
   def get_goal_locs(channel) do
-    {:ok, goal_locs} = PhoenixClient.Channel.push(channel, "give_goal_loc", "nil")
+    {:ok, goal_locs} = PhoenixClient.Channel.push(channel, "give_goal_loc_a", "nil")
     goal_locs =
-      if goal_locs == "start pos not recived" do
-        Process.sleep(3000)
+      if goal_locs == "goal pos not recived" do
+        # Process.sleep(3000)
         {:ok, goal_locs} = get_goal_locs(channel)
         goal_locs
       else
@@ -679,14 +681,14 @@ end
     {:ok,robot_b_data} = PhoenixClient.Channel.push(channel_position,"getPosB","nil")
     robot_b_data =
       if robot_b_data == "robot b pos not recived" do
-        Process.sleep(3000)
+        # Process.sleep(3000)
         {:ok, robot_b_data} = get_posB(channel_position)
         robot_b_data
       else
         robot_b_data
       end
     # Agent.get(:your_map_name, fn map -> Map.get(map, :robotB) end)
-    robot_b_data
+    {:ok,robot_b_data}
   end
   def give_A(a_data,i,channel_position) do
     # if i == 0 do
@@ -719,7 +721,7 @@ end
   end
 
   defp sort_B(channel_position) do
-    string = get_posB(channel_position)
+    {:ok,string} = get_posB(channel_position)
     main = String.slice(string, 4..-1)
     main = String.split(main, "", trim: true)
     main = Enum.reject(main, fn x -> x in [","] end)
@@ -789,10 +791,11 @@ end
         i = 0
         visited_index = visited_index ++ [goal_index_A]
         visited_index(j, visited_index,channel_position)
-        # IO.puts("visited_index")
-        # IO.inspect(visited_index)
+
         goal_x = String.to_integer(Enum.at(goal, 0))
         goal_y = String.to_atom(Enum.at(goal, 1))
+        string_of_goals = "[#{Enum.at(goal,0)}, #{Enum.at(goal, 1)}]"
+        send_goal_loc(channel_position,string_of_goals)
         robot = go_to_goal(robot, goal_x, goal_y, channel_status, channel_position)
         # IO.puts("robot A")
         # IO.inspect(robot)
@@ -805,6 +808,10 @@ end
     # sent_alt_statuss(robot,channel_status, channel_position,true)
   end
 end
+def send_goal_loc(channel_position, goal_location) do
+  {:ok, reply} = PhoenixClient.Channel.push(channel_position,"incoming_goal_loc_a",goal_location)
+end
+
   def go_to_goal(%Task4CClientRobotA.Position{x: x, y: y, facing: facing} = robot, goal_x, goal_y, channel_status, channel_position) do
     if (y == goal_y) and (x == goal_x) do
       robot
@@ -927,7 +934,21 @@ end
   Make a call to ToyRobot.PhoenixSocketClient.send_robot_status/2 to get the indication of obstacle presence ahead of the robot.
   """
   def stop(robot, goal_locs,channel_status, channel_position) do
-    get_goal(robot, goal_locs, 0, [], channel_status,channel_position, 0, [])
+    # get_goal(robot, goal_locs, 0, [], channel_status,channel_position, 0, [])
+    goal_locs =
+    if Enum.empty?(goal_locs) == false do
+      goal1 = Enum.at(goal_locs,0)
+      goal_x = goal1["x"]
+      goal_y = String.to_atom(goal1["y"])
+
+      IO.inspect({goal_x, goal_y})
+      robot = go_to_goal(robot,goal_x,goal_y,channel_status,channel_position)
+      goal_locs = List.delete_at(goal_locs,0)
+      stop(robot, goal_locs, channel_status,channel_position)
+    else
+      goal_locs
+    end
+    goal_locs
   end
 
   @doc """
