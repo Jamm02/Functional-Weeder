@@ -981,7 +981,7 @@ end
         IO.inspect({"from robot-a",goal_x, goal_y})
         robot = go_to_goal(robot, goal_x, goal_y, cli_proc_name)
         # IO.puts("robot A")
-        # IO.inspect(robot)
+        IO.inspect(robot)
         get_goal(robot, goal_locs, i, reached_list, cli_proc_name, j, visited_index)
       end
       # get_goal(robot, goal_locs, i, reached_list, cli_proc_name)

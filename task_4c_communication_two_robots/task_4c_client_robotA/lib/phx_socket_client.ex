@@ -48,6 +48,7 @@ defmodule Task4CClientRobotA.PhoenixSocketClient do
     facing_s = Atom.to_string(facing)
     # message = %{"x"=> x, "y"=> y_s, "face"=> facing_s}
     message = %{"client"=> "robot_A", "x"=> x, "y"=> y_s, "face"=> facing_s}
+    IO.inspect(message)
     {:ok, is_obs_ahead} = PhoenixClient.Channel.push(channel_status, "new_msg", message)
     # IO.inspect(is_obs_ahead)
 

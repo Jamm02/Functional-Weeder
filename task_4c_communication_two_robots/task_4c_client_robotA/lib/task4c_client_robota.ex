@@ -372,9 +372,7 @@ end
 
   def objInX_west(%Task4CClientRobotA.Position{x: x, y: y, facing: facing} = robot, goal_x, goal_y, channel_status, channel_position, repeat) do
 
-
     %Task4CClientRobotA.Position{x: x, y: y, facing: facing} = robot
-
     if (y == :a) or (repeat == 1) do  #turn, move left and face east
       robot = right(robot);
       %Task4CClientRobotA.Position{x: x, y: y, facing: facing} = robot
@@ -625,195 +623,13 @@ end
     {:ok, goal_locs}
   end
 
-  def get_robot_b(channel) do
-    {:ok, robot_b_pos} = PhoenixClient.Channel.push(channel, "give_robot_b_pos", "nil")
-  end
-
-  def dist_from_A(%Task4CClientRobotA.Position{x: x, y: y, facing: facing} = robot, goal_locs, i) do
-    y_map_atom_to_int = %{:a => 1, :b => 2, :c => 3, :d => 4, :e => 5}
-    y_int = y_map_atom_to_int[y]
-    y_dest_int = y_map_atom_to_int[String.to_atom(Enum.at(Enum.at(goal_locs, i), 1))]
-    {k, ""} = Integer.parse(Enum.at(Enum.at(goal_locs, i), 0))
-    abs(k - x) + abs(y_dest_int - y_int)
-  end
-
-  def dist(%Task4CClientRobotA.Position{x: x, y: y, facing: facing} = robot,goal_locs,i,index_list,dist_list) do
-    # i = 0
-    index_list = index_list ++ [i]
-
-    distance =
-      dist_from_A(%Task4CClientRobotA.Position{x: x, y: y, facing: facing} = robot, goal_locs, i)
-
-    dist_list = dist_list ++ [distance]
-    i = i + 1
-
-    if i < Enum.count(goal_locs) do
-      dist(robot, goal_locs, i, index_list, dist_list)
-    else
-      new_list = []
-      new_list = add_index(dist_list, goal_locs, 0, new_list)
-      new_list = Enum.sort(new_list, fn x, y -> x.value < y.value end)
-      # IO.inspect(new_list)
-      new_list
-    end
-  end
-
-  def add_index(dist_list, goal_locs, i, new_list) do
-    if i < Enum.count(goal_locs) do
-      cell_to_insert = %SortedListStruct{value: Enum.at(dist_list, i), index: i}
-      new_list = [cell_to_insert | new_list]
-      i = i + 1
-      add_index(dist_list, goal_locs, i, new_list)
-    else
-      new_list
-    end
-  end
-
-  ###########################################################################################################################
-  def visited_index(j, visited_index,channel_position) do
-    ##function to update the visited index list
-    {:ok, reply} = PhoenixClient.Channel.push(channel_position,"update_visited_index", visited_index)
-    # Agent.update(:indexes, fn list -> visited_index end)
-  end
-  def get_posB(channel_position) do
-    # Process.sleep(200)
-    #fuction to get the robot B position
-    {:ok,robot_b_data} = PhoenixClient.Channel.push(channel_position,"getPosB","nil")
-    robot_b_data =
-      if robot_b_data == "robot b pos not recived" do
-        # Process.sleep(3000)
-        {:ok, robot_b_data} = get_posB(channel_position)
-        robot_b_data
-      else
-        robot_b_data
-      end
-    # Agent.get(:your_map_name, fn map -> Map.get(map, :robotB) end)
-    {:ok,robot_b_data}
-  end
-  def give_A(a_data,i,channel_position) do
-    # if i == 0 do
-    #   {:ok, pid} = Agent.start_link(fn -> %{} end)
-    #   Process.register(pid, :give_info_A)
-    # end
-
-    #function to update a_data list
-    # IO.inspect(a_data)
-    PhoenixClient.Channel.push(channel_position,"update_a_data",a_data)
-    # Agent.update(:give_info_A, fn list -> a_data end)
-  end
-  ###################################################################################################################################
-  defp make_int(main, i, new_list) do
-    if(i >= 0) do
-      new_list =
-        if rem(i, 2) == 0 do
-          {k, ""} = Integer.parse(Enum.at(main, i))
-          new_list = new_list ++ [k]
-          new_list
-        else
-          new_list
-        end
-
-      i = i - 1
-      make_int(main, i, new_list)
-    else
-      new_list
-    end
-  end
-
-  defp sort_B(channel_position) do
-    {:ok,string} = get_posB(channel_position)
-    main = String.slice(string, 4..-1)
-    main = String.split(main, "", trim: true)
-    main = Enum.reject(main, fn x -> x in [","] end)
-    new_list = []
-    new_list = make_int(main, Enum.count(main) - 1, new_list)
-    sorted_B = []
-    sorted_B = add_index(new_list, new_list, 0, sorted_B)
-    sorted_B = Enum.sort(sorted_B, fn x, y -> x.value < y.value end)
-    # IO.inspect(sorted_B)
-    sorted_B
-  end
-  def check_reached_list(reached_list, i, goal, bool_list) do
-
-
-    if i < 0 do
-      bool_list
-    else if (goal == Enum.at(reached_list, i)) do
-      bool_list = [1]
-      bool_list
-    else
-      i = i - 1
-      check_reached_list(reached_list, i, goal, bool_list)
-    end
-
-  end
-  end
-  def get_goal(robot, goal_locs, i, reached_list, channel_status, channel_position, j, visited_index) do
-
-    if(j != Enum.count(goal_locs)) do
-    # IO.inspect(i)
-    index_list = []
-    dist_list = []
-    # %Task4CClientRobotA.Position{x: x, y: y, facing: facing} = robot
-    a_data = dist(robot, goal_locs, 0, index_list, dist_list)
-
-    visited_index(j, visited_index,channel_position)
-    give_A(a_data, j,channel_position)
-    j = j + 1
-    b_data = sort_B(channel_position)
-    # IO.puts("sort b sorted")
-    # IO.puts("adata")
-    # IO.inspect(a_data)
-    # IO.puts("bdata")
-    # IO.inspect(b_data)
-    goal_index_A = Enum.at(a_data, i).index  #put 0, 1, 3 ... for next closest
-    goal_value_A = Enum.at(a_data, i).value
-    goal_value_B = Enum.at(b_data, i).value
-    goal_index_B = Enum.at(b_data, i).index
-    i = i + 1
-
-    if (((goal_index_A == goal_index_B) and (goal_value_A > goal_value_B))) or (goal_value_A == 0) do
-      get_goal(robot, goal_locs, i, reached_list, channel_status, channel_position, j, visited_index)
-    else
-      goal = Enum.at(goal_locs, goal_index_A)
-      # IO.puts("goalB")
-      # IO.inspect(goal)
-      # IO.puts("reached_list")
-      check_reached = check_reached_list(reached_list, Enum.count(reached_list) - 1, goal, [0])
-      reached_list = reached_list ++ [goal]
-      # IO.inspect(reached_list)
-      if (check_reached == [1]) do
-        # IO.puts("in here")
-        # i = i + 1
-        get_goal(robot, goal_locs, i, reached_list, channel_status, channel_position, j, visited_index)
-      else
-        # goal_locs = List.delete_at(goal_locs, goal_index_A)
-        i = 0
-        visited_index = visited_index ++ [goal_index_A]
-        visited_index(j, visited_index,channel_position)
-
-        goal_x = String.to_integer(Enum.at(goal, 0))
-        goal_y = String.to_atom(Enum.at(goal, 1))
-        string_of_goals = "[#{Enum.at(goal,0)}, #{Enum.at(goal, 1)}]"
-        send_goal_loc(channel_position,string_of_goals)
-        robot = go_to_goal(robot, goal_x, goal_y, channel_status, channel_position)
-        # IO.puts("robot A")
-        # IO.inspect(robot)
-        get_goal(robot, goal_locs, i, reached_list, channel_status, channel_position, j, visited_index)
-      end
-      # get_goal(robot, goal_locs, i, reached_list, channel_status, channel_position)
-    end
-  else
-    # IO.puts("reached here")
-    # sent_alt_statuss(robot,channel_status, channel_position,true)
-  end
-end
 def send_goal_loc(channel_position, goal_location) do
   {:ok, reply} = PhoenixClient.Channel.push(channel_position,"incoming_goal_loc_a",goal_location)
 end
 
   def go_to_goal(%Task4CClientRobotA.Position{x: x, y: y, facing: facing} = robot, goal_x, goal_y, channel_status, channel_position) do
     if (y == goal_y) and (x == goal_x) do
+      is_obs = Task4CClientRobotA.PhoenixSocketClient.send_robot_status(channel_status,channel_position,robot)
       robot
       # {:ok,robot}
     else
@@ -855,6 +671,8 @@ end
             # IO.put("Obstacle at #{x}, #{y - 1}")
             # IO.puts("Obstacle at #{x}, #{y}, #{facing}")
             objInY_south(robot, goal_x, goal_y, channel_status, channel_position, repeat = 0)
+            # IO.puts("##########################################")
+            # IO.inspect(robot)
           else
             robot = move(robot)
             go_to_goal(robot, goal_x, goal_y, channel_status, channel_position)
@@ -871,57 +689,39 @@ end
             #is_obs = check_for_obs(robot,channel_status, channel_position)
             go_to_goal(robot, goal_x, goal_y, channel_status, channel_position)
           else
-
             # is_obs = check_for_obs(robot,channel_status, channel_position)
-
             if(is_obs) do
               # IO.puts("Obstacle at #{x}, #{y}, #{facing}")
               objInX_west(robot, goal_x, goal_y, channel_status, channel_position, repeat = 0)
 
-
             else
               robot = move(robot)
-
               go_to_goal(robot, goal_x, goal_y, channel_status, channel_position)
             end
           end
             # send_robot_status(robot, channel_status, channel_position)
-
         else if x < goal_x do
           # Task4CClientRobotA.PhoenixSocketClient.send_robot_status(channel_status,channel_position,robot)
-
           if (facing != :east) do
             robot = right(robot)
-
             # send_robot_status(robot, channel_status, channel_position)
             #is_obs = check_for_obs(robot,channel_status, channel_position)
             go_to_goal(robot, goal_x, goal_y, channel_status, channel_position)
-
           else
-
             # is_obs = check_for_obs(robot,channel_status, channel_position)
-
             if(is_obs) do
               # IO.put("Obstacle at #{x + 1}, #{y}")
               # IO.puts("Obstacle at #{x}, #{y}, #{facing}")
               objInX_east(robot, goal_x, goal_y, channel_status, channel_position, repeat = 0)#-----
-
-
-
             else
-
               robot = move(robot)
-
               go_to_goal(robot, goal_x, goal_y, channel_status, channel_position)
             end
           end
-
             # send_robot_status(robot, channel_status, channel_position)
-
         else
           Task4CClientRobotA.PhoenixSocketClient.send_robot_status(channel_status,channel_position,robot)
           # {:ok,robot}
-
         end
        end
       end
@@ -940,9 +740,11 @@ end
       goal1 = Enum.at(goal_locs,0)
       goal_x = goal1["x"]
       goal_y = String.to_atom(goal1["y"])
-
       IO.inspect({goal_x, goal_y})
+      # IO.inspect({"robot_before",robot})
       robot = go_to_goal(robot,goal_x,goal_y,channel_status,channel_position)
+      # IO.inspect({"robot_after",robot})
+
       goal_locs = List.delete_at(goal_locs,0)
       stop(robot, goal_locs, channel_status,channel_position)
     else

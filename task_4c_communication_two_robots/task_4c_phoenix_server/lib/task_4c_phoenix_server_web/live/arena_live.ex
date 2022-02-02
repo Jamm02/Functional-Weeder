@@ -187,8 +187,6 @@ defmodule Task4CPhoenixServerWeb.ArenaLive do
     {x_a, ""} = Integer.parse(Enum.at(str, 0))
     y_a = String.to_atom(Enum.at(str, 1))
     facing_a = String.to_atom(Enum.at(str, 2))
-
-
     new = String.replace(data["robotB_start"], " ", "")
     str = String.split(new, ",")
     {x_b, ""} = Integer.parse(Enum.at(str, 0))
@@ -204,13 +202,51 @@ defmodule Task4CPhoenixServerWeb.ArenaLive do
     goal_struct_list = []
     {robot_a_goal_list,robot_b_goal_list,goal_locs} =
       while_loop(goal_locs,robot_a_start,robot_b_start,robot_a_goal_list,robot_b_goal_list,goal_struct_list)
-      IO.inspect({robot_a_goal_list,robot_b_goal_list})
+      # IO.inspect({robot_a_goal_list,robot_b_goal_list})
     data = Map.put(data,"goal_locs_a",robot_a_goal_list)
     data = Map.put(data,"goal_locs_b",robot_b_goal_list)
     Task4CPhoenixServerWeb.Endpoint.broadcast("robot:get_position", "startPos", data)
-    # IO.inspect(socket)
+
+    goal_cell_list_a  = []
+    goal_cell_list_a = make_goal_cell_list(robot_a_goal_list,goal_cell_list_a)
+    socket = assign(socket,:robotA_goals,goal_cell_list_a)
+
+    goal_cell_list_b  = []
+    goal_cell_list_b = make_goal_cell_list(robot_b_goal_list,goal_cell_list_b)
+    socket = assign(socket,:robotB_goals,goal_cell_list_b)
+    # IO.inspect(goal_cell_list)
     {:noreply, socket}
   end
+  def make_goal_cell_list(goal_struct_list, goall_cell_list) do
+    goall_cell_list =
+    if Enum.empty?(goal_struct_list) == false do
+      goal1 = Enum.at(goal_struct_list,0)
+      x = goal1.x
+      y = goal1.y
+      goall_cell_list = [coordinates_to_cell_no(x,y) | goall_cell_list]
+      goal_struct_list = List.delete_at(goal_struct_list,0)
+      make_goal_cell_list(goal_struct_list,goall_cell_list)
+    else
+      goall_cell_list
+    end
+    goall_cell_list
+  end
+  def coordinates_to_cell_no(x,y)do
+    num =
+    cond do
+      y == :a ->
+        num = x+5*0
+      y == :b ->
+        num = x+ 5*1
+      y == :c ->
+        num = x+5*2
+      y == :d ->
+        num = x+5*3
+      y == :e ->
+        num = x+5*4
+    end
+    num
+    end
   ################################################################################################################################
   ################################################################################################################################
   defmodule GoalStruct do
@@ -218,17 +254,20 @@ defmodule Task4CPhoenixServerWeb.ArenaLive do
     defstruct x: 1, y: :a, visited: false, distance_from_a: 0, distance_from_b: 0
   end
   def while_loop(goal_locs,robot_a_start,robot_b_start,robot_a_goal_list,robot_b_goal_list,goal_struct_list) do
-    {robot_a_goal_list,robot_b_goal_list,goal_locs} =
-    if Enum.empty?(goal_locs) == false do
+    # {robot_a_goal_list,robot_b_goal_list,goal_locs} =
+    # if Enum.empty?(goal_locs) == false do
+      # IO.puts("54545454545455555555555555555555555555555555555555555545455555555555555555555555555555")
       {robot_a_goal_list,robot_b_goal_list} =
         divide_goals(goal_locs,robot_a_start,robot_b_start,robot_a_goal_list,robot_b_goal_list,goal_struct_list)
+        # IO.inspect(robot_a_goal_list)
+        # IO.inspect(robot_b_goal_list)
       roba = Enum.at(robot_a_goal_list,0)
       robb = Enum.at(robot_b_goal_list,0)
       goal_locs = rectify(goal_locs,roba,robb)
-      while_loop(goal_locs,robot_a_start,robot_b_start,robot_a_goal_list,robot_b_goal_list,goal_struct_list)
-    else
-      {robot_a_goal_list,robot_b_goal_list,goal_locs}
-    end
+      # while_loop(goal_locs,robot_a_start,robot_b_start,robot_a_goal_list,robot_b_goal_list,goal_struct_list)
+    # else
+    #   {robot_a_goal_list,robot_b_goal_list,goal_locs}
+    # end
     {robot_a_goal_list,robot_b_goal_list,goal_locs}
   end
   def rectify(goal_locs, robot_a_goal,robot_b_goal) do
@@ -242,31 +281,66 @@ defmodule Task4CPhoenixServerWeb.ArenaLive do
     goal_locs
   end
   def divide_goals(goal_locs,robot_a_start,robot_b_start,robot_a_goal_list, robot_b_goal_list,goal_struct_list) do
-
-    {goal_struct_list,goal_locs} =
+    {goal_struct_list} =
       make_goal_struct_list(goal_locs, robot_a_start, robot_b_start, goal_struct_list)
-    if Enum.empty?(goal_struct_list) == false do
+      # IO.inspect(goal_locs)
+      # IO.puts("--------------------------------------------------------")
+      # IO.inspect({robot_a_start,robot_b_start})
+      # IO.inspect({robot_a_goal_list,robot_b_goal_list})
+      # IO.puts("--------------------------------------------------------")
+    if Enum.empty?(goal_locs) == false do
       # IO.inspect(goal_struct_list)
-      goal_list_sorted_acc_to_a = sort_list("a", goal_struct_list)
-      robot_a_goal = Enum.at(goal_list_sorted_acc_to_a,0)
-      robot_a_goal_list = [robot_a_goal | robot_a_goal_list]
-      robot_a_start = %Position{x: robot_a_goal.x, y: robot_a_goal.y, facing: :north}
-      List.delete(goal_struct_list,robot_a_goal)
-      # IO.inspect(goal_list_sorted_acc_to_a)
-      goal_list_sorted_acc_to_b = sort_list("b", goal_struct_list)
-      robot_b_goal = Enum.at(goal_list_sorted_acc_to_b,0)
-      robot_b_goal_list = [robot_b_goal | robot_b_goal_list]
-      robot_b_start = %Position{x: robot_b_goal.x, y: robot_b_goal.y, facing: :north}
-      List.delete(goal_struct_list,robot_b_goal)
-      goal_struct_list = []
-      divide_goals(goal_locs,robot_a_start,robot_b_start,robot_a_goal_list,robot_b_goal_list,goal_struct_list)
+      #sort the list according to distance form a and pick the first element
+      if Enum.count(goal_locs) == 1 do
+        #calculate the distance of the last goal from current position of both the robots
+        last_goal = Enum.at(goal_struct_list,0)
+        {robot_a_goal_list,robot_b_goal_list} =
+        if last_goal.distance_from_a > last_goal.distance_from_b do
+
+          robot_b_goal_list = [last_goal | robot_b_goal_list]
+          {robot_a_goal_list,robot_b_goal_list}
+        else
+          robot_a_goal_list = [last_goal | robot_a_goal_list]
+          {robot_a_goal_list,robot_b_goal_list}
+        end
+        {robot_a_goal_list,robot_b_goal_list}
+      else
+        goal_list_sorted_acc_to_a = sort_list("a", goal_struct_list)
+        robot_a_goal = Enum.at(goal_list_sorted_acc_to_a,0)
+        #add the nearest goal to goal list
+        robot_a_goal_list = [robot_a_goal | robot_a_goal_list]
+
+        #modify the start position
+        robot_a_start = %Position{x: robot_a_goal.x, y: robot_a_goal.y, facing: :north}
+        #delete the goal form goal struct list
+        List.delete(goal_struct_list,robot_a_goal)
+        # IO.inspect(goal_list_sorted_acc_to_a)
+        goal_list_sorted_acc_to_b = sort_list("b", goal_struct_list)
+        robot_b_goal = Enum.at(goal_list_sorted_acc_to_b,0)
+        {robot_b_goal_list,robot_b_start} =
+        if robot_b_goal != robot_a_goal do
+          robot_b_goal_list = [robot_b_goal | robot_b_goal_list]
+          robot_b_start = %Position{x: robot_b_goal.x, y: robot_b_goal.y, facing: :north}
+          {robot_b_goal_list,robot_b_start}
+        else
+
+          {robot_b_goal_list,robot_b_start}
+        end
+        List.delete(goal_struct_list,robot_b_goal)
+        goal_struct_list = []
+        goal_locs = rectify(goal_locs,robot_a_goal,robot_b_goal)
+        divide_goals(goal_locs,robot_a_start,robot_b_start,robot_a_goal_list,robot_b_goal_list,goal_struct_list)
+      end
     else
+      # IO.inspect(goal_struct_list)
+      # IO.inspect(robot_a_goal_list)
+      # IO.inspect(robot_b_goal_list)
       {robot_a_goal_list,robot_b_goal_list}
     end
     # IO.inspect(goal_list_sorted_acc_to_b)
   end
   def make_goal_struct_list(goal_locs, robota, robotb, goal_struct_list) do
-    {goal_struct_list,goal_locs} =
+    {goal_struct_list} =
       if Enum.empty?(goal_locs) == false do
         x2 = String.to_integer(Enum.at(Enum.at(goal_locs, 0), 0))
         y2 = String.to_atom(Enum.at(Enum.at(goal_locs, 0), 1))
@@ -292,10 +366,10 @@ defmodule Task4CPhoenixServerWeb.ArenaLive do
         goal_locs = List.delete_at(goal_locs, 0)
         make_goal_struct_list(goal_locs, robota, robotb, goal_struct_list)
       else
-        {goal_struct_list,goal_locs}
+        {goal_struct_list}
       end
       # IO.inspect(goal_struct_list)
-      {goal_struct_list,goal_locs}
+      {goal_struct_list}
   end
 
   def calculate_dist(x1, y1, x2, y2) do
@@ -303,7 +377,7 @@ defmodule Task4CPhoenixServerWeb.ArenaLive do
     y_map_atom_to_int = %{:a => 1, :b => 2, :c => 3, :d => 4, :e => 5, f: 6}
     y1 = y_map_atom_to_int[y1]
     y2 = y_map_atom_to_int[y2]
-    abs(x2 - x1) * abs(x2 - x1) + abs(y2 - y1) * abs(y2 - y1)
+    abs(x2 - x1)*abs(x2 - x1)  + abs(y2 - y1)*abs(y2 - y1)
   end
 
   def sort_list(robot, goal_list_struct) do
