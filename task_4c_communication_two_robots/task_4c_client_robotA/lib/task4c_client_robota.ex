@@ -533,7 +533,7 @@ end
 
     else #turn, move right and face east//
       # IO.puts("in else")
-      robot = right(robot);
+      robot = left(robot);##################
       %Task4CClientRobotA.Position{x: x, y: y, facing: facing} = robot
       is_obs = Task4CClientRobotA.PhoenixSocketClient.send_robot_status(channel_status,channel_position,robot)
 
@@ -566,7 +566,7 @@ end
         robot = move(robot);
         %Task4CClientRobotA.Position{x: x, y: y, facing: facing} = robot
         is_obs = Task4CClientRobotA.PhoenixSocketClient.send_robot_status(channel_status,channel_position,robot)
-        robot = left(robot);
+        robot = right(robot);###############
         is_obs = Task4CClientRobotA.PhoenixSocketClient.send_robot_status(channel_status,channel_position,robot)
         %Task4CClientRobotA.Position{x: x, y: y, facing: facing} = robot
 
