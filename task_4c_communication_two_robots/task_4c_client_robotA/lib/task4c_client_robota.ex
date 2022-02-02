@@ -77,6 +77,12 @@ defmodule Task4CClientRobotA do
     # IO.inspect(goal_locs)
     goal_locs = Enum.reverse(goal_locs)
     goal_locs = stop(robot_start,goal_locs,channel_status,channel_position)
+    Process.sleep(5000)
+    broadcast_stop(channel_position)
+    rob = get_correct_robot_position(channel_position)
+  end
+  def broadcast_stop(channel_position) do
+    {:ok,reply} = PhoenixClient.Channel.push(channel_position,"stop_a","nil")
   end
   def correct_X(%Task4CClientRobotA.Position{x: x, y: y, facing: facing} = robot, goal_x, goal_y, channel_status, channel_position) do
     %Task4CClientRobotA.Position{x: x, y: y, facing: facing} = robot
@@ -740,7 +746,7 @@ end
       goal1 = Enum.at(goal_locs,0)
       goal_x = goal1["x"]
       goal_y = String.to_atom(goal1["y"])
-      IO.inspect({goal_x, goal_y})
+      # IO.inspect({goal_x, goal_y})
       # IO.inspect({"robot_before",robot})
       robot_old = go_to_goal(robot,goal_x,goal_y,channel_status,channel_position)
       # IO.inspect({"robot_after",robot})

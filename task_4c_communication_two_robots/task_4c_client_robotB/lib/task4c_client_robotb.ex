@@ -74,6 +74,12 @@ defmodule Task4CClientRobotB do
     # IO.inspect(robot_start)
     goal_locs = Enum.reverse(goal_locs)
     goal_locs = stop(robot_start,goal_locs,channel_status,channel_startPos)
+    Process.sleep(5000)
+    broadcast_stop(channel_startPos)
+    rob = get_correct_robot_position(channel_startPos)
+  end
+  def broadcast_stop(channel_position) do
+    {:ok,reply} = PhoenixClient.Channel.push(channel_position,"stop_b","nil")
   end
 #fucntio to get the start positions entered by the user on the server arena live
   def get_start_pos(channel) do
@@ -634,7 +640,7 @@ end
         goal1 = Enum.at(goal_locs,0)
         goal_x = goal1["x"]
         goal_y = String.to_atom(goal1["y"])
-        IO.inspect({goal_x, goal_y})
+        # IO.inspect({goal_x, goal_y})
         robot_old = go_to_goal(robot,goal_x,goal_y,channel_status,channel_position)
         # IO.inspect(robot)
         robot_corr = get_correct_robot_position(channel_position)

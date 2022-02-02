@@ -85,13 +85,36 @@ defmodule Task4CPhoenixServerWeb.RobotChannel do
     {:reply, {:ok, position}, socket}
   end
   def handle_in("give_roba_pos", _message, socket) do
+    position =
+    if socket.assigns.robot_a_stop and socket.assigns.robot_b_stop do
+      Task4CPhoenixServerWeb.Endpoint.broadcast("timer:start", "stop_timer","nil")
+      "timer stoped"
+    else
+      position = socket.assigns.robot_a_curr_pos
+    end
 
-    position = socket.assigns.robot_a_curr_pos
     {:reply, {:ok, position}, socket}
   end
   def handle_in("give_robb_pos", _message, socket) do
+    position =
+    if socket.assigns.robot_a_stop and socket.assigns.robot_b_stop do
+      Task4CPhoenixServerWeb.Endpoint.broadcast("timer:start", "stop_timer","nil")
+      "timer stoped"
+    else
+      position = socket.assigns.robot_b_curr_pos
+    end
 
-    position = socket.assigns.robot_b_curr_pos
+    {:reply, {:ok, position}, socket}
+  end
+
+  def handle_in("stop_a", _message, socket) do
+    position = "stoped"
+    Task4CPhoenixServerWeb.Endpoint.broadcast("robot:get_position", "update_data", {:robot_a_stop,true})
+    {:reply, {:ok, position}, socket}
+  end
+  def handle_in("stop_b", _message, socket) do
+    position = "stoped"
+    Task4CPhoenixServerWeb.Endpoint.broadcast("robot:get_position", "update_data", {:robot_b_stop,true})
     {:reply, {:ok, position}, socket}
   end
 
@@ -140,6 +163,8 @@ defmodule Task4CPhoenixServerWeb.RobotChannel do
     socket = assign(socket, :roba_goal_locs, data["goal_locs_a"])
     socket = assign(socket, :robb_goal_locs, data["goal_locs_b"])
     socket = assign(socket, :goal_locs_unparsed, data["goal_locs_unparsed"])
+    socket = assign(socket, :robot_a_stop, false)
+    socket = assign(socket, :robot_b_stop, false)
     # socket with the robot:position
     # IO.inspect(socket)
     {:noreply, socket}
@@ -152,10 +177,8 @@ defmodule Task4CPhoenixServerWeb.RobotChannel do
   end
 
   def handle_info(msg, socket) do
-    ######################################
     {:noreply, socket}
   end
-
   #########################################
   ## define callback functions as needed ##
   #########################################

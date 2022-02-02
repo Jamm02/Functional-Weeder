@@ -181,7 +181,7 @@ defmodule Task4CPhoenixServerWeb.ArenaLive do
   def handle_event("start_clock", data, socket) do
     socket = assign(socket, :robotA_start, data["robotA_start"])
     socket = assign(socket, :robotB_start, data["robotB_start"])
-    # Task4CPhoenixServerWeb.Endpoint.broadcast("timer:start", "start_timer", %{})
+    Task4CPhoenixServerWeb.Endpoint.broadcast("timer:start", "start_timer", %{})
     new = String.replace(data["robotA_start"], " ", "")
     str = String.split(new, ",")
     {x_a, ""} = Integer.parse(Enum.at(str, 0))
@@ -201,7 +201,7 @@ defmodule Task4CPhoenixServerWeb.ArenaLive do
     robot_b_goal_list = []
     goal_struct_list = []
     {robot_a_goal_list,robot_b_goal_list,goal_locs} =
-      while_loop(goal_locs,robot_a_start,robot_b_start,robot_a_goal_list,robot_b_goal_list,goal_struct_list)
+      goal_distribution(goal_locs,robot_a_start,robot_b_start,robot_a_goal_list,robot_b_goal_list,goal_struct_list)
       # IO.inspect({robot_a_goal_list,robot_b_goal_list})
     data = Map.put(data,"goal_locs_a",robot_a_goal_list)
     data = Map.put(data,"goal_locs_b",robot_b_goal_list)
@@ -253,28 +253,17 @@ defmodule Task4CPhoenixServerWeb.ArenaLive do
     @derive Jason.Encoder
     defstruct x: 1, y: :a, visited: false, distance_from_a: 0, distance_from_b: 0
   end
-  def while_loop(goal_locs,robot_a_start,robot_b_start,robot_a_goal_list,robot_b_goal_list,goal_struct_list) do
-    # {robot_a_goal_list,robot_b_goal_list,goal_locs} =
-    # if Enum.empty?(goal_locs) == false do
-      # IO.puts("54545454545455555555555555555555555555555555555555555545455555555555555555555555555555")
+  def goal_distribution(goal_locs,robot_a_start,robot_b_start,robot_a_goal_list,robot_b_goal_list,goal_struct_list) do
       {robot_a_goal_list,robot_b_goal_list} =
         divide_goals(goal_locs,robot_a_start,robot_b_start,robot_a_goal_list,robot_b_goal_list,goal_struct_list)
-        # IO.inspect(robot_a_goal_list)
-        # IO.inspect(robot_b_goal_list)
       roba = Enum.at(robot_a_goal_list,0)
       robb = Enum.at(robot_b_goal_list,0)
       goal_locs = rectify(goal_locs,roba,robb)
-      # while_loop(goal_locs,robot_a_start,robot_b_start,robot_a_goal_list,robot_b_goal_list,goal_struct_list)
-    # else
-    #   {robot_a_goal_list,robot_b_goal_list,goal_locs}
-    # end
     {robot_a_goal_list,robot_b_goal_list,goal_locs}
   end
   def rectify(goal_locs, robot_a_goal,robot_b_goal) do
     robota_goal = [to_string(robot_a_goal.x),to_string(robot_a_goal.y)]
     robotb_goal = [to_string(robot_b_goal.x),to_string(robot_b_goal.y)]
-    # IO.puts("rectify rectiry")
-    # IO.inspect({robota_goal,robotb_goal})
     goal_locs = List.delete(goal_locs,robota_goal)
     goal_locs = List.delete(goal_locs,robotb_goal)
 
@@ -368,7 +357,6 @@ defmodule Task4CPhoenixServerWeb.ArenaLive do
       else
         {goal_struct_list}
       end
-      # IO.inspect(goal_struct_list)
       {goal_struct_list}
   end
 
