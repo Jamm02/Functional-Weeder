@@ -742,10 +742,11 @@ end
       goal_y = String.to_atom(goal1["y"])
       IO.inspect({goal_x, goal_y})
       # IO.inspect({"robot_before",robot})
-      robot = go_to_goal(robot,goal_x,goal_y,channel_status,channel_position)
+      robot_old = go_to_goal(robot,goal_x,goal_y,channel_status,channel_position)
       # IO.inspect({"robot_after",robot})
-
+      robot_corr = get_correct_robot_position(channel_position)
       goal_locs = List.delete_at(goal_locs,0)
+      robot = %Task4CClientRobotA.Position{x: robot_corr["x"], y: String.to_atom(robot_corr["y"]), facing: String.to_atom(robot_corr["face"])}
       stop(robot, goal_locs, channel_status,channel_position)
     else
       goal_locs
@@ -753,6 +754,10 @@ end
     goal_locs
   end
 
+  def get_correct_robot_position(channel_position) do
+    {:ok, robot_position} = PhoenixClient.Channel.push(channel_position,"give_roba_pos","nil")
+    robot_position
+  end
   @doc """
   Provides the report of the robot's current position
 

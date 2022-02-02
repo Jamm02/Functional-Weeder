@@ -44,6 +44,11 @@ defmodule Task4CPhoenixServerWeb.RobotChannel do
       out_file,
       "#{message["client"]} => #{message["x"]}, #{message["y"]}, #{message["face"]}\n"
     )
+    if message["client"] == "robot_A" do
+      Task4CPhoenixServerWeb.Endpoint.broadcast("robot:get_position", "update_data", {:robot_a_curr_pos,message})
+    else
+      Task4CPhoenixServerWeb.Endpoint.broadcast("robot:get_position", "update_data", {:robot_b_curr_pos,message})
+    end
     map_left_value_to_x = %{1 => 0, 2 => 150, 3 => 300, 4 => 450, 5 => 600, 6 => 750}
     map_bottom_value_to_y = %{
       "a" => 0,
@@ -77,6 +82,16 @@ defmodule Task4CPhoenixServerWeb.RobotChannel do
         position = socket.assigns.robota_start_pos
       end
 
+    {:reply, {:ok, position}, socket}
+  end
+  def handle_in("give_roba_pos", _message, socket) do
+
+    position = socket.assigns.robot_a_curr_pos
+    {:reply, {:ok, position}, socket}
+  end
+  def handle_in("give_robb_pos", _message, socket) do
+
+    position = socket.assigns.robot_b_curr_pos
     {:reply, {:ok, position}, socket}
   end
 

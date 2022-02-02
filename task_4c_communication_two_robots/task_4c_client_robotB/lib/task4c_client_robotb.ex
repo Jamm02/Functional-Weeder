@@ -565,7 +565,7 @@ end
 
     else #turn, move right and face east//
       # IO.puts("in else")
-      robot = right(robot);#########################
+      robot = left(robot);#########################
       %Task4CClientRobotB.Position{x: x, y: y, facing: facing} = robot
       is_obs = Task4CClientRobotB.PhoenixSocketClient.send_robot_status(channel_status, channel_position,robot)
 
@@ -598,7 +598,7 @@ end
         robot = move(robot);
         %Task4CClientRobotB.Position{x: x, y: y, facing: facing} = robot
         is_obs = Task4CClientRobotB.PhoenixSocketClient.send_robot_status(channel_status, channel_position,robot)
-        robot = left(robot);
+        robot = right(robot);##################
         is_obs = Task4CClientRobotB.PhoenixSocketClient.send_robot_status(channel_status, channel_position,robot)
         %Task4CClientRobotB.Position{x: x, y: y, facing: facing} = robot
 
@@ -635,14 +635,21 @@ end
         goal_x = goal1["x"]
         goal_y = String.to_atom(goal1["y"])
         IO.inspect({goal_x, goal_y})
-        robot = go_to_goal(robot,goal_x,goal_y,channel_status,channel_position)
+        robot_old = go_to_goal(robot,goal_x,goal_y,channel_status,channel_position)
         # IO.inspect(robot)
+        robot_corr = get_correct_robot_position(channel_position)
+        # IO.inspect(robot_corr)
+        robot = %Task4CClientRobotB.Position{x: robot_corr["x"], y: String.to_atom(robot_corr["y"]), facing: String.to_atom(robot_corr["face"])}
         goal_locs = List.delete_at(goal_locs,0)
         stop(robot, goal_locs, channel_status,channel_position)
       else
         goal_locs
       end
       goal_locs
+  end
+  def get_correct_robot_position(channel_position) do
+    {:ok, robot_position} = PhoenixClient.Channel.push(channel_position,"give_robb_pos","nil")
+    robot_position
   end
   def go_to_goal(%Task4CClientRobotB.Position{x: x, y: y, facing: facing} = robot, goal_x, goal_y, channel_status, channel_position) do
 
