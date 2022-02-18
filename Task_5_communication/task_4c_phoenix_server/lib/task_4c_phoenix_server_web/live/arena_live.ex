@@ -29,8 +29,8 @@ defmodule Task4CPhoenixServerWeb.ArenaLive do
     socket = assign(socket, :robotB_goals, [])
 
     socket = assign(socket, :obstacle_pos, MapSet.new())
-    socket = assign(socket, :timer_tick, 300)
-
+    socket = assign(socket, :timer_tick, 180)
+    # socket = assign(socket,:tunign_params,"")
     {:ok,socket}
 
   end
@@ -148,7 +148,6 @@ defmodule Task4CPhoenixServerWeb.ArenaLive do
               <label>Robot B</label>
               <input name="robotB_start" style="background-color:white;" value={"#{@robotB_start}"}>
             </div>
-
             <button  id="start-btn" type="submit">
               <svg xmlns="http://www.w3.org/2000/svg" style="height:30px;width:30px;margin:auto" viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
@@ -179,6 +178,13 @@ defmodule Task4CPhoenixServerWeb.ArenaLive do
     defstruct x: 1, y: :a, facing: :north
   end
   def handle_event("start_clock", data, socket) do
+    # IO.inspect(data)
+    new = String.replace(data["tunning_param_list"], " ", "")
+    str = String.split(new, ",")
+    {kp, ""} = Integer.parse(Enum.at(str, 0))
+    {kd, ""} = Integer.parse(Enum.at(str, 1))
+    {ki, ""} = Integer.parse(Enum.at(str, 2))
+
     socket = assign(socket, :robotA_start, data["robotA_start"])
     socket = assign(socket, :robotB_start, data["robotB_start"])
     Task4CPhoenixServerWeb.Endpoint.broadcast("timer:start", "start_timer", %{})

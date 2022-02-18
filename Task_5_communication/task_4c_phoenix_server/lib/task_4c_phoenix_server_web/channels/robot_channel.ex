@@ -8,6 +8,8 @@ defmodule Task4CPhoenixServerWeb.RobotChannel do
   """
   def join("robot:status", _params, socket) do
     Task4CPhoenixServerWeb.Endpoint.subscribe("robot:update")
+    Task4CPhoenixServerWeb.Endpoint.subscribe("timer:update")
+    socket = assign(socket, :timer_tick, 180)
     {:ok, socket}
   end
 
@@ -15,6 +17,18 @@ defmodule Task4CPhoenixServerWeb.RobotChannel do
     Task4CPhoenixServerWeb.Endpoint.subscribe("robot:get_position")
     {:ok, socket}
   end
+
+  def handle_info(%{event: "update_timer_tick", payload: timer_data, topic: "timer:update"}, socket) do
+    socket = assign(socket, :timer_tick, timer_data.time)
+    {:noreply, socket}
+  end
+
+  def handle_in("event_msg", message, socket) do
+    message = Map.put(message, "timer", socket.assigns[:timer_tick])
+    Task4CPhoenixServerWeb.Endpoint.broadcast_from(self(), "robot:status", "event_msg", message)
+    {:reply, {:ok, true}, socket}
+  end
+
 
   @doc """
   Callback function for messages that are pushed to the channel with "robot:status" topic with an event named "new_msg".
