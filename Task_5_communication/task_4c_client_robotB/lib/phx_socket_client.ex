@@ -53,7 +53,7 @@ defmodule Task4CClientRobotB.PhoenixSocketClient do
     ##########################################################################################################
     #if obstacle present then call send_obstacle_prescence function to update obstacles on server.
     message = %{"event_id" => 1, "sender" => "B", "value" => %{ "x": x, "y": y_s, "face": facing_s},"client": "robot_B","obstacle_prescence": false}
-    # IO.inspect(message)
+    IO.inspect(message["value"])
     {:ok, is_obs_ahead} = PhoenixClient.Channel.push(channel_status, "new_msg", message)
     is_obs_ahead
   end
