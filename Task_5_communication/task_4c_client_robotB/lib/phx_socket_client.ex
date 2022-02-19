@@ -47,14 +47,22 @@ defmodule Task4CClientRobotB.PhoenixSocketClient do
     y_s = Atom.to_string(y)
     facing_s = Atom.to_string(facing)
     # message = %{"x"=> x, "y"=> y_s, "face"=> facing_s}
-    message = %{"client": "robot_B", "x": x, "y": y_s, "face": facing_s}
+    # message = %{"client": "robot_B", "x": x, "y": y_s, "face": facing_s}
+    ##########################################################################################################3
+    ############################### write code to check the obstacle prescence using ir sensors ###############
+    ##########################################################################################################
+    #if obstacle present then call send_obstacle_prescence function to update obstacles on server.
+    message = %{"event_id" => 1, "sender" => "B", "value" => %{ "x": x, "y": y_s, "face": facing_s},"client": "robot_B","obstacle_prescence": false}
     # IO.inspect(message)
     {:ok, is_obs_ahead} = PhoenixClient.Channel.push(channel_status, "new_msg", message)
-    # IO.inspect(is_obs_ahead)
-    # {:ok,reply} = PhoenixClient.Channel.push(channel_position,"robot_b_pos_update",message)
     is_obs_ahead
   end
-
+  def send_obstacle_prescence_status(channel_status,channel_position,%Task4CClientRobotB.Position{x: x, y: y, facing: facing} = _robot) do
+    y_s = Atom.to_string(y)
+    facing_s = Atom.to_string(facing)
+    message = %{"event_id" => 2, "sender" => "B", "value" => %{"client": "robot_B", "x": x, "y": y_s, "face": facing_s}}
+    {:ok, is_obs_ahead} = PhoenixClient.Channel.push(channel_status, "obstacle_present", message)
+  end
   ######################################################
   ## You may create extra helper functions as needed. ##
   ######################################################

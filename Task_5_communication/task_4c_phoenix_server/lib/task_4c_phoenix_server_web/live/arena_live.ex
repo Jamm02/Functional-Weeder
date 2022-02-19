@@ -179,15 +179,9 @@ defmodule Task4CPhoenixServerWeb.ArenaLive do
   end
   def handle_event("start_clock", data, socket) do
     # IO.inspect(data)
-    new = String.replace(data["tunning_param_list"], " ", "")
-    str = String.split(new, ",")
-    {kp, ""} = Integer.parse(Enum.at(str, 0))
-    {kd, ""} = Integer.parse(Enum.at(str, 1))
-    {ki, ""} = Integer.parse(Enum.at(str, 2))
-
     socket = assign(socket, :robotA_start, data["robotA_start"])
     socket = assign(socket, :robotB_start, data["robotB_start"])
-    Task4CPhoenixServerWeb.Endpoint.broadcast("timer:start", "start_timer", %{})
+    # Task4CPhoenixServerWeb.Endpoint.broadcast("timer:start", "start_timer", %{})
     new = String.replace(data["robotA_start"], " ", "")
     str = String.split(new, ",")
     {x_a, ""} = Integer.parse(Enum.at(str, 0))
@@ -208,27 +202,77 @@ defmodule Task4CPhoenixServerWeb.ArenaLive do
     robot_b_goal_list = []
     # goal_struct_list = []
     {robot_a_goal_list,robot_b_goal_list,goal_cell_list_a,goal_cell_list_b} = make_goal_loc()
-    # IO.inspect(robot_a_goal_list)
-    # IO.inspect(goal_cell_list_a)
-    # IO.inspect(robot_b_goal_list)
-    # IO.inspect(goal_cell_list_b)
+    # robot_a_goal_list_sorted = sort_seeding_and_weedign_list(robot_a_start,robot_b_start,robot_a_goal_list)
     # {robot_a_goal_list,robot_b_goal_list,goal_locs} =
     #   goal_distribution(goal_locs,robot_a_start,robot_b_start,robot_a_goal_list,robot_b_goal_list,goal_struct_list)
-      # IO.inspect({robot_a_goal_list,robot_b_goal_list})
     data = Map.put(data,"goal_locs_a",robot_a_goal_list)
+    data = Map.put(data,"goal_locs_a_cell",goal_cell_list_a)
     data = Map.put(data,"goal_locs_b",robot_b_goal_list)
+    data = Map.put(data,"goal_locs_b_cell",goal_cell_list_b)
     Task4CPhoenixServerWeb.Endpoint.broadcast("robot:get_position", "startPos", data)
-
     # goal_cell_list_a  = []
     # goal_cell_list_a = make_goal_cell_list(robot_a_goal_list,goal_cell_list_a)
     socket = assign(socket,:robotA_goals,goal_cell_list_a)
-
     # goal_cell_list_b  = []
     # goal_cell_list_b = make_goal_cell_list(robot_b_goal_list,goal_cell_list_b)
     socket = assign(socket,:robotB_goals,goal_cell_list_b)
     # IO.inspect(goal_cell_list)
     {:noreply, socket}
   end
+  # defmodule GoalStruct do
+  #   @derive Jason.Encoder
+  #   defstruct x: 1, y: :a, visited: false, distance_from_a: 0, distance_from_b: 0
+  # end
+  # def sort_seeding_and_weedign_list(robot_a_start,robot_b_start,list) do
+  #   # x1 = robot_start.x
+  #   # y1 = robot_start.y
+  #   # x2 = Enum.at(Enum.at(list,0),0)
+  #   # y2 = Enum.at(Enum.at(list,0),1)
+  #   goal_struct_list = []
+  #   goal_struct_list = make_goal_struct_list(list,robot_a_start,robot_b_start,goal_struct_list)
+  #   IO.inspect(goal_struct_list)
+  #   list
+  # end
+  # def make_goal_struct_list(goal_locs, robota, robotb, goal_struct_list) do
+  #     {goal_struct_list} =
+  #       if Enum.empty?(goal_locs) == false do
+  #         x2 = String.to_integer(Enum.at(Enum.at(goal_locs, 0), 0))
+  #         y2 = String.to_atom(Enum.at(Enum.at(goal_locs, 0), 1))
+
+  #         x1_robota = robota.x
+  #         y1_robota = robota.y
+
+  #         x1_robotb = robotb.x
+  #         y1_robotb = robotb.y
+
+  #         dist_form_robota = calculate_dist(x1_robota, y1_robota, x2, y2)
+  #         dist_form_robotb = calculate_dist(x1_robotb, y1_robotb, x2, y2)
+
+  #         goal = %GoalStruct{
+  #           x: x2,
+  #           y: y2,
+  #           visited: false,
+  #           distance_from_a: dist_form_robota,
+  #           distance_from_b: dist_form_robotb
+  #         }
+
+  #         goal_struct_list = [goal | goal_struct_list]
+  #         goal_locs = List.delete_at(goal_locs, 0)
+  #         make_goal_struct_list(goal_locs, robota, robotb, goal_struct_list)
+  #       else
+  #         {goal_struct_list}
+  #       end
+  #       {goal_struct_list}
+  #   end
+  #   def calculate_dist(x1, y1, x2, y2) do
+  #     # IO.inspect({x1,y1,x2,y2})
+  #     y_map_atom_to_int = %{:a => 1, :b => 2, :c => 3, :d => 4, :e => 5, f: 6}
+  #     y1 = y_map_atom_to_int[y1]
+  #     y2 = y_map_atom_to_int[y2]
+  #     abs(x2 - x1)*abs(x2 - x1)  + abs(y2 - y1)*abs(y2 - y1)
+  #   end
+
+
   # def make_goal_cell_list(goal_struct_list, goall_cell_list) do
   #   goall_cell_list =
   #   if Enum.empty?(goal_struct_list) == false do
@@ -261,10 +305,7 @@ defmodule Task4CPhoenixServerWeb.ArenaLive do
   #   end
   ################################################################################################################################
   ################################################################################################################################
-  # defmodule GoalStruct do
-  #   @derive Jason.Encoder
-  #   defstruct x: 1, y: :a, visited: false, distance_from_a: 0, distance_from_b: 0
-  # end
+
   # def goal_distribution(goal_locs,robot_a_start,robot_b_start,robot_a_goal_list,robot_b_goal_list,goal_struct_list) do
   #     {robot_a_goal_list,robot_b_goal_list} =
   #       divide_goals(goal_locs,robot_a_start,robot_b_start,robot_a_goal_list,robot_b_goal_list,goal_struct_list)
@@ -531,7 +572,7 @@ defmodule Task4CPhoenixServerWeb.ArenaLive do
   end
   def make_goal_loc do
     csv =
-      "~/Desktop/Functional-Weeder/task_4c_communication_two_robots/task_4c_phoenix_server/Plant_Positions.csv"
+      "~/Desktop/Functional-Weeder/Task_5_communication/task_4c_phoenix_server/Plant_Positions.csv"
       |> Path.expand(__DIR__)
       |> File.stream!()
       |> CSV.decode(headers: true)
@@ -543,17 +584,18 @@ defmodule Task4CPhoenixServerWeb.ArenaLive do
     weeding_goals = []
     goal_cell_list_a = []
     goal_cell_list_b = []
-    {seeding_goals,weeding_goals,goal_cell_list_a, goal_cell_list_b} = make_list(csv,seeding_goals,weeding_goals,goal_cell_list_a,goal_cell_list_b)
+    {weeding_goals,seeding_goals,goal_cell_list_a, goal_cell_list_b} = make_list(csv,seeding_goals,weeding_goals,goal_cell_list_a,goal_cell_list_b)
     # IO.inspect(goal_locs)
   end
   def make_list(csv,seeding_goals, weeding_goals,goal_cell_list_a, goal_cell_list_b) do
-    {seeding_goals,weeding_goals,goal_cell_list_a,goal_cell_list_b} =
+    {weeding_goals,seeding_goals,goal_cell_list_a,goal_cell_list_b} =
     if(Enum.empty?(csv)) do
-      {seeding_goals,weeding_goals,goal_cell_list_a,goal_cell_list_b}
+      {weeding_goals,seeding_goals,goal_cell_list_a,goal_cell_list_b}
     else
       map = Kernel.elem(Enum.at(csv,0),1)
       n1 = Map.get(map,"Sowing")
       n2 = Map.get(map,"Weeding")
+      # IO.inspect({n1,n2})
       # list_of_goals = list_of_goals ++ get_goal(n1)
       # list_of_goals = list_of_goals ++ [List.to_tuple(get_goal(n1))]
       goal_cell_list_a = goal_cell_list_a ++ [n2]
@@ -569,7 +611,7 @@ defmodule Task4CPhoenixServerWeb.ArenaLive do
       csv = List.delete_at(csv,0)
       make_list(csv,seeding_goals,weeding_goals,goal_cell_list_a,goal_cell_list_b)
     end
-    {seeding_goals,weeding_goals,goal_cell_list_a,goal_cell_list_b}
+    {weeding_goals,seeding_goals,goal_cell_list_a,goal_cell_list_b}
   end
   def get_goal(n) do
     map = %{1 =>"a", 2 => "b", 3 => "c", 4 => "d", 5 => "e" , 6 => "f"}

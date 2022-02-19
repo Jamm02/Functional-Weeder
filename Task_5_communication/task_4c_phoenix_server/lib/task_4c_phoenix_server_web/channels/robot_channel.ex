@@ -47,21 +47,22 @@ defmodule Task4CPhoenixServerWeb.RobotChannel do
   If an obstacle is present ahead of the robot, then broadcast the pixel location of the obstacle to be displayed on the Dashboard.
   """
   def handle_in("new_msg", message, socket) do
+    data = message["value"]
     is_obs_ahead =
       Task4CPhoenixServerWeb.FindObstaclePresence.is_obstacle_ahead?(
-        message["x"],
-        message["y"],
-        message["face"]
+        data["x"],
+        data["y"],
+        data["face"]
       )
     {:ok, out_file} = File.open("task_4c_output.txt", [:append])
     IO.binwrite(
       out_file,
-      "#{message["client"]} => #{message["x"]}, #{message["y"]}, #{message["face"]}\n"
+      "#{data["client"]} => #{data["x"]}, #{data["y"]}, #{data["face"]}\n"
     )
     if message["client"] == "robot_A" do
-      Task4CPhoenixServerWeb.Endpoint.broadcast("robot:get_position", "update_data", {:robot_a_curr_pos,message})
+      Task4CPhoenixServerWeb.Endpoint.broadcast("robot:get_position", "update_data", {:robot_a_curr_pos,data})
     else
-      Task4CPhoenixServerWeb.Endpoint.broadcast("robot:get_position", "update_data", {:robot_b_curr_pos,message})
+      Task4CPhoenixServerWeb.Endpoint.broadcast("robot:get_position", "update_data", {:robot_b_curr_pos,data})
     end
     map_left_value_to_x = %{1 => 0, 2 => 150, 3 => 300, 4 => 450, 5 => 600, 6 => 750}
     map_bottom_value_to_y = %{
@@ -72,14 +73,14 @@ defmodule Task4CPhoenixServerWeb.RobotChannel do
       "e" => 600,
       "f" => 750
     }
-    left_value = Map.get(map_left_value_to_x, message["x"])
-    bottom_value = Map.get(map_bottom_value_to_y, message["y"])
+    left_value = Map.get(map_left_value_to_x, data["x"])
+    bottom_value = Map.get(map_bottom_value_to_y, data["y"])
     data = %{
-      "obs" => is_obs_ahead,
+      "obs" => message["obstacle_prescence"],
       "client" => message["client"],
       "left" => left_value,
       "bottom" => bottom_value,
-      "face" => message["face"]
+      "face" => data["face"]
     }
     Phoenix.PubSub.broadcast(Task4CPhoenixServer.PubSub, "robot:update", data)
     # Task4CPhoenixServerWeb.Endpoint.broadcast("robot:update","", data)
@@ -98,6 +99,16 @@ defmodule Task4CPhoenixServerWeb.RobotChannel do
 
     {:reply, {:ok, position}, socket}
   end
+
+
+  # def handle_in("obstacle_present", message, socket) do
+  #   position = "ok"
+  #   data = message["value"]
+  #   {:reply, {:ok, position}, socket}
+  # end
+
+
+
   def handle_in("give_roba_pos", _message, socket) do
     position =
     if socket.assigns.robot_a_stop and socket.assigns.robot_b_stop do
@@ -157,6 +168,18 @@ defmodule Task4CPhoenixServerWeb.RobotChannel do
 
     {:reply, {:ok, position}, socket}
   end
+  def handle_in("give_goal_loc_a_cell", _message, socket) do
+    # wait_for_arena_live(message)
+    # socket = assign(socket, :robota_start_pos,message)
+    position =
+      if Map.has_key?(socket.assigns, :roba_goal_locs) == false do
+        position = "goal pos not recived"
+      else
+        position = socket.assigns.roba_goal_locs_cell
+      end
+
+    {:reply, {:ok, position}, socket}
+  end
   def handle_in("give_goal_loc_b", _message, socket) do
     # wait_for_arena_live(message)
     # socket = assign(socket, :robota_start_pos,message)
@@ -169,13 +192,27 @@ defmodule Task4CPhoenixServerWeb.RobotChannel do
 
     {:reply, {:ok, position}, socket}
   end
+  def handle_in("give_goal_loc_b_cell", _message, socket) do
+    # wait_for_arena_live(message)
+    # socket = assign(socket, :robota_start_pos,message)
+    position =
+      if Map.has_key?(socket.assigns, :robb_goal_locs) == false do
+        position = "goal pos not recived"
+      else
+        position = socket.assigns.robb_goal_locs_cell
+      end
+
+    {:reply, {:ok, position}, socket}
+  end
 
   # callback invoked when start positions are broadcasted from the areana live module
   def handle_info(%{event: "startPos", payload: data}, socket) do
     socket = assign(socket, :robota_start_pos, data["robotA_start"])
     socket = assign(socket, :robotb_start_pos, data["robotB_start"])
     socket = assign(socket, :roba_goal_locs, data["goal_locs_a"])
+    socket = assign(socket, :roba_goal_locs_cell, data["goal_locs_a_cell"])
     socket = assign(socket, :robb_goal_locs, data["goal_locs_b"])
+    socket = assign(socket, :robb_goal_locs_cell, data["goal_locs_b_cell"])
     socket = assign(socket, :goal_locs_unparsed, data["goal_locs_unparsed"])
     socket = assign(socket, :robot_a_stop, false)
     socket = assign(socket, :robot_b_stop, false)

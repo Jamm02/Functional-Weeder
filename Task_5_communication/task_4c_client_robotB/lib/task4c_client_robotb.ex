@@ -69,7 +69,8 @@ defmodule Task4CClientRobotB do
     start(x,y,facing)
     robot_start = %Task4CClientRobotB.Position{x: x, y: y, facing: facing}
     {:ok,goal_locs} = get_goal_locs(channel_startPos)
-    # IO.inspect(goal_locs)
+    {:ok,goal_locs_cell} = get_goal_locs_cell(channel_startPos)
+    # IO.inspect(goal_locs_cell)
     # IO.inspect(goal_locs)
     # IO.inspect(robot_start)
     goal_locs = Enum.reverse(goal_locs)
@@ -77,6 +78,50 @@ defmodule Task4CClientRobotB do
     Process.sleep(5000)
     broadcast_stop(channel_startPos)
     rob = get_correct_robot_position(channel_startPos)
+  end
+  def get_goal(n) do
+    map = %{1 =>"a", 2 => "b", 3 => "c", 4 => "d", 5 => "e" , 6 => "f"}
+    n = String.to_integer(n)
+    list =
+    cond do
+      n>= 1 and n<=5 ->
+        x1 =to_string(n)
+        # x2 =to_string(n+1)
+        y1 =map[1]
+        # y2 = map[2]
+        #IO.puts "#{x1},#{x2},#{y1},#{y2}"
+        # lst = [x1,y1,x1,y2,x2,y1,x2,y2]
+        lst = [x1,y1]
+      n>=6 and n<=10 ->
+        x1 =to_string(n-5)
+        # x2 =to_string(n-5+1)
+        y1 =map[2]
+        # y2 = map[3]
+        # lst = [x1,y1,x1,y2,x2,y1,x2,y2]
+        lst = [x1,y1]
+      n>=11 and n<=15 ->
+        x1 =to_string(n-10)
+        # x2 =to_string(n-10+1)
+        y1 =map[3]
+        # y2 = map[4]
+        # lst = [x1,y1,x1,y2,x2,y1,x2,y2]
+        lst = [x1,y1]
+      n>=16 and n<=20 ->
+        x1 =to_string(n-15)
+        # x2 =to_string(n-15+1)
+        y1 =map[4]
+        # y2 = map[5]
+        lst = [x1,y1]
+        # lst = [x1,y1,x1,y2,x2,y1,x2,y2]
+      n>=21 and n<=25 ->
+        x1 =to_string(n-20)
+        # x2 =to_string(n-20+1)
+        y1 = map[5]
+        # y2 = map[6]
+        # lst = [x1,y1,x1,y2,x2,y1,x2,y2]
+        lst = [x1,y1]
+    end
+    list
   end
   def broadcast_stop(channel_position) do
     {:ok,reply} = PhoenixClient.Channel.push(channel_position,"stop_b","nil")
@@ -97,6 +142,18 @@ defmodule Task4CClientRobotB do
   #fucntion to get the goal location from the csv file in the server
   def get_goal_locs(channel) do
     {:ok, goal_locs} = PhoenixClient.Channel.push(channel, "give_goal_loc_b", "nil")
+    goal_locs =
+    if goal_locs == "goal pos not recived" do
+      # Process.sleep(3000)
+      {:ok, goal_locs} = get_goal_locs(channel)
+      goal_locs
+    else
+      goal_locs
+    end
+    {:ok,goal_locs}
+  end
+  def get_goal_locs_cell(channel) do
+    {:ok, goal_locs} = PhoenixClient.Channel.push(channel, "give_goal_loc_b_cell", "nil")
     goal_locs =
     if goal_locs == "goal pos not recived" do
       # Process.sleep(3000)
@@ -661,7 +718,7 @@ end
   end
   def go_to_goal(%Task4CClientRobotB.Position{x: x, y: y, facing: facing} = robot, goal_x, goal_y, channel_status, channel_position) do
 
-    if (y == goal_y) and (x == goal_x) do
+    if (y == goal_y) and (x == goal_x) do##############################################
       is_obs = Task4CClientRobotB.PhoenixSocketClient.send_robot_status(channel_status, channel_position,robot)
       # IO.puts("go to goal b")
       # IO.inspect(robot)
