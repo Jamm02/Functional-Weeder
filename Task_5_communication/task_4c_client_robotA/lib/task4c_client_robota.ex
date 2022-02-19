@@ -1328,22 +1328,21 @@ defmodule Task4CClientRobotA do
         # IO.inspect({goal_x, goal_y})
         # IO.inspect({"robot_before",robot})
         robot_old = go_to_goal(robot, goal_x, goal_y, channel_status, channel_position, goal_list)
-        # IO.inspect({"robot_after",robot})
+        #########################################################################################################
+        ################## write code to update the seeding done event after seeding is done #####################
+        #########################################################################################################
         robot_corr = get_correct_robot_position(channel_position)
         goal_locs = List.delete_at(goal_locs, 0)
         goalss = List.delete_at(goalss,0)
-
         robot = %Task4CClientRobotA.Position{
           x: robot_corr["x"],
           y: String.to_atom(robot_corr["y"]),
           facing: String.to_atom(robot_corr["face"])
         }
-
         stop(robot, goal_locs, channel_status, channel_position, goalss)
       else
         goal_locs
       end
-
     goal_locs
   end
 

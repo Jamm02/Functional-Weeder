@@ -1199,7 +1199,6 @@ defmodule Task4CClientRobotB do
           y: String.to_atom(robot_corr["y"]),
           facing: String.to_atom(robot_corr["face"])
         }
-
         goal_locs = List.delete_at(goal_locs, 0)
         goalssssss = List.delete_at(goalssssss,0)
         stop(robot, goal_locs, channel_status, channel_position,goalssssss)

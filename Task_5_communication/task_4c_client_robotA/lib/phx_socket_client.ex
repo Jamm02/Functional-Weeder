@@ -49,7 +49,7 @@ defmodule Task4CClientRobotA.PhoenixSocketClient do
     # message = %{"x"=> x, "y"=> y_s, "face"=> facing_s}
     # message = %{"client"=> "robot_A", "x"=> x, "y"=> y_s, "face"=> facing_s}
     message = %{"event_id" => 1, "sender" => "A", "value" => %{ "x": x, "y": y_s, "face": facing_s},"client": "robot_A","obstacle_prescence": false}
-    IO.inspect(message["value"])
+    # IO.inspect(message["value"])
     # IO.inspect(message)
     {:ok, is_obs_ahead} = PhoenixClient.Channel.push(channel_status, "new_msg", message)
     # IO.inspect(is_obs_ahead)
