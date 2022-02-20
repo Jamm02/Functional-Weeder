@@ -503,6 +503,7 @@ defmodule LineFollower do
   #OBSTACLE AVOIDANCE AHEAD
 
   def goal do
+    #######################################################################
     goal_list = [[1, :b], [3, :c], [4, :c]]
     i = Enum.count(goal_list)
 
@@ -514,7 +515,6 @@ defmodule LineFollower do
 
   def go_goal(goal_list, i, counter) do
     if(counter <= i) do
-
       go_to_goal(%CLI.Position{}, Enum.at(Enum.at(goal_list, counter), 0), Enum.at(Enum.at(goal_list, counter), 1))
       counter = counter + 1
       go_goal(goal_list, i, counter)
@@ -668,7 +668,6 @@ defmodule LineFollower do
   end
 
   def check_for_obs(robot) do
-
     IO.inspect(robot)
     ir_ref = Enum.map(@ir_pins, fn {_atom, pin_no} -> GPIO.open(pin_no, :input, pull_mode: :pullup) end)
     ir_values = Enum.map(ir_ref,fn {_, ref_no} -> GPIO.read(ref_no) end)
@@ -678,7 +677,6 @@ defmodule LineFollower do
     else
       true
     end
-
   end
 
   def correct_X(%CLI.Position{x: x, y: y, facing: facing} = robot, goal_x, goal_y) do
@@ -1238,7 +1236,6 @@ end
   """
   def move(%CLI.Position{x: _, y: y, facing: :north} = robot) when y < @table_top_y do
     follow_line()
-
     %CLI.Position{robot | y: Enum.find(@robot_map_y_atom_to_num, fn {_, val} -> val == Map.get(@robot_map_y_atom_to_num, y) + 1 end) |> elem(0)}
   end
 

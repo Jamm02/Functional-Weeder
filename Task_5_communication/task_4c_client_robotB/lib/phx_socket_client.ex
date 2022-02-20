@@ -43,7 +43,7 @@ defmodule Task4CClientRobotB.PhoenixSocketClient do
   in this format: {:ok, < true OR false >}.
   Create a tuple of this format: '{:obstacle_presence, < true or false >}' as a return of this function.
   """
-  def send_robot_status(channel_status, channel_position, %Task4CClientRobotB.Position{x: x, y: y, facing: facing} = _robot) do
+  def send_robot_status(channel_status, channel_position, %Task4CClientRobotB.Position{x: x, y: y, facing: facing} = robot) do
     y_s = Atom.to_string(y)
     facing_s = Atom.to_string(facing)
     # message = %{"x"=> x, "y"=> y_s, "face"=> facing_s}
@@ -51,6 +51,7 @@ defmodule Task4CClientRobotB.PhoenixSocketClient do
     ##########################################################################################################3
     ############################### write code to check the obstacle prescence using ir sensors ###############
     ##########################################################################################################
+    # is_obs_ahead = check_for_obs(robot)
     #if obstacle present then call send_obstacle_prescence function to update obstacles on server.
     message = %{"event_id" => 1, "sender" => "B", "value" => %{ "x": x, "y": y_s, "face": facing_s},"client": "robot_B","obstacle_prescence": false}
     IO.inspect(message["value"])
@@ -66,5 +67,15 @@ defmodule Task4CClientRobotB.PhoenixSocketClient do
   ######################################################
   ## You may create extra helper functions as needed. ##
   ######################################################
-
+  def check_for_obs(robot) do
+    IO.inspect(robot)
+    ir_ref = Enum.map(@ir_pins, fn {_atom, pin_no} -> GPIO.open(pin_no, :input, pull_mode: :pullup) end)
+    ir_values = Enum.map(ir_ref,fn {_, ref_no} -> GPIO.read(ref_no) end)
+    bool =
+    if(ir_values == [1, 1]) do
+      false
+    else
+      true
+    end
+  end
 end

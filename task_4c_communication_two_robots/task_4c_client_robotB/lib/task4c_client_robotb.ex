@@ -638,6 +638,7 @@ end
     goal_locs =
       if Enum.empty?(goal_locs) == false do
         goal1 = Enum.at(goal_locs,0)
+        IO.inspect(goal1)
         goal_x = goal1["x"]
         goal_y = String.to_atom(goal1["y"])
         # IO.inspect({goal_x, goal_y})

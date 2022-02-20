@@ -1,6 +1,8 @@
 defmodule Task4CClientRobotA.PhoenixSocketClient do
 
   alias PhoenixClient.{Socket, Channel, Message}
+  use Bitwise
+  alias Circuits.GPIO
 
   @doc """
   Connect to the Phoenix Server URL (defined in config.exs) via socket.
@@ -16,6 +18,7 @@ defmodule Task4CClientRobotA.PhoenixSocketClient do
 
   You may refer: https://github.com/mobileoverlord/phoenix_client/issues/29#issuecomment-660518498
   """
+  @ir_pins [dr: 16, dl: 19]
   def connect_server do
     socket_opts = [url: Application.get_env(:task_4c_client_robota, :phoenix_server_url)]
     {:ok, socket} = PhoenixClient.Socket.start_link(socket_opts)

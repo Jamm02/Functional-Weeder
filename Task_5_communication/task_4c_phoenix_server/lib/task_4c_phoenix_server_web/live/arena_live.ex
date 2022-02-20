@@ -178,7 +178,7 @@ defmodule Task4CPhoenixServerWeb.ArenaLive do
     defstruct x: 1, y: :a, facing: :north
   end
   def handle_event("start_clock", data, socket) do
-    # IO.inspect(data)
+    IO.inspect(data)
     socket = assign(socket, :robotA_start, data["robotA_start"])
     socket = assign(socket, :robotB_start, data["robotB_start"])
     # Task4CPhoenixServerWeb.Endpoint.broadcast("timer:start", "start_timer", %{})

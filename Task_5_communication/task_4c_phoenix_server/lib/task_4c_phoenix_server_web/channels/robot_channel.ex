@@ -106,9 +106,6 @@ defmodule Task4CPhoenixServerWeb.RobotChannel do
   #   data = message["value"]
   #   {:reply, {:ok, position}, socket}
   # end
-
-
-
   def handle_in("give_roba_pos", _message, socket) do
     position =
     if socket.assigns.robot_a_stop and socket.assigns.robot_b_stop do
@@ -141,6 +138,24 @@ defmodule Task4CPhoenixServerWeb.RobotChannel do
     position = "stoped"
     Task4CPhoenixServerWeb.Endpoint.broadcast("robot:get_position", "update_data", {:robot_b_stop,true})
     {:reply, {:ok, position}, socket}
+  end
+
+  def handle_in("update_dispenser_status", message, socket) do
+    if message == "left" do
+      left_dispenser_seeds = socket.assigns.left_disp_seeds - 1
+      Task4CPhoenixServerWeb.Endpoint.broadcast("robot:get_position", "update_data", {:left_disp_seeds,left_dispenser_seeds})
+    else
+      right_dispenser_seeds = socket.assigns.right_disp_seeds - 1
+      Task4CPhoenixServerWeb.Endpoint.broadcast("robot:get_position", "update_data", {:right_disp_seeds,right_dispenser_seeds})
+    end
+    {:reply, {:ok, "nil"}, socket}
+  end
+
+  def handle_in("give_dispenser_status", _message, socket) do
+    status_left_disp = socket.assigns.left_disp_seeds
+    status_right_disp = socket.assigns.right_disp_seeds
+    status = %{"left" => status_left_disp, "right" => status_right_disp}
+    {:reply, {:ok, status}, socket}
   end
 
   def handle_in("give_start_posb", _message, socket) do
@@ -216,6 +231,8 @@ defmodule Task4CPhoenixServerWeb.RobotChannel do
     socket = assign(socket, :goal_locs_unparsed, data["goal_locs_unparsed"])
     socket = assign(socket, :robot_a_stop, false)
     socket = assign(socket, :robot_b_stop, false)
+    socket = assign(socket, :left_disp_seeds,3)
+    socket = assign(socket, :right_disp_seeds,3)
     # socket with the robot:position
     # IO.inspect(socket)
     {:noreply, socket}

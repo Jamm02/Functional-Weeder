@@ -12,15 +12,6 @@ defmodule Task4CClientRobotA do
     @derive Jason.Encoder
     defstruct value: -1, index: -1
   end
-
-  @left_seeding_1 60
-  @left_seeding_2 120
-  @left_seeding_3 180
-
-  @right_seeding_1 60
-  @right_seeding_2 120
-  @right_seeding_3 180
-
   @sensor_pins [cs: 5, clock: 25, address: 24, dataout: 23]
   @ir_pins [dr: 16, dl: 19]
   @motor_pins [lf: 12, lb: 13, rf: 20, rb: 21]
@@ -42,8 +33,8 @@ defmodule Task4CClientRobotA do
   @duty_cycles_left [150, 0]
   @pwm_frequency 50
 
-  @left_const 90
-  @right_const 90
+  @left_const 70
+  @right_const 70
 
   @only_right [0, 0, 1, 0]
   @only_left [0, 1, 0, 0]
@@ -444,6 +435,7 @@ defmodule Task4CClientRobotA do
   You may create extra helper functions as needed.
   """
   def main do
+    initialize_servo()
     {:ok, _response, channel_status, channel_position} =
       Task4CClientRobotA.PhoenixSocketClient.connect_server()
 
@@ -462,11 +454,8 @@ defmodule Task4CClientRobotA do
     # IO.inspect(goalssssss)
     # IO.inspect(goal_locs)
     # goal_locs = Enum.reverse(goal_locs)
-    # goalssssss = Enum.reverse(goalssssss)
+    # goalssssss = Enu.reverse(goalssssss)
     goal_locs = stop(robot_start, goal_locs, channel_status, channel_position, goalssssss)
-    ############################################################################################
-    ################################ write code to updte server about weeding ##################
-    ############################################################################################
     Process.sleep(5000)
     broadcast_stop(channel_position)
     rob = get_correct_robot_position(channel_position)
@@ -1710,8 +1699,8 @@ defmodule Task4CClientRobotA do
         goal_y = String.to_atom(Enum.at(goal1, 1))
         # IO.inspect({goal_x, goal_y})
         IO.inspect({"robot_before",robot})
-        robot_old = go_to_goal(robot, goal_x, goal_y, channel_status, channel_position, goal_list)
-        # align()
+        # robot_old = go_to_goal(robot, goal_x, goal_y, channel_status, channel_position, goal_list)
+        robot_final_test = line_follow_and_communication_test(robot,goal_x,goal_y,channel_status,channel_position)
         robot_corr = get_correct_robot_position(channel_position)
         #########################################################################################################
         ################## write code to update the seeding done event after seeding is done ####################
@@ -1728,27 +1717,100 @@ defmodule Task4CClientRobotA do
           y: String.to_atom(robot_corr["y"]),
           facing: String.to_atom(robot_corr["face"])
         }
-        stop(robot, goal_locs, channel_status, channel_position, goalss)
+        # stop(robot, goal_locs, channel_status, channel_position, goalss)
       else
         goal_locs
       end
     goal_locs
   end
+  def test_servo_a(angle) do
+    Logger.debug("Testing Servo A")
+    val = trunc(((2.5 + 10.0 * angle / 180) / 100 ) * 255)
+    Pigpiox.Pwm.set_pwm_frequency(@servo_a_pin, @pwm_frequency)
+    Pigpiox.Pwm.gpio_pwm(@servo_a_pin, val)
+  end
+
+  def test_servo_b(angle) do
+    Logger.debug("Testing Servo B")
+    val = trunc(((2.5 + 10.0 * angle / 180) / 100 ) * 255)
+    Pigpiox.Pwm.set_pwm_frequency(@servo_b_pin, @pwm_frequency)
+    Pigpiox.Pwm.gpio_pwm(@servo_b_pin, val)
+  end
+  def line_follow_and_communication_test(robot,goal_x,goal_y,channel_status,channel_position) do
+    robot = move(robot)
+    is_obs =
+      Task4CClientRobotA.PhoenixSocketClient.send_robot_status(
+        channel_status,
+        channel_position,
+        robot
+      )
+    robot = move(robot)
+    is_obs =
+      Task4CClientRobotA.PhoenixSocketClient.send_robot_status(
+        channel_status,
+        channel_position,
+        robot
+      )
+    # robot = right(robot)
+    # is_obs =
+    #   Task4CClientRobotA.PhoenixSocketClient.send_robot_status(
+    #     channel_status,
+    #     channel_position,
+    #     robot
+    #   )
+    # robot = move(robot)
+    # is_obs =
+    #   Task4CClientRobotA.PhoenixSocketClient.send_robot_status(
+    #     channel_status,
+    #     channel_position,
+    #     robot
+    #   )
+    # robot = left(robot)
+    # is_obs =
+    #   Task4CClientRobotA.PhoenixSocketClient.send_robot_status(
+    #     channel_status,
+    #     channel_position,
+    #     robot
+    #   )
+    robot
+
+  end
   def update_seeding_status(side,channel_position) do
     {:ok,data} = PhoenixClient.Channel.push(channel_position, "update_dispenser_status" , side)
   end
   def get_dispenser_status(channel_position) do
-    {ok,{left,right}} = PhoenixClient.Channel.push(channel_position,"give_dispenser_status","nil")
-    {left,right}
+    {ok,map} = PhoenixClient.Channel.push(channel_position,"give_dispenser_status","nil")
+    {map["left"],map["right"]}
   end
   def align(channel_position) do
-    do_seeding("left",channel_position)
     do_seeding("left",channel_position)
     do_seeding("right",channel_position)
   end
   def do_seeding(side,channel_position) do
     #write the code to rotate the servo and perform seeding
-    update_seeding_status(side,channel_position)
+    if(side == "left") do
+      test_servo_a(60)
+      update_seeding_status(side,channel_position)
+    else
+      test_servo_b(60)
+      update_seeding_status(side,channel_position)
+    end
+  end
+  def test_servo_a(angle) do
+    Logger.debug("Testing Servo A")
+    val = trunc(((2.5 + 10.0 * angle / 180) / 100 ) * 255)
+    Pigpiox.Pwm.set_pwm_frequency(@servo_a_pin, @pwm_frequency)
+    Pigpiox.Pwm.gpio_pwm(@servo_a_pin, val)
+  end
+  def initialize_servo do
+    test_servo_a(0)
+    test_servo_b(0)
+  end
+  def test_servo_b(angle) do
+    Logger.debug("Testing Servo B")
+    val = trunc(((2.5 + 10.0 * angle / 180) / 100 ) * 255)
+    Pigpiox.Pwm.set_pwm_frequency(@servo_b_pin, @pwm_frequency)
+    Pigpiox.Pwm.gpio_pwm(@servo_b_pin, val)
   end
   def get_correct_robot_position(channel_position) do
     {:ok, robot_position} = PhoenixClient.Channel.push(channel_position, "give_roba_pos", "nil")
@@ -1815,9 +1877,9 @@ defmodule Task4CClientRobotA do
   Moves the robot to the east, but prevents it to fall
   """
   def move(%Task4CClientRobotA.Position{x: x, y: _, facing: :east} = robot)
-      when x < @table_top_x do
-    %Task4CClientRobotA.Position{robot | x: x + 1}
+    when x < @table_top_x do
     follow_line()
+    %Task4CClientRobotA.Position{robot | x: x + 1}
   end
 
   @doc """
