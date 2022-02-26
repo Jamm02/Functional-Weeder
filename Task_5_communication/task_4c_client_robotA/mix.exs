@@ -21,7 +21,7 @@ defmodule Task4CClientRobotA.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:circuits_gpio, "~> 0.4"}, {:pigpiox, "~> 0.1.2"},
+      # {:circuits_gpio, "~> 0.4"}, {:pigpiox, "~> 0.1.2"},
       {:ex_doc, only: :dev, runtime: false},
       {:phoenix_client, "~> 0.3"},
       {:jason, "~> 1.1"}

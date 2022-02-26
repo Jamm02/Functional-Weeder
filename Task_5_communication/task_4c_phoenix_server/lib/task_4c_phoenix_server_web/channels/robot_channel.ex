@@ -75,14 +75,14 @@ defmodule Task4CPhoenixServerWeb.RobotChannel do
     }
     left_value = Map.get(map_left_value_to_x, data["x"])
     bottom_value = Map.get(map_bottom_value_to_y, data["y"])
-    data = %{
-      "obs" => message["obstacle_prescence"],
+    dataa = %{
+      "obs" => data["obstacle_prescence"],
       "client" => message["client"],
       "left" => left_value,
       "bottom" => bottom_value,
       "face" => data["face"]
     }
-    Phoenix.PubSub.broadcast(Task4CPhoenixServer.PubSub, "robot:update", data)
+    Phoenix.PubSub.broadcast(Task4CPhoenixServer.PubSub, "robot:update", dataa)
     # Task4CPhoenixServerWeb.Endpoint.broadcast("robot:update","", data)
     {:reply, {:ok, is_obs_ahead}, socket}
   end

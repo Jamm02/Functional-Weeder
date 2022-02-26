@@ -1193,6 +1193,7 @@ defmodule Task4CClientRobotB do
         robot_old = go_to_goal(robot, goal_x, goal_y, channel_status, channel_position,goal_list)
         # IO.inspect(robot)
         robot_corr = get_correct_robot_position(channel_position)
+        # align()
         # IO.inspect(robot_corr)
         robot = %Task4CClientRobotB.Position{
           x: robot_corr["x"],

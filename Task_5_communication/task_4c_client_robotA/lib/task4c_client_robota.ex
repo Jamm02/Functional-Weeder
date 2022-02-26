@@ -1738,8 +1738,8 @@ defmodule Task4CClientRobotA do
     {:ok,data} = PhoenixClient.Channel.push(channel_position, "update_dispenser_status" , side)
   end
   def get_dispenser_status(channel_position) do
-    {ok,{left,right}} = PhoenixClient.Channel.push(channel_position,"give_dispenser_status","nil")
-    {left,right}
+    {ok,map} = PhoenixClient.Channel.push(channel_position,"give_dispenser_status","nil")
+    {map["left"],map["right"]}
   end
   def align(channel_position) do
     do_seeding("left",channel_position)
@@ -1773,11 +1773,11 @@ defmodule Task4CClientRobotA do
   Rotates the robot to the right
   """
   def right(%Task4CClientRobotA.Position{facing: facing} = robot) do
-    stop()
-    Process.sleep(1000)
-    motor_ref = Enum.map(@motor_pins, fn {_atom, pin_no} -> GPIO.open(pin_no, :output) end)
-    motor_action(motor_ref, @only_right)
-    Enum.map(@duty_cycles, fn value -> motion_pwm(value) end)
+    # stop()
+    # Process.sleep(1000)
+    # motor_ref = Enum.map(@motor_pins, fn {_atom, pin_no} -> GPIO.open(pin_no, :output) end)
+    # motor_action(motor_ref, @only_right)
+    # Enum.map(@duty_cycles, fn value -> motion_pwm(value) end)
     %Task4CClientRobotA.Position{robot | facing: @directions_to_the_right[facing]}
   end
 
@@ -1786,11 +1786,11 @@ defmodule Task4CClientRobotA do
   Rotates the robot to the left
   """
   def left(%Task4CClientRobotA.Position{facing: facing} = robot) do
-    stop()
-    Process.sleep(1000)
-    motor_ref = Enum.map(@motor_pins, fn {_atom, pin_no} -> GPIO.open(pin_no, :output) end)
-    motor_action(motor_ref, @only_left)
-    Enum.map(@duty_cycles_left, fn value -> motion_pwm_left(value) end)
+    # stop()
+    # Process.sleep(1000)
+    # motor_ref = Enum.map(@motor_pins, fn {_atom, pin_no} -> GPIO.open(pin_no, :output) end)
+    # motor_action(motor_ref, @only_left)
+    # Enum.map(@duty_cycles_left, fn value -> motion_pwm_left(value) end)
     %Task4CClientRobotA.Position{robot | facing: @directions_to_the_left[facing]}
   end
 
@@ -1807,7 +1807,7 @@ defmodule Task4CClientRobotA do
           end)
           |> elem(0)
     }
-    follow_line()
+    # follow_line()
     %Task4CClientRobotA.Position{robot | y: Enum.find(@robot_map_y_atom_to_num, fn {_, val} -> val == Map.get(@robot_map_y_atom_to_num, y) + 1 end) |> elem(0)}
   end
 
@@ -1817,7 +1817,7 @@ defmodule Task4CClientRobotA do
   def move(%Task4CClientRobotA.Position{x: x, y: _, facing: :east} = robot)
       when x < @table_top_x do
     %Task4CClientRobotA.Position{robot | x: x + 1}
-    follow_line()
+    # follow_line()
   end
 
   @doc """
@@ -1832,7 +1832,7 @@ defmodule Task4CClientRobotA do
           end)
           |> elem(0)
     }
-    follow_line()
+    # follow_line()
     %Task4CClientRobotA.Position{robot | y: Enum.find(@robot_map_y_atom_to_num, fn {_, val} -> val == Map.get(@robot_map_y_atom_to_num, y) - 1 end) |> elem(0)}
   end
 
@@ -1840,7 +1840,7 @@ defmodule Task4CClientRobotA do
   Moves the robot to the west, but prevents it to fall
   """
   def move(%Task4CClientRobotA.Position{x: x, y: _, facing: :west} = robot) when x > 1 do
-    follow_line()
+    # follow_line()
     %Task4CClientRobotA.Position{robot | x: x - 1}
   end
 

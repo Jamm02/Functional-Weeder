@@ -181,7 +181,7 @@ defmodule Task4CPhoenixServerWeb.ArenaLive do
     IO.inspect(data)
     socket = assign(socket, :robotA_start, data["robotA_start"])
     socket = assign(socket, :robotB_start, data["robotB_start"])
-    # Task4CPhoenixServerWeb.Endpoint.broadcast("timer:start", "start_timer", %{})
+    Task4CPhoenixServerWeb.Endpoint.broadcast("timer:start", "start_timer", %{})
     new = String.replace(data["robotA_start"], " ", "")
     str = String.split(new, ",")
     {x_a, ""} = Integer.parse(Enum.at(str, 0))
@@ -202,6 +202,7 @@ defmodule Task4CPhoenixServerWeb.ArenaLive do
     robot_b_goal_list = []
     # goal_struct_list = []
     {robot_b_goal_list,robot_a_goal_list,goal_cell_list_b,goal_cell_list_a} = make_goal_loc()
+    # {robot_a_goal_list,robot_b_goal_list,goal_cell_list_a,goal_cell_list_b} = make_goal_loc()
     # robot_a_goal_list_sorted = sort_seeding_and_weedign_list(robot_a_start,robot_b_start,robot_a_goal_list)
     # {robot_a_goal_list,robot_b_goal_list,goal_locs} =
     #   goal_distribution(goal_locs,robot_a_start,robot_b_start,robot_a_goal_list,robot_b_goal_list,goal_struct_list)
