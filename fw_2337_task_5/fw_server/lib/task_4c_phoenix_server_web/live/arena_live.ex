@@ -29,6 +29,8 @@ defmodule Task4CPhoenixServerWeb.ArenaLive do
     socket = assign(socket, :robotB_goals, [])
 
     socket = assign(socket, :obstacle_pos, MapSet.new())
+    socket = assign(socket, :seeding_locations, MapSet.new())
+    socket = assign(socket, :weeding_locations, MapSet.new())
     socket = assign(socket, :timer_tick, 180)
     # socket = assign(socket,:tunign_params,"")
     {:ok,socket}
@@ -89,7 +91,15 @@ defmodule Task4CPhoenixServerWeb.ArenaLive do
           </div>
 
           <%= for obs <- @obstacle_pos do %>
-            <img  class="obstacles"  src="/images/stone.png" width="50px" style={"bottom: #{elem(obs,1)}px; left: #{elem(obs,0)}px"}>
+            <img  class="obstacles"  src="/images/rocks.png" width="70px" style={"bottom: #{elem(obs,1)}px; left: #{elem(obs,0)}px"}>
+          <% end %>
+
+          <%= for seed <- @seeding_locations do %>
+            <img  class="obstacles"  src="/images/seeding_loc.png" width="50px" style={"bottom: #{elem(seed,1)}px; left: #{elem(seed,0)}px"}>
+          <% end %>
+
+          <%= for seed <- @weeding_locations do %>
+            <img  class="obstacles"  src="/images/weeding_4.png" width="50px" style={"bottom: #{elem(seed,1)}px; left: #{elem(seed,0)}px"}>
           <% end %>
 
           <div class="robot-container" style={"bottom: #{@bottom_robotA}px; left: #{@left_robotA}px"}>
@@ -178,10 +188,10 @@ defmodule Task4CPhoenixServerWeb.ArenaLive do
     defstruct x: 1, y: :a, facing: :north
   end
   def handle_event("start_clock", data, socket) do
-    IO.inspect(data)
+    # IO.inspect(data)
     socket = assign(socket, :robotA_start, data["robotA_start"])
     socket = assign(socket, :robotB_start, data["robotB_start"])
-    Task4CPhoenixServerWeb.Endpoint.broadcast("timer:start", "start_timer", %{})
+    # Task4CPhoenixServerWeb.Endpoint.broadcast("timer:start", "start_timer", %{})
     new = String.replace(data["robotA_start"], " ", "")
     str = String.split(new, ",")
     {x_a, ""} = Integer.parse(Enum.at(str, 0))
@@ -202,6 +212,8 @@ defmodule Task4CPhoenixServerWeb.ArenaLive do
     robot_b_goal_list = []
     # goal_struct_list = []
     {robot_b_goal_list,robot_a_goal_list,goal_cell_list_b,goal_cell_list_a} = make_goal_loc()
+    socket = initialize_seeding_on_arena(robot_a_goal_list,socket)
+    socket = initialize_weeding_on_arena(robot_b_goal_list,socket)
     # {robot_a_goal_list,robot_b_goal_list,goal_cell_list_a,goal_cell_list_b} = make_goal_loc()
     # robot_a_goal_list_sorted = sort_seeding_and_weedign_list(robot_a_start,robot_b_start,robot_a_goal_list)
     # {robot_a_goal_list,robot_b_goal_list,goal_locs} =
@@ -219,6 +231,53 @@ defmodule Task4CPhoenixServerWeb.ArenaLive do
     socket = assign(socket,:robotB_goals,goal_cell_list_b)
     # IO.inspect(goal_cell_list)
     {:noreply, socket}
+  end
+  def initialize_seeding_on_arena(list,socket) do
+    if Enum.empty?(list) == false do
+      x = String.to_integer(Enum.at(Enum.at(list,0),0))
+      y = Enum.at(Enum.at(list,0),1)
+      {x_cord,y_cord} = find_seeding_and_weedign_pixel_coordinates(x,y)
+      map_set_old = socket.assigns.seeding_locations
+      socket = assign(socket,:seeding_locations,MapSet.put(map_set_old,{x_cord,y_cord}))
+      list = List.delete_at(list,0)
+      socket = initialize_seeding_on_arena(list,socket)
+      socket
+    else
+      IO.inspect socket
+      socket
+    end
+  end
+  def initialize_weeding_on_arena(list,socket) do
+    if Enum.empty?(list) == false do
+      x = String.to_integer(Enum.at(Enum.at(list,0),0))
+      y = Enum.at(Enum.at(list,0),1)
+      {x_cord,y_cord} = find_seeding_and_weedign_pixel_coordinates(x,y)
+      map_set_old = socket.assigns.weeding_locations
+      socket = assign(socket,:weeding_locations,MapSet.put(map_set_old,{x_cord,y_cord}))
+      list = List.delete_at(list,0)
+      socket = initialize_weeding_on_arena(list,socket)
+      socket
+    else
+      IO.inspect socket
+      socket
+    end
+  end
+  def find_seeding_and_weedign_pixel_coordinates(x,y) do
+    map_left_value_to_x = %{1 => 0, 2 => 150, 3 => 300, 4 => 450, 5 => 600, 6 => 750}
+    map_bottom_value_to_y = %{
+      "a" => 0,
+      "b" => 150,
+      "c" => 300,
+      "d" => 450,
+      "e" => 600,
+      "f" => 750
+    }
+    left_value = Map.get(map_left_value_to_x,x)
+    bottom_value = Map.get(map_bottom_value_to_y,y)
+    # IO.inspect({left_value,bottom_value})
+    location_x_cord = left_value + 75
+    location_y_cord = bottom_value + 75
+    {location_x_cord,location_y_cord}
   end
   # defmodule GoalStruct do
   #   @derive Jason.Encoder

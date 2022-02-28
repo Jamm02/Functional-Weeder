@@ -76,7 +76,8 @@ defmodule Task4CPhoenixServerWeb.RobotChannel do
     left_value = Map.get(map_left_value_to_x, data["x"])
     bottom_value = Map.get(map_bottom_value_to_y, data["y"])
     dataa = %{
-      "obs" => data["obstacle_prescence"],
+      # "obs" => data["obstacle_prescence"],
+      "obs" => is_obs_ahead,
       "client" => message["client"],
       "left" => left_value,
       "bottom" => bottom_value,
