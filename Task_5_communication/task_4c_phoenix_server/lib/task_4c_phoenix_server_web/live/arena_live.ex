@@ -30,6 +30,8 @@ defmodule Task4CPhoenixServerWeb.ArenaLive do
 
     socket = assign(socket, :obstacle_pos, MapSet.new())
     socket = assign(socket, :timer_tick, 180)
+    socket = assign(socket, :seeding_locations, MapSet.new())
+    socket = assign(socket, :weeding_locations, MapSet.new())
     # socket = assign(socket,:tunign_params,"")
     {:ok,socket}
 
@@ -178,7 +180,7 @@ defmodule Task4CPhoenixServerWeb.ArenaLive do
     defstruct x: 1, y: :a, facing: :north
   end
   def handle_event("start_clock", data, socket) do
-    IO.inspect(data)
+    # IO.inspect(data)
     socket = assign(socket, :robotA_start, data["robotA_start"])
     socket = assign(socket, :robotB_start, data["robotB_start"])
     Task4CPhoenixServerWeb.Endpoint.broadcast("timer:start", "start_timer", %{})
@@ -194,7 +196,6 @@ defmodule Task4CPhoenixServerWeb.ArenaLive do
     facing_b = String.to_atom(Enum.at(str, 2))
     # IO.inspect(data)
     # goal_locs = make_goal_loc()
-
     robot_a_start = %Position{x: x_a, y: y_a, facing: facing_a}
     robot_b_start = %Position{x: x_b, y: y_b, facing: facing_b}
     # robot_b_start = %Position{x: 5, y: :e, facing: :south}
