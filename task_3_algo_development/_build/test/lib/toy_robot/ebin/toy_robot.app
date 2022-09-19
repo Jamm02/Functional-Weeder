@@ -1,0 +1,10 @@
+{application,toy_robot,
+             [{applications,[kernel,stdlib,elixir,logger]},
+              {description,"toy_robot"},
+              {modules,['Elixir.CLI','Elixir.CLI.Position',
+                        'Elixir.CLI.ToyRobotA',
+                        'Elixir.CLI.ToyRobotA.SortedListStruct',
+                        'Elixir.CLI.ToyRobotB',
+                        'Elixir.CLI.ToyRobotB.SortedListStruct']},
+              {registered,[]},
+              {vsn,"0.1.0"}]}.
